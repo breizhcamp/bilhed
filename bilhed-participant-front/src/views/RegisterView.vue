@@ -17,7 +17,7 @@
         </p>
 
         <p class="text-center">
-          Une seule participation par personne physique, si une tentative de contournement est détectée, les inscriptions seront sorties du tirage au sort.
+          Une seule participation par personne physique / téléphone, si une tentative de contournement est détectée, les inscriptions seront sorties du tirage au sort.
         </p>
 
         <p class="lead text-center fw-bold">
@@ -26,41 +26,50 @@
       </div>
     </div>
 
+	  <div v-if="error" class="row justify-content-center">
+		  <div class="col-md-8 alert alert-danger px-5 py-3 mb-5">
+		  <p class="lead text-center fw-bold mb-0">{{error}}</p>
+      </div>
+    </div>
 
-    <form>
+
+    <form @submit.prevent="save()">
 	    <div class="row justify-content-center">
-          <div class="col-md-6">
-            <div class="mb-3 row">
-              <label for="lastname" class="col-sm-3 col-form-label">Nom</label>
-              <div class="col-sm-9">
-                <input type="text" class="form-control" name="lastname" id="lastname" required>
-              </div>
+        <div class="col-md-6">
+          <div class="mb-3 row">
+            <label for="lastname" class="col-sm-3 col-form-label">Nom</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" name="lastname" id="lastname" required :disabled="loading" v-model="registered.lastname">
             </div>
-
-            <div class="mb-3 row">
-              <label for="firstname" class="col-sm-3 col-form-label">Prénom</label>
-              <div class="col-sm-9">
-                <input type="text" class="form-control" name="firstname" id="firstname" required>
-              </div>
-            </div>
+          </div>
 
           <div class="mb-3 row">
-            <label for="firstname" class="col-sm-3 col-form-label">E-Mail</label>
+            <label for="firstname" class="col-sm-3 col-form-label">Prénom</label>
             <div class="col-sm-9">
-              <input type="email" class="form-control" name="email" id="email" required>
+              <input type="text" class="form-control" name="firstname" id="firstname" required :disabled="loading" v-model="registered.firstname">
+            </div>
+          </div>
+
+          <div class="mb-3 row">
+            <label for="email" class="col-sm-3 col-form-label">E-Mail</label>
+            <div class="col-sm-9">
+              <input type="email" class="form-control" name="email" id="email" required :disabled="loading" v-model="registered.email">
             </div>
           </div>
 
           <div class="mb-4 row">
-            <label for="firstname" class="col-sm-3 col-form-label">Tel. mobile</label>
+            <label for="telephone" class="col-sm-3 col-form-label">Tel. mobile</label>
             <div class="col-sm-9">
-              <input type="tel" class="form-control" name="telephone" id="telephone" placeholder="ex: 061234567 / Numéro fr uniquement" required>
+              <input type="tel" class="form-control" name="telephone" id="telephone" placeholder="ex: 061234567 / Numéro fr uniquement" required :disabled="loading" v-model="registered.telephone">
             </div>
-    			  <div id="telephoneHelp" class="form-text text-end">Utilisé uniquement pour valider L'inscription et vous prévenir du tirage au sort.</div>
-		  </div>
+            <div id="telephoneHelp" class="form-text text-end">Utilisé uniquement pour valider l'inscription et vous prévenir du tirage au sort.</div>
+          </div>
 
           <div class="row text-center mb-3">
-            <button type="submit" class="btn btn-lg btn-primary">Participer au tirage au sort</button>
+            <button type="submit" class="btn btn-lg btn-primary" :disabled="loading">
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" v-if="loading"></span>
+                Participer au tirage au sort
+            </button>
           </div>
 
           <div class="row text-center">
@@ -72,5 +81,41 @@
 	</div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts">
+import { defineComponent } from 'vue'
+import axios from 'axios'
+
+class Registered {
+    lastname?: string
+    firstname?: string
+    email?: string
+    telephone?: string
+}
+
+export default defineComponent({
+    name: "RegisterView",
+
+    data() {
+        return {
+            loading: false,
+            registered: new Registered(),
+            error: ""
+        }
+    },
+
+    methods: {
+        save() {
+            this.loading = true
+            this.error = ""
+
+            axios.post('/register', this.registered).then(res => {
+                  if (res.data.error) this.error = res.data.error
+              }).catch(err => {
+                  this.error = "Une erreur est survenue, merci de réessayer dans quelques instants"
+              }).finally(() => this.loading = false)
+
+
+        }
+    }
+})
 </script>
