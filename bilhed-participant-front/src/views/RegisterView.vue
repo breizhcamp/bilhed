@@ -60,7 +60,9 @@
           <div class="mb-4 row">
             <label for="telephone" class="col-sm-3 col-form-label">Tel. mobile</label>
             <div class="col-sm-9">
-              <input type="tel" class="form-control" name="telephone" id="telephone" placeholder="ex: 061234567 / Numéro fr uniquement" required :disabled="loading" v-model="registered.telephone">
+              <input type="tel" class="form-control" name="telephone" id="telephone" placeholder="ex: 061234567 / Numéro fr uniquement"
+                     required minlength="10" maxlength="10"
+                     :disabled="loading" v-model="registered.telephone">
             </div>
             <div id="telephoneHelp" class="form-text text-end">Utilisé uniquement pour valider l'inscription et vous prévenir du tirage au sort.</div>
           </div>
