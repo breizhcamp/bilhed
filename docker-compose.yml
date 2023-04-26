@@ -1,12 +1,11 @@
 version: "3.9"
 services:
-  mariadb:
-    image: 'mariadb:10.5.10'
-    container_name: mariadb-bilhed
+  postgresql:
+    image: 'postgres:15.2'
+    container_name: bilhed-database
     environment:
-      - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_DATABASE=bilhed
-      - MYSQL_USER=bilhed
-      - MYSQL_PASSWORD=bilhed
+      - POSTGRES_DB=bilhed
+      - POSTGRES_USER=bilhed
+      - POSTGRES_PASSWORD=bilhed
     ports:
-      - '3306:3306'
+      - '5432:5432'

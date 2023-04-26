@@ -1,5 +1,5 @@
 spring.datasource:
-  url: jdbc:mariadb://localhost:3306/bilhed
+  url: jdbc:postgresql://localhost:5432/bilhed
   username: bilhed
   password: bilhed
 

@@ -21,13 +21,12 @@ class RegisterCtrl(
     fun register(@RequestBody req: RegisterReq): RegisterRes {
         return try {
             req.validate()
-            val id = UUID.randomUUID().toString()
-            registration.register(req.toRegistered(id))
-            RegisterRes(id)
+            val saved = registration.register(req.toRegistered())
+            RegisterRes(saved.id)
         } catch (e: IllegalArgumentException) {
             RegisterRes(error = e.message)
         }
     }
 
-    private fun RegisterReq.toRegistered(id: String) = Registered(id, lastname, firstname, email, telephone)
+    private fun RegisterReq.toRegistered(id: UUID = UUID.randomUUID()) = Registered(id, lastname, firstname, email, telephone)
 }

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+
+    <changeSet id="1" author="alex">
+        <createTable tableName="participant">
+            <column name="id" type="uuid"><constraints primaryKey="true" nullable="false"/></column>
+
+            <column name="status" type="text"><constraints nullable="false"/></column>
+
+            <column name="lastname" type="text"><constraints nullable="false"/></column>
+            <column name="firstname" type="text"><constraints nullable="false"/></column>
+            <column name="email" type="text"><constraints nullable="false"/></column>
+            <column name="telephone" type="text"><constraints nullable="false"/></column>
+
+            <column name="registration_date" type="timestamp with time zone"><constraints nullable="false"/></column>
+
+            <column name="registration_sms_status" type="text"><constraints nullable="false"/></column>
+            <column name="registration_nb_sms_sent" type="int"><constraints nullable="false"/></column>
+            <column name="registration_last_sms_sent_date" type="timestamp with time zone"/>
+            <column name="registration_token" type="text"><constraints nullable="false"/></column>
+        </createTable>
+
+        <createIndex tableName="participant" indexName="participant_status"><column name="status" /></createIndex>
+        <createIndex tableName="participant" indexName="participant_email"><column name="email" /></createIndex>
+        <createIndex tableName="participant" indexName="participant_telephone"><column name="telephone" /></createIndex>
+    </changeSet>
+
+
+</databaseChangeLog>

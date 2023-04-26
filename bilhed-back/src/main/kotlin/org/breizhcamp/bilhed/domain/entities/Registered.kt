@@ -1,21 +1,23 @@
 package org.breizhcamp.bilhed.domain.entities
 
-import java.time.Instant
+import java.time.ZonedDateTime
+import java.util.*
 
 /**
- *
+ * Person that will be participating in the lottery
  */
 data class Registered(
-    val id: String,
+    val id: UUID,
 
     val lastname: String,
     val firstname: String,
     val email: String,
     val telephone: String,
 
-    val registrationDate: Instant = Instant.now(),
+    val registrationDate: ZonedDateTime = ZonedDateTime.now(),
 
     val smsStatus: SmsStatus = SmsStatus.NOT_SENT,
     val nbSmsSent: Int = 0,
-    val lastSmsSentDate: Instant? = null,
+    val lastSmsSentDate: ZonedDateTime? = null,
+    val token: String? = null,
 )
