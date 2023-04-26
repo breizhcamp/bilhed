@@ -15,7 +15,7 @@ data class ParticipantDB(
     val id: UUID,
 
     @Enumerated(EnumType.STRING)
-    val status: ParticipantDBStatus,
+    var status: ParticipantDBStatus,
 
     val lastname: String,
     val firstname: String,
@@ -23,6 +23,7 @@ data class ParticipantDB(
     val telephone: String,
 
     val registrationDate: ZonedDateTime,
+    var participationDate: ZonedDateTime? = null,
 
     @Enumerated(EnumType.STRING)
     val registrationSmsStatus: SmsStatus,

@@ -9,6 +9,8 @@ import org.breizhcamp.bilhed.domain.use_cases.ports.SmsPort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.ZonedDateTime
+import java.util.*
+import kotlin.text.Typography.registered
 
 private val logger = KotlinLogging.logger {}
 
@@ -37,6 +39,19 @@ class Registration(
         return registered
     }
 
+    fun get(id: UUID): Registered = registeredPort.get(id)
+
+    @Transactional
+    fun validateToken(id: UUID, code: String) {
+        if (!code.matches("^[0-9]{6}\$".toRegex())) throw IllegalArgumentException("Le code saisi est invalide")
+        val registered = get(id)
+        if (code != registered.token) throw IllegalArgumentException("Le code saisi est invalide")
+
+        registeredPort.levelUpToParticipant(id)
+
+        logger.info { "Validated [${registered.lastname} ${registered.firstname}] as a participant" }
+    }
+
     private fun sendSms(registered: Registered): Registered {
         val res = registered.copy(
             smsStatus = SmsStatus.SENDING,
@@ -48,6 +63,5 @@ class Registration(
         smsPort.sendRegistered(res)
         return res
     }
-
     private fun genSmsToken(): String = RandomStringUtils.randomNumeric(6)
 }

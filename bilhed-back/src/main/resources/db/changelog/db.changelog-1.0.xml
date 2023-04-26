@@ -20,6 +20,7 @@
             <column name="telephone" type="text"><constraints nullable="false"/></column>
 
             <column name="registration_date" type="timestamp with time zone"><constraints nullable="false"/></column>
+            <column name="participation_date" type="timestamp with time zone"/>
 
             <column name="registration_sms_status" type="text"><constraints nullable="false"/></column>
             <column name="registration_nb_sms_sent" type="int"><constraints nullable="false"/></column>

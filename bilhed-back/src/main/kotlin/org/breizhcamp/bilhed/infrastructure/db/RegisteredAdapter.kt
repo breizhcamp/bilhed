@@ -1,11 +1,15 @@
 package org.breizhcamp.bilhed.infrastructure.db
 
+import jakarta.persistence.EntityNotFoundException
 import org.breizhcamp.bilhed.domain.entities.Registered
 import org.breizhcamp.bilhed.domain.use_cases.ports.RegisteredPort
 import org.breizhcamp.bilhed.infrastructure.db.model.ParticipantDB
 import org.breizhcamp.bilhed.infrastructure.db.model.ParticipantDBStatus.*
 import org.breizhcamp.bilhed.infrastructure.db.repos.ParticipantRepo
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import java.time.ZonedDateTime
+import java.util.*
 
 @Service
 class RegisteredAdapter(
@@ -18,6 +22,17 @@ class RegisteredAdapter(
 
     override fun save(registered: Registered) {
         participantRepo.save(registered.toDB())
+    }
+
+    override fun get(id: UUID): Registered {
+        return participantRepo.findByIdOrNull(id)?.toModel() ?: throw EntityNotFoundException()
+    }
+
+    override fun levelUpToParticipant(id: UUID) {
+        participantRepo.findByIdOrNull(id)?.apply {
+            status = PARTICIPANT
+            participationDate = ZonedDateTime.now()
+        }
     }
 
 
@@ -35,4 +50,6 @@ class RegisteredAdapter(
         registrationToken = token
     )
 
+    fun ParticipantDB.toModel() = Registered(id, lastname, firstname, email, telephone, registrationDate,
+        registrationSmsStatus, registrationNbSmsSent, registrationLastSmsSentDate, registrationToken)
 }

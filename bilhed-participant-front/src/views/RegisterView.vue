@@ -1,6 +1,6 @@
 <template>
 	<div>
-	  <div class="row justify-content-center">
+    <div class="row justify-content-center">
       <div class="col-md-8 bg-light rounded-3 px-5 py-3 mb-5">
         <p class="lead text-center fw-bold mb-0">
           Inscription à la loterie du BreizhCamp 2023
@@ -26,15 +26,15 @@
       </div>
     </div>
 
-	  <div v-if="error" class="row justify-content-center">
-		  <div class="col-md-8 alert alert-danger px-5 py-3 mb-5">
-		  <p class="lead text-center fw-bold mb-0">{{error}}</p>
+    <div v-if="error" class="row justify-content-center">
+      <div class="col-md-8 alert alert-danger px-5 py-3 mb-5">
+        <p class="lead text-center fw-bold mb-0">{{error}}</p>
       </div>
     </div>
 
 
     <form @submit.prevent="save()">
-	    <div class="row justify-content-center">
+      <div class="row justify-content-center">
         <div class="col-md-6">
           <div class="mb-3 row">
             <label for="lastname" class="col-sm-3 col-form-label">Nom</label>
@@ -84,40 +84,36 @@
 </template>
 
 <script lang="ts">
+import { Registered } from '@/dto/Registered';
 import { defineComponent } from 'vue'
 import axios from 'axios'
 
-class Registered {
-    lastname?: string
-    firstname?: string
-    email?: string
-    telephone?: string
-}
-
 export default defineComponent({
-    name: "RegisterView",
+  name: "RegisterView",
 
-    data() {
-        return {
-            loading: false,
-            registered: new Registered(),
-            error: ""
-        }
-    },
-
-    methods: {
-        save() {
-            this.loading = true
-            this.error = ""
-
-            axios.post('/register', this.registered).then(res => {
-                  if (res.data.error) this.error = res.data.error
-              }).catch(err => {
-                  this.error = "Une erreur est survenue, merci de réessayer dans quelques instants"
-              }).finally(() => this.loading = false)
-
-
-        }
+  data() {
+    return {
+      loading: false,
+      registered: new Registered(),
+      error: ""
     }
+  },
+
+  methods: {
+    save() {
+      this.loading = true
+      this.error = ""
+
+      axios.post('/register', this.registered).then(res => {
+        if (res.data.error) this.error = res.data.error
+        this.$router.push('/' + res.data.id)
+
+      }).catch(() => {
+        this.error = "Une erreur est survenue, merci de réessayer dans quelques instants"
+      }).finally(() => this.loading = false)
+
+
+    }
+  }
 })
 </script>
