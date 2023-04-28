@@ -1,6 +1,13 @@
-spring.datasource:
-  url: jdbc:postgresql://localhost:5432/bilhed
-  username: bilhed
-  password: bilhed
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/bilhed
+    username: bilhed
+    password: bilhed
+
+  rabbitmq:
+    host: "localhost"
+    port: 5672
+    username: "bilhed"
+    password: "bilhed"
 
 server.port: 4006

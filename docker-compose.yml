@@ -9,3 +9,13 @@ services:
       - POSTGRES_PASSWORD=bilhed
     ports:
       - '5432:5432'
+
+  rabbitmq:
+    image: 'rabbitmq:3.11-management'
+    container_name: bilhed-rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=bilhed
+      - RABBITMQ_DEFAULT_PASS=bilhed
+    ports:
+      - '5672:5672'
+      - '15672:15672'
