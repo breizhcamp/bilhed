@@ -105,14 +105,16 @@ export default defineComponent({
       this.error = ""
 
       axios.post('/register', this.registered).then(res => {
-        if (res.data.error) this.error = res.data.error
         this.$router.push('/' + res.data.id)
+      }).catch(this.displayError).finally(() => this.loading = false)
+    },
 
-      }).catch(() => {
+    displayError(err: any) {
+      if (err.data && err.data.error) {
+        this.error = err.data.error
+      } else {
         this.error = "Une erreur est survenue, merci de réessayer dans quelques instants"
-      }).finally(() => this.loading = false)
-
-
+      }
     }
   }
 })

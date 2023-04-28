@@ -7,9 +7,11 @@ interface RegisteredPort {
 
     fun existsEmailOrPhone(email: String, phone: String): Boolean
 
-    fun save(registered: Registered)
-    fun get(id: UUID): Registered
+    fun existPhone(phone: String): Boolean
 
+    fun save(registered: Registered)
+
+    fun get(id: UUID): Registered
     /** Confirmed the registered to be a participant to the lottery */
     fun levelUpToParticipant(id: UUID)
 

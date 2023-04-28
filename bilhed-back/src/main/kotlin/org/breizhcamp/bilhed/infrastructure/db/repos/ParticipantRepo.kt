@@ -9,5 +9,6 @@ import java.util.UUID
 interface ParticipantRepo: JpaRepository<ParticipantDB, UUID> {
 
     fun countByEmailOrTelephone(email: String, telephone: String): Int
+    fun countByTelephone(phone: String): Int
 
 }

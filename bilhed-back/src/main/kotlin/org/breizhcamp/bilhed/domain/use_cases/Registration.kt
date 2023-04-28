@@ -41,6 +41,20 @@ class Registration(
 
     fun get(id: UUID): Registered = registeredPort.get(id)
 
+    fun changePhoneNumber(id: UUID, phone: String) {
+        val registered = get(id)
+
+        if (registeredPort.existPhone(phone)) {
+            logger.warn { "Trying to change phone number of registered [$id][${registered.lastname} ${registered.firstname}] to [$phone] but this phone number is already used" }
+            throw IllegalArgumentException("Une inscription avec cet email ou ce téléphone existe déjà.")
+        }
+
+        logger.info { "Changing phone number of registered [${registered.lastname} ${registered.firstname}] to [$phone]" }
+
+        val regSms = sendSms(registered.copy(telephone = phone))
+        registeredPort.save(regSms)
+    }
+
     @Transactional
     fun validateToken(id: UUID, code: String) {
         if (!code.matches("^[0-9]{6}\$".toRegex())) throw IllegalArgumentException("Le code saisi est invalide")
@@ -51,8 +65,12 @@ class Registration(
 
         logger.info { "Validated [${registered.lastname} ${registered.firstname}] as a participant" }
     }
-
     private fun sendSms(registered: Registered): Registered {
+        if (registered.nbSmsSent >= 3) {
+            logger.warn { "Trying to send sms to registered [${registered.lastname} ${registered.firstname}] but already sent 3 times" }
+            throw IllegalArgumentException("Vous avez déjà demandé 3 fois un code par SMS. Veuillez contacter l'organisation.")
+        }
+
         val res = registered.copy(
             smsStatus = SmsStatus.SENDING,
             nbSmsSent = registered.nbSmsSent + 1,

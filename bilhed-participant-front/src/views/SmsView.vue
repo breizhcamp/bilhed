@@ -59,28 +59,39 @@
           </div>
 
           <div class="row text-center">
-            <button class="btn btn-link btn-sm">Une erreur dans le numéro de téléphone ? Cliquez ici pour le modifier</button>
+            <button type="button" class="btn btn-link btn-sm" @click="openChangePhoneModal()">Une erreur dans le numéro de téléphone ? Cliquez ici pour le modifier</button>
           </div>
         </div>
       </div>
     </form>
+
+    <ModalForm v-model:open="changePhoneModal" :loading="loading" title="Modifier mon numéro de téléphone" @save="changePhone()">
+      <div class="mb-3">
+        <label for="telephone" class="form-label">Numéro de téléphone</label>
+        <input type="tel" class="form-control" name="telephone" id="telephone" required minlength="10" maxlength="10" v-model="registered.telephone">
+      </div>
+    </ModalForm>
+
   </div>
 </template>
 
 <script lang="ts">
+import ModalForm from '@/components/ModalForm.vue';
 import { Registered } from '@/dto/Registered';
 import axios from 'axios'
 import { defineComponent } from 'vue'
 
 export default defineComponent({
   name: "SmsView",
+  components: {ModalForm},
 
   data() {
     return {
       loading: false,
       registered: new Registered(),
       code: "",
-      error: ""
+      error: "",
+      changePhoneModal: false,
     }
   },
 
@@ -97,23 +108,42 @@ export default defineComponent({
       this.error = ""
 
       axios.get('/register/' + this.id).then(res => {
-        if (res.data.error) this.error = res.data.error
         this.registered = res.data
-      })
-        .catch(() => this.error = "Une erreur est survenue, merci de réessayer dans quelques instants")
+      }).catch(this.displayError)
     },
 
     save() {
       this.loading = true
       this.error = ""
 
-      axios.post('/register/' + this.id, { code: this.code }).then(res => {
-        if (res.data.error) this.error = res.data.error
+      axios.post('/register/' + this.id, { code: this.code }).then(() => {
         this.$router.push('/confirmed')
-      }).catch(() => {
-        this.error = "Une erreur est survenue, merci de réessayer dans quelques instants"
-      }).finally(() => this.loading = false)
+      }).catch(this.displayError).finally(() => this.loading = false)
 
+    },
+
+    openChangePhoneModal() {
+      this.changePhoneModal = true
+    },
+
+    changePhone() {
+      this.loading = true
+      this.error = ""
+
+      axios.put('/register/' + this.id + '/phone', {phone: this.registered.telephone }).catch(this.displayError)
+        .finally(() => {
+          this.changePhoneModal = false
+          this.loading = false
+        })
+    },
+
+    displayError(err: any) {
+      console.log(err)
+      if (err.response.data && err.response.data.error) {
+        this.error = err.response.data.error
+      } else {
+        this.error = "Une erreur est survenue, merci de réessayer dans quelques instants"
+      }
     }
   }
 })

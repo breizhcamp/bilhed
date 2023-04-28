@@ -20,6 +20,10 @@ class RegisteredAdapter(
         return participantRepo.countByEmailOrTelephone(email, phone) > 0
     }
 
+    override fun existPhone(phone: String): Boolean {
+        return participantRepo.countByTelephone(phone) > 0
+    }
+
     override fun save(registered: Registered) {
         participantRepo.save(registered.toDB())
     }
