@@ -81,6 +81,9 @@ class Registration(
             token = registered.token ?: genSmsToken()
         )
 
+        // add some delay to avoid sms flood
+        Thread.sleep(1000)
+
         smsPort.sendRegistered(res)
         return res
     }
