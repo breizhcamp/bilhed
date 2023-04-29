@@ -51,6 +51,13 @@
             </div>
           </div>
 
+          <div class="row text-center mb-4 justify-content-center" v-if="displayResendSms">
+            <button type="button" class="col-sm-10 btn btn-info" :disabled="resendLoading" @click="resendSMS()">
+              <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" v-if="resendLoading"></span>
+              SMS non reçu ? Renvoyer un SMS (3 max)
+            </button>
+          </div>
+
           <div class="row text-center mb-2">
             <button type="submit" class="btn btn-lg btn-primary" :disabled="loading">
               <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" v-if="loading"></span>
@@ -88,6 +95,8 @@ export default defineComponent({
   data() {
     return {
       loading: false,
+      resendLoading: false,
+      displayResendSms: false,
       registered: new Registered(),
       code: "",
       error: "",
@@ -109,6 +118,7 @@ export default defineComponent({
 
       axios.get('/register/' + this.id).then(res => {
         this.registered = res.data
+        setTimeout(() => this.displayResendSms = true, 30000)
       }).catch(this.displayError)
     },
 
@@ -135,6 +145,19 @@ export default defineComponent({
           this.changePhoneModal = false
           this.loading = false
         })
+    },
+
+    resendSMS() {
+      this.resendLoading = true
+      this.error = ""
+
+      axios.post('/register/' + this.id + '/resend-sms')
+        .then(() => {
+          this.displayResendSms = false
+          setTimeout(() => this.displayResendSms = true, 30000)
+        })
+        .catch(this.displayError)
+        .finally(() => this.resendLoading = false)
     },
 
     displayError(err: any) {

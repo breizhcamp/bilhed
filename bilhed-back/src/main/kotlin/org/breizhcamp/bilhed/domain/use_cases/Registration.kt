@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.ZonedDateTime
 import java.util.*
-import kotlin.text.Typography.registered
 
 private val logger = KotlinLogging.logger {}
 
@@ -53,6 +52,10 @@ class Registration(
 
         val regSms = sendSms(registered.copy(telephone = phone))
         registeredPort.save(regSms)
+    }
+
+    fun resendSms(id: UUID) {
+        registeredPort.save(sendSms(get(id)))
     }
 
     @Transactional

@@ -37,6 +37,11 @@ class RegisterCtrl(
         registration.changePhoneNumber(id, req.phone)
     }
 
+    @PostMapping("/{id}/resend-sms") @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun resendSMS(@PathVariable id: UUID) {
+        registration.resendSms(id)
+    }
+
     private fun RegisterReq.toRegistered(id: UUID = UUID.randomUUID()) = Registered(id, lastname, firstname, email, telephone)
 
     @ExceptionHandler(EntityNotFoundException::class) @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
