@@ -1,0 +1,9 @@
+spring:
+
+  rabbitmq:
+    host: "localhost"
+    port: 5672
+    username: "bilhed"
+    password: "bilhed"
+
+server.port: 4007
