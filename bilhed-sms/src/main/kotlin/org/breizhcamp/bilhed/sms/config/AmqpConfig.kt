@@ -22,22 +22,32 @@ class AmqpConfig {
     private val instanceId = UUID.randomUUID().toString().substring(0, 8)
     private val connectionNumber = AtomicInteger(0)
 
+    /* *****   SMS RECEIVED FROM BACKEND   ***** */
     @Bean
-    fun smsQueue(): Queue = QueueBuilder.durable("sms-send-queue").build()
-
-    @Bean
-    fun smsEx(): DirectExchange = ExchangeBuilder
-        .directExchange("sms-send")
-        .durable(true)
+    fun smsQueue(): Queue = QueueBuilder.durable("sms-send-queue")
+        .withArgument("x-dead-letter-exchange", "sms-send-error")
+        .withArgument("x-dead-letter-routing-key", "")
         .build()
 
     @Bean
-    fun smsBinding(): Binding = BindingBuilder
-        .bind(smsQueue())
-        .to(smsEx())
-        .with("")
+    fun smsEx(): DirectExchange = ExchangeBuilder.directExchange("sms-send").durable(true).build()
+
+    @Bean
+    fun smsBinding(): Binding = BindingBuilder.bind(smsQueue()).to(smsEx()).with("")
 
 
+    /* *****   SMS RECEIVED FROM BACKEND / DEAD LETTER EXCHANGE   ***** */
+    @Bean
+    fun smsErrorQueue(): Queue = QueueBuilder.durable("sms-send-error-queue").build()
+
+    @Bean
+    fun smsErrorEx(): DirectExchange = ExchangeBuilder.directExchange("sms-send-error").durable(true).build()
+
+    @Bean
+    fun smsErrorBinding(): Binding = BindingBuilder.bind(smsErrorQueue()).to(smsErrorEx()).with("")
+
+
+    /* *****   RABBITMQ CONFIG   ***** */
     @Bean
     fun jackson2JsonMessageConverter(objectMapper: ObjectMapper): MessageConverter = Jackson2JsonMessageConverter(objectMapper)
 
@@ -60,6 +70,7 @@ class AmqpConfig {
         factory.setPrefetchCount(10)
         factory.setConcurrentConsumers(1)
         factory.setMessageConverter(jackson2JsonMessageConverter)
+        factory.setDefaultRequeueRejected(false)
         return factory
     }
 }

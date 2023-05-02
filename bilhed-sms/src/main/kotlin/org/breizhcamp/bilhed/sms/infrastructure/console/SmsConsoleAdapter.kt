@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service
 private val logger = KotlinLogging.logger {}
 
 @Service
-@ConditionalOnProperty(prefix = "bilhed.sms", name = ["sendType"], value = ["CONSOLE"])
+@ConditionalOnProperty(prefix = "bilhed.sms", name = ["sendType"], havingValue = "CONSOLE")
 class SmsConsoleAdapter: SmsPort {
     override fun send(sms: Sms) {
         logger.info { "[CONSOLE] Sending SMS to [${sms.phone}] with message [${sms.message}]" }
