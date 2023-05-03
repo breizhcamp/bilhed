@@ -42,7 +42,7 @@ class RegisterCtrl(
         registration.resendSms(id)
     }
 
-    private fun RegisterReq.toRegistered(id: UUID = UUID.randomUUID()) = Registered(id, lastname, firstname, email, telephone)
+    private fun RegisterReq.toRegistered(id: UUID = UUID.randomUUID()) = Registered(id, lastname, firstname, email, internationalPhone())
 
     @ExceptionHandler(EntityNotFoundException::class) @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     fun handleENFE(e: EntityNotFoundException) = ErrorRes("Une erreur est survenue")

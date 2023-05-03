@@ -26,7 +26,7 @@
   <div class="modal-backdrop show" v-if="open"></div>
 </template>
 
-<script>
+<script lang="ts">
 import {defineComponent} from 'vue'
 
 export default defineComponent({

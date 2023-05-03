@@ -15,4 +15,8 @@ data class RegisterReq(
         if (!email.matches("^[a-zA-Z0-9_!#\$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+\$".toRegex())) throw IllegalArgumentException("Email invalide")
         if (!telephone.matches("^0[6-7][0-9]{8}".toRegex())) throw IllegalArgumentException("Telephone invalide")
     }
+
+    fun internationalPhone(): String {
+        return if (telephone.startsWith("0")) "+33${telephone.substring(1)}" else telephone
+    }
 }
