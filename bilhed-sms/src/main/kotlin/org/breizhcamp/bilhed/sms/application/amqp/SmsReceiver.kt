@@ -22,4 +22,4 @@ class SmsReceiver(
 
 }
 
-private fun SmsFromBack.toSms() = Sms(phone, message)
+private fun SmsFromBack.toSms() = Sms(id, phone, message)

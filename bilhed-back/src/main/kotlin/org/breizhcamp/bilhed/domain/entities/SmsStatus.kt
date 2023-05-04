@@ -4,5 +4,5 @@ enum class SmsStatus {
     NOT_SENT,
     SENDING,
     SENT,
-    CONFIRMED,
+    ERROR,
 }

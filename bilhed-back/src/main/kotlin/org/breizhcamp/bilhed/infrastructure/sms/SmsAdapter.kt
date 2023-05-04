@@ -18,6 +18,7 @@ class SmsAdapter(
                 "[${registered.telephone}] with token [${registered.token}]" }
 
         rabbitTemplate.convertAndSend("sms-send", "", Sms(
+            id = registered.id,
             phone = registered.telephone,
             message = "Votre code pour l'inscription à la loterie du BreizhCamp est ${registered.token}"
         ))

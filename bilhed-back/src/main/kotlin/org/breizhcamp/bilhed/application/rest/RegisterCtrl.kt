@@ -1,7 +1,7 @@
-package org.breizhcamp.bilhed.application.rest.controllers
+package org.breizhcamp.bilhed.application.rest
 
 import jakarta.persistence.EntityNotFoundException
-import org.breizhcamp.bilhed.application.rest.dto.*
+import org.breizhcamp.bilhed.application.dto.*
 import org.breizhcamp.bilhed.domain.entities.Registered
 import org.breizhcamp.bilhed.domain.use_cases.Registration
 import org.springframework.http.HttpStatus

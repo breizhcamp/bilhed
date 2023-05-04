@@ -1,4 +1,4 @@
-package org.breizhcamp.bilhed.application.rest.dto
+package org.breizhcamp.bilhed.application.dto
 
 import java.util.*
 

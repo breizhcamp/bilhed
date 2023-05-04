@@ -33,5 +33,11 @@
         <createIndex tableName="participant" indexName="participant_telephone"><column name="telephone" /></createIndex>
     </changeSet>
 
+    <changeSet id="2" author="alex">
+        <addColumn tableName="participant">
+            <column name="registration_sms_error" type="text"/>
+        </addColumn>
+    </changeSet>
+
 
 </databaseChangeLog>

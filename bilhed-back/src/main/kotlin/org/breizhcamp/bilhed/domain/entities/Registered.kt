@@ -19,5 +19,6 @@ data class Registered(
     val smsStatus: SmsStatus = SmsStatus.NOT_SENT,
     val nbSmsSent: Int = 0,
     val lastSmsSentDate: ZonedDateTime? = null,
+    val smsError: String? = null,
     val token: String? = null,
 )

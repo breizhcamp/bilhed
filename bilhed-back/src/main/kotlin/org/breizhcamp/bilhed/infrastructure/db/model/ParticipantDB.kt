@@ -29,6 +29,7 @@ data class ParticipantDB(
     val registrationSmsStatus: SmsStatus,
     val registrationNbSmsSent: Int,
     val registrationLastSmsSentDate: ZonedDateTime?,
+    val registrationSmsError: String? = null,
     val registrationToken: String?,
 )
 

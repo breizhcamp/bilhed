@@ -1,14 +1,11 @@
 package org.breizhcamp.bilhed.domain.use_cases
 
 import mu.KotlinLogging
-import org.apache.commons.lang3.RandomStringUtils
 import org.breizhcamp.bilhed.domain.entities.Registered
 import org.breizhcamp.bilhed.domain.entities.SmsStatus
 import org.breizhcamp.bilhed.domain.use_cases.ports.RegisteredPort
-import org.breizhcamp.bilhed.domain.use_cases.ports.SmsPort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.ZonedDateTime
 import java.util.*
 
 private val logger = KotlinLogging.logger {}
@@ -19,7 +16,7 @@ private val logger = KotlinLogging.logger {}
 @Service
 class Registration(
     private val registeredPort: RegisteredPort,
-    private val smsPort: SmsPort,
+    private val smsSend: SendSms,
 ) {
 
     @Transactional
@@ -30,7 +27,7 @@ class Registration(
 
         logger.info { "Creating new registered [${registered.lastname} ${registered.firstname}] with email [${registered.email}]" }
 
-        val regSms = sendSms(registered)
+        val regSms = smsSend.sendSms(registered)
         registeredPort.save(regSms)
 
         logger.info { "New registered [${registered.lastname} ${registered.firstname}] created" }
@@ -40,6 +37,7 @@ class Registration(
 
     fun get(id: UUID): Registered = registeredPort.get(id)
 
+    @Transactional
     fun changePhoneNumber(id: UUID, phone: String) {
         val registered = get(id)
 
@@ -50,12 +48,20 @@ class Registration(
 
         logger.info { "Changing phone number of registered [${registered.lastname} ${registered.firstname}] to [$phone]" }
 
-        val regSms = sendSms(registered.copy(telephone = phone))
+        val regSms = smsSend.sendSms(registered.copy(telephone = phone))
         registeredPort.save(regSms)
     }
 
+    @Transactional
     fun resendSms(id: UUID) {
-        registeredPort.save(sendSms(get(id)))
+        registeredPort.save(smsSend.sendSms(get(id)))
+    }
+
+    @Transactional
+    fun saveSmsStatus(id: UUID, error: String?) {
+        val registered = get(id)
+        val smsStatus = if (error == null) SmsStatus.SENT else SmsStatus.ERROR
+        registeredPort.save(registered.copy(smsStatus = smsStatus, smsError = error))
     }
 
     @Transactional
@@ -68,24 +74,4 @@ class Registration(
 
         logger.info { "Validated [${registered.lastname} ${registered.firstname}] as a participant" }
     }
-    private fun sendSms(registered: Registered): Registered {
-        if (registered.nbSmsSent >= 3) {
-            logger.warn { "Trying to send sms to registered [${registered.lastname} ${registered.firstname}] but already sent 3 times" }
-            throw IllegalArgumentException("Vous avez déjà demandé 3 fois un code par SMS. Veuillez contacter l'organisation.")
-        }
-
-        val res = registered.copy(
-            smsStatus = SmsStatus.SENDING,
-            nbSmsSent = registered.nbSmsSent + 1,
-            lastSmsSentDate = ZonedDateTime.now(),
-            token = registered.token ?: genSmsToken()
-        )
-
-        // add some delay to avoid sms flood
-        Thread.sleep(1000)
-
-        smsPort.sendRegistered(res)
-        return res
-    }
-    private fun genSmsToken(): String = RandomStringUtils.randomNumeric(6)
 }
