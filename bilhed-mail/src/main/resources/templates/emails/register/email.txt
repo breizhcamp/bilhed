@@ -1,0 +1,8 @@
+Bonjour [(${firstname})],
+
+Vous avez bien été enregistré pour le tirage au sort de la billetterie du BreizhCamp [(${year})].
+
+Vous recevrez un SMS et un email si vous êtes tiré au sort qui vous permettra de confirmer et d'acheter votre billet.
+
+Merci pour votre soutien !
+L'équipe du BreizhCamp

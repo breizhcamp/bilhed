@@ -19,3 +19,10 @@ services:
     ports:
       - '5672:5672'
       - '15672:15672'
+
+  mail:
+    image: 'maildev/maildev:latest'
+    container_name: bilhed-mail
+    ports:
+      - '1080:1080'
+      - '1025:1025'
