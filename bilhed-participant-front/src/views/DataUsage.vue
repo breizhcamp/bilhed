@@ -7,9 +7,9 @@
 
         <p>Elles seront partagées avec les prestataires suivants pour la seule finalité de la billetterie&nbsp;:</p>
         <ul>
-            <li><a href="https://www.ovhcloud.com/">OVHCloud</a> pour l'envoi des SMS</li>
-            <li><a href="https://mailchimp.com/">MailChimp</a> pour l'envoi des e-mails</li>
-            <li><a href="https://www.billetweb.fr/">BilletWeb</a> pour la gestion du paiement et de la billetterie (uniquement si tiré au sort)</li>
+            <li><a href="https://www.ovhcloud.com/">OVHCloud</a>🇫🇷🇪🇺 pour l'hébergement du service (serveur dédié)</li>
+            <li><a href="https://www.ovhcloud.com/">OVHCloud</a>🇫🇷🇪🇺 pour l'envoi des SMS</li>
+            <li><a href="https://www.billetweb.fr/">BilletWeb</a>🇫🇷🇪🇺 pour la gestion du paiement et de la billetterie (uniquement si tiré au sort)</li>
         </ul>
 
         <p>Les données seront supprimées à la fin du BreizhCamp de l'année en cours.</p>
