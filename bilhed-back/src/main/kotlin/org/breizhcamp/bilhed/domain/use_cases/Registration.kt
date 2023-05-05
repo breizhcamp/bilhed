@@ -1,8 +1,12 @@
 package org.breizhcamp.bilhed.domain.use_cases
 
 import mu.KotlinLogging
+import org.breizhcamp.bilhed.config.BilhedBackConfig
+import org.breizhcamp.bilhed.domain.entities.Mail
+import org.breizhcamp.bilhed.domain.entities.MailAddress
 import org.breizhcamp.bilhed.domain.entities.Registered
 import org.breizhcamp.bilhed.domain.entities.SmsStatus
+import org.breizhcamp.bilhed.domain.use_cases.ports.MailPort
 import org.breizhcamp.bilhed.domain.use_cases.ports.RegisteredPort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -15,7 +19,9 @@ private val logger = KotlinLogging.logger {}
  */
 @Service
 class Registration(
+    private val config: BilhedBackConfig,
     private val registeredPort: RegisteredPort,
+    private val mailPort: MailPort,
     private val smsSend: SendSms,
 ) {
 
@@ -72,6 +78,11 @@ class Registration(
 
         registeredPort.levelUpToParticipant(id)
 
+        val model = mapOf("firstname" to registered.firstname, "lastname" to registered.lastname, "year" to config.breizhCampYear.toString())
+        mailPort.send(Mail(registered.getMailAddress(), "register", model))
+
         logger.info { "Validated [${registered.lastname} ${registered.firstname}] as a participant" }
     }
+
+    fun Registered.getMailAddress() = listOf(MailAddress(email, "$firstname $lastname"))
 }

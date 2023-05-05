@@ -13,9 +13,9 @@ class MailSending(
 ) {
 
     fun send(mail: Mail) {
-        logger.info { "Sending mail to [${mail.to}] with subject [${mail.subject}]" }
+        logger.info { "Sending mail to [${mail.to}] with template [${mail.template}]" }
         emailSenderPort.send(mail)
-        logger.info { "Mail sent to [${mail.to}] with subject [${mail.subject}]" }
+        logger.info { "Mail sent to [${mail.to}] with template [${mail.template}]" }
     }
 
 }

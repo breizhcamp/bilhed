@@ -11,3 +11,6 @@ spring:
     password: "bilhed"
 
 server.port: 4006
+
+bilhed.back:
+  breizhCampYear: 2023
