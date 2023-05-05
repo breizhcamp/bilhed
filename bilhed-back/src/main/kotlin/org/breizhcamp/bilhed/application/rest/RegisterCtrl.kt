@@ -7,6 +7,7 @@ import org.breizhcamp.bilhed.domain.use_cases.Registration
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import java.util.*
+import kotlin.text.Typography.registered
 
 @RestController
 @RequestMapping("/api/register")
@@ -23,8 +24,7 @@ class RegisterCtrl(
 
     @GetMapping("/{id}")
     fun getRegisterState(@PathVariable id: UUID): RegisterStateRes {
-        val registered = registration.get(id)
-        return RegisterStateRes(registered.telephone, registered.nbSmsSent)
+        return registration.get(id).toStateRes()
     }
 
     @PostMapping("/{id}") @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -34,7 +34,7 @@ class RegisterCtrl(
 
     @PutMapping("/{id}/phone") @ResponseStatus(HttpStatus.NO_CONTENT)
     fun changePhoneNumber(@PathVariable id: UUID, @RequestBody req: ChangePhoneReq) {
-        registration.changePhoneNumber(id, req.phone)
+        registration.changePhoneNumber(id, req.internationalPhone())
     }
 
     @PostMapping("/{id}/resend-sms") @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -42,11 +42,12 @@ class RegisterCtrl(
         registration.resendSms(id)
     }
 
-    private fun RegisterReq.toRegistered(id: UUID = UUID.randomUUID()) = Registered(id, lastname, firstname, email, internationalPhone())
-
     @ExceptionHandler(EntityNotFoundException::class) @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     fun handleENFE(e: EntityNotFoundException) = ErrorRes("Une erreur est survenue")
 
     @ExceptionHandler(IllegalArgumentException::class) @ResponseStatus(HttpStatus.BAD_REQUEST)
     fun handleIAE(e: IllegalArgumentException) = ErrorRes(e.message ?: "Une erreur est survenue")
+
+    private fun RegisterReq.toRegistered(id: UUID = UUID.randomUUID()) = Registered(id, lastname, firstname, email, internationalPhone())
+    private fun Registered.toStateRes() = RegisterStateRes(localPhone(), nbSmsSent)
 }

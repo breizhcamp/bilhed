@@ -16,6 +16,11 @@ class SendSms(
 ) {
 
     fun sendSms(registered: Registered): Registered {
+        if (!registered.telephone.startsWith("+")) {
+            logger.warn { "Trying to send sms to [${registered.telephone}] / [${registered.lastname} ${registered.firstname}] but phone number is not international" }
+            throw IllegalArgumentException("Erreur interne, le téléphone n'est pas au format international")
+        }
+
         if (registered.nbSmsSent >= 3) {
             logger.warn { "Trying to send sms to registered [${registered.lastname} ${registered.firstname}] but already sent 3 times" }
             throw IllegalArgumentException("Vous avez déjà demandé 3 fois un code par SMS. Veuillez contacter l'organisation.")
