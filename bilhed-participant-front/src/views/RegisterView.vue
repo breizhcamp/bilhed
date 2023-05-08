@@ -17,7 +17,9 @@
         </p>
 
         <p class="text-center">
-          Une seule participation par personne physique / téléphone, si une tentative de contournement est détectée, les inscriptions seront sorties du tirage au sort.
+          Une seule participation par personne physique / téléphone,<br>
+          <strong>vous ne pourrez pas changer le nom du billet une fois validé.</strong><br>
+          Si une tentative de contournement est détectée, les inscriptions seront sorties du tirage au sort.
         </p>
 
         <p class="lead text-center fw-bold">
