@@ -31,6 +31,7 @@ data class ParticipantDB(
     val registrationLastSmsSentDate: ZonedDateTime?,
     val registrationSmsError: String? = null,
     val registrationToken: String?,
+    val registrationNbTokenTries: Int = 0,
 )
 
 enum class ParticipantDBStatus {

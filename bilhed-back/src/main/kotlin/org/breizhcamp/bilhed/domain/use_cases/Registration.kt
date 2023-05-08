@@ -70,11 +70,15 @@ class Registration(
         registeredPort.save(registered.copy(smsStatus = smsStatus, smsError = error))
     }
 
-    @Transactional
+    @Transactional(noRollbackFor = [IllegalArgumentException::class])
     fun validateToken(id: UUID, code: String) {
         if (!code.matches("^[0-9]{6}\$".toRegex())) throw IllegalArgumentException("Le code saisi est invalide")
         val registered = get(id)
-        if (code != registered.token) throw IllegalArgumentException("Le code saisi est invalide")
+        if (registered.nbTokenTries >= 3) throw IllegalArgumentException("Vous avez dépassé le nombre de tentatives autorisées, merci de nous contacter")
+        if (code != registered.token) {
+            registeredPort.save(registered.copy(nbTokenTries = registered.nbTokenTries + 1))
+            throw IllegalArgumentException("Le code saisi est invalide")
+        }
 
         registeredPort.levelUpToParticipant(id)
 

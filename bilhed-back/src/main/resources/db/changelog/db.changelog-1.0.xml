@@ -39,5 +39,11 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="3" author="alex">
+        <addColumn tableName="participant">
+            <column name="registration_nb_token_tries" type="int" defaultValueNumeric="0"><constraints nullable="false"/></column>
+        </addColumn>
+    </changeSet>
+
 
 </databaseChangeLog>

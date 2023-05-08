@@ -53,8 +53,10 @@ class RegisteredAdapter(
         registrationLastSmsSentDate = lastSmsSentDate,
         registrationSmsError = smsError,
         registrationToken = token,
+        registrationNbTokenTries = nbTokenTries,
     )
 
     fun ParticipantDB.toModel() = Registered(id, lastname, firstname, email, telephone, registrationDate,
-        registrationSmsStatus, registrationNbSmsSent, registrationLastSmsSentDate, registrationSmsError, registrationToken)
+        registrationSmsStatus, registrationNbSmsSent, registrationLastSmsSentDate, registrationSmsError, registrationToken,
+        registrationNbTokenTries)
 }

@@ -21,6 +21,7 @@ data class Registered(
     val lastSmsSentDate: ZonedDateTime? = null,
     val smsError: String? = null,
     val token: String? = null,
+    val nbTokenTries: Int = 0,
 ) {
     fun localPhone(): String {
         return if (telephone.startsWith("+33")) "0${telephone.substring(3)}" else telephone
