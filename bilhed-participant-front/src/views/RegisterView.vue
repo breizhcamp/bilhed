@@ -7,16 +7,16 @@
         </p>
         <p class="text-center small">Du 28 au 30 juin 2023</p>
 
-        <p class="text-center">
+        <p>
           Victime de notre succès, et étant limité par la place disponible, l'équipe du BreizhCamp à décidé de mettre en place
             un tirage au sort pour l'achat des places.
         </p>
 
-        <p class="text-center">
+        <p>
           Vous pouvez remplir ce formulaire pour participer au tirage au sort.
         </p>
 
-        <p class="text-center">
+        <p>
           Une seule participation par personne physique / téléphone,<br>
           <strong>vous ne pourrez pas changer le nom du billet une fois validé.</strong><br>
           Si une tentative de contournement est détectée, les inscriptions seront sorties du tirage au sort.
