@@ -8,7 +8,7 @@
         <p class="text-center small">Du 28 au 30 juin 2023</p>
 
         <p>
-          Victime de notre succès, et étant limité par la place disponible, l'équipe du BreizhCamp à décidé de mettre en place
+          Victime de notre succès, et étant limité par la place disponible, l'équipe du BreizhCamp a décidé de mettre en place
             un tirage au sort pour l'achat des places.
         </p>
 
