@@ -25,25 +25,20 @@ class Registration(
     private val smsSend: SendSms,
 ) {
 
-    @Transactional
     fun register(registered: Registered): Registered {
         if (registeredPort.existsEmailOrPhone(registered.email, registered.telephone)) {
             throw IllegalArgumentException("Une inscription avec cet email ou ce téléphone existe déjà.")
         }
 
         logger.info { "Creating new registered [${registered.lastname} ${registered.firstname}] with email [${registered.email}]" }
-
-        val regSms = smsSend.sendSms(registered)
-        registeredPort.save(regSms)
-
+        registeredPort.save(registered)
         logger.info { "New registered [${registered.lastname} ${registered.firstname}] created" }
 
-        return registered
+        return smsSend.sendSms(registered)
     }
 
     fun get(id: UUID): Registered = registeredPort.get(id)
 
-    @Transactional
     fun changePhoneNumber(id: UUID, phone: String) {
         val registered = get(id)
 
@@ -53,14 +48,14 @@ class Registration(
         }
 
         logger.info { "Changing phone number of registered [${registered.lastname} ${registered.firstname}] to [$phone]" }
+        val newReg = registered.copy(telephone = phone)
+        registeredPort.save(newReg)
 
-        val regSms = smsSend.sendSms(registered.copy(telephone = phone))
-        registeredPort.save(regSms)
+        smsSend.sendSms(newReg)
     }
 
-    @Transactional
     fun resendSms(id: UUID) {
-        registeredPort.save(smsSend.sendSms(get(id)))
+        smsSend.sendSms(get(id))
     }
 
     @Transactional

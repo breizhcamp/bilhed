@@ -4,6 +4,7 @@ import mu.KotlinLogging
 import org.apache.commons.lang3.RandomStringUtils
 import org.breizhcamp.bilhed.domain.entities.Registered
 import org.breizhcamp.bilhed.domain.entities.SmsStatus
+import org.breizhcamp.bilhed.domain.use_cases.ports.RegisteredPort
 import org.breizhcamp.bilhed.domain.use_cases.ports.SmsPort
 import org.springframework.stereotype.Service
 import java.time.ZonedDateTime
@@ -13,6 +14,7 @@ private val logger = KotlinLogging.logger {}
 @Service
 class SendSms(
     private val smsPort: SmsPort,
+    private val registeredPort: RegisteredPort,
 ) {
 
     fun sendSms(registered: Registered): Registered {
@@ -35,15 +37,15 @@ class SendSms(
             smsStatus = SmsStatus.SENDING,
             nbSmsSent = registered.nbSmsSent + 1,
             lastSmsSentDate = ZonedDateTime.now(),
-            token = registered.token ?: genSmsToken()
+            token = registered.token
         )
 
         // add some delay to avoid sms flood
         Thread.sleep(1000)
 
         smsPort.sendRegistered(res)
+        registeredPort.save(res)
         return res
     }
-    private fun genSmsToken(): String = RandomStringUtils.randomNumeric(6)
 
 }
