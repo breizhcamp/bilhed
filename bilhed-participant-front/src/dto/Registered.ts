@@ -3,4 +3,6 @@ export class Registered {
   firstname?: string
   email?: string
   telephone?: string
+  pass?: string
+  kids?: string
 }

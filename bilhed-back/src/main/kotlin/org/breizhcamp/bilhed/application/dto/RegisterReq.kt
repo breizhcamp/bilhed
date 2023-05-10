@@ -1,10 +1,14 @@
 package org.breizhcamp.bilhed.application.dto
 
+import org.breizhcamp.bilhed.domain.entities.PassType
+
 data class RegisterReq(
     val lastname: String,
     val firstname: String,
     val email: String,
     val telephone: String,
+    val pass: PassType,
+    val kids: String?,
 ) {
     fun validate() {
         if (lastname.isBlank()) throw IllegalArgumentException("Le nom ne peut pas être vide")

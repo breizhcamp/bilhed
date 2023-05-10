@@ -45,5 +45,10 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="4" author="alex">
+        <addColumn tableName="participant"><column name="pass" type="text"><constraints nullable="false"/></column></addColumn>
+        <addColumn tableName="participant"><column name="kids" type="text" /></addColumn>
+    </changeSet>
+
 
 </databaseChangeLog>

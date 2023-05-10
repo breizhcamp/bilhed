@@ -5,6 +5,7 @@ import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import org.breizhcamp.bilhed.domain.entities.PassType
 import org.breizhcamp.bilhed.domain.entities.SmsStatus
 import java.time.ZonedDateTime
 import java.util.*
@@ -21,6 +22,11 @@ data class ParticipantDB(
     val firstname: String,
     val email: String,
     val telephone: String,
+
+    @Enumerated(EnumType.STRING)
+    val pass: PassType,
+
+    val kids: String?,
 
     val registrationDate: ZonedDateTime,
     var participationDate: ZonedDateTime? = null,

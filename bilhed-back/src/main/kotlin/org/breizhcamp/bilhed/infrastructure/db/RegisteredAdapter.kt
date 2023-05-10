@@ -47,6 +47,8 @@ class RegisteredAdapter(
         firstname = firstname,
         email = email,
         telephone = telephone,
+        pass = pass,
+        kids = kids,
         registrationDate = registrationDate,
         registrationSmsStatus = smsStatus,
         registrationNbSmsSent = nbSmsSent,
@@ -56,7 +58,7 @@ class RegisteredAdapter(
         registrationNbTokenTries = nbTokenTries,
     )
 
-    fun ParticipantDB.toModel() = Registered(id, lastname, firstname, email, telephone, registrationDate,
+    fun ParticipantDB.toModel() = Registered(id, lastname, firstname, email, telephone, pass, kids, registrationDate,
         registrationSmsStatus, registrationNbSmsSent, registrationLastSmsSentDate, registrationSmsError, registrationToken,
         registrationNbTokenTries)
 }

@@ -13,6 +13,8 @@ data class Registered(
     val firstname: String,
     val email: String,
     val telephone: String,
+    val pass: PassType,
+    val kids: String?,
 
     val registrationDate: ZonedDateTime = ZonedDateTime.now(),
 

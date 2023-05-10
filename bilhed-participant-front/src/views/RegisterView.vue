@@ -69,6 +69,46 @@
             <div id="telephoneHelp" class="form-text text-end">Utilisé uniquement pour valider l'inscription et vous prévenir du tirage au sort.</div>
           </div>
 
+          <fieldset class="mb-4 row">
+            <legend class="col-sm-3 col-form-label">Billet souhaité</legend>
+            <div class="col-sm-9">
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="pass" id="pass2j" value="TWO_DAYS" required v-model="registered.pass">
+                <label class="form-check-label" for="pass2j">
+                  2 jours / 75 € <small>(jeudi 29 et vendredi 30 juin)</small>
+                </label>
+              </div>
+
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="pass" id="pass3j" value="THREE_DAYS" required v-model="registered.pass">
+                <label class="form-check-label" for="pass3j">
+                  3 jours / 90 € <small>(mercredi 28, jeudi 29 et vendredi 30 juin)</small>
+                </label>
+              </div>
+
+            </div>
+          </fieldset>
+
+          <div class="row" :class="{ 'mb-4': !haveKids, 'mb-2': haveKids }">
+            <div class="col-sm-12">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="kidsCheck" v-model="haveKids">
+                <label class="form-check-label" for="kidsCheck">
+                  Nous évaluons la possibilité d'une garde d'enfants pendant le BreizhCamp ; cochez cette case si la garde d'enfants aiderait à votre venue.
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-4 row" v-if="haveKids">
+            <label for="kids" class="form-label">Veuillez renseigner les âges et les créneaux de garde nécessaires, s'il vous plaît :</label>
+            <textarea class="form-control" id="kids" rows="4" required v-model="registered.kids" placeholder="Ex:
+- 5 ans, mercredi de 14h à 18h
+- 10 ans, jeudi de 18h à 20h30
+etc...
+"></textarea>
+          </div>
+
           <div class="row text-center mb-3">
             <button type="submit" class="btn btn-lg btn-primary" :disabled="loading">
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" v-if="loading"></span>
@@ -97,6 +137,7 @@ export default defineComponent({
     return {
       loading: false,
       registered: new Registered(),
+      haveKids: false,
       error: ""
     }
   },
