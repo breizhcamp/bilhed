@@ -28,7 +28,7 @@
       </div>
     </div>
 
-    <div v-if="error" class="row justify-content-center">
+    <div v-if="error" class="row justify-content-center" ref="error">
       <div class="col-md-8 alert alert-danger px-5 py-3 mb-5">
         <p class="lead text-center fw-bold mb-0">{{error}}</p>
       </div>
@@ -158,6 +158,10 @@ export default defineComponent({
       } else {
         this.error = "Une erreur est survenue, merci de réessayer dans quelques instants"
       }
+
+      let element = this.$refs['error']
+      let top = element.offsetTop
+      window.scrollTo(0, top)
     }
   }
 })

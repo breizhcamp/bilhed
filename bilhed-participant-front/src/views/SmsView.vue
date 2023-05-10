@@ -47,7 +47,7 @@
           <div class="mb-5 row">
             <label for="code" class="col-sm-3 col-form-label">Code</label>
             <div class="col-sm-9">
-              <input type="text" class="form-control" name="code" id="code" required minlength="6" maxlength="6" :disabled="loading" v-model="code">
+              <input type="text" inputmode="numeric" class="form-control" name="code" id="code" required minlength="6" maxlength="6" :disabled="loading" v-model="code">
             </div>
           </div>
 
