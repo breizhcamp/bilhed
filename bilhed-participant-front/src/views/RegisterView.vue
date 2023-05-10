@@ -13,7 +13,7 @@
         </p>
 
         <p class="text-center">
-          Merci de remplir ce formulaire pour participer au tirage au sort.
+          Vous pouvez remplir ce formulaire pour participer au tirage au sort.
         </p>
 
         <p class="text-center">
