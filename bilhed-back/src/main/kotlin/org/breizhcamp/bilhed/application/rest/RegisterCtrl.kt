@@ -48,6 +48,6 @@ class RegisterCtrl(
     @ExceptionHandler(IllegalArgumentException::class) @ResponseStatus(HttpStatus.BAD_REQUEST)
     fun handleIAE(e: IllegalArgumentException) = ErrorRes(e.message ?: "Une erreur est survenue")
 
-    private fun RegisterReq.toRegistered(id: UUID = UUID.randomUUID()) = Registered(id, lastname, firstname, email, internationalPhone(), pass, kids)
+    private fun RegisterReq.toRegistered(id: UUID = UUID.randomUUID()) = Registered(id, lastname.trim(), firstname.trim(), email, internationalPhone(), pass, kids)
     private fun Registered.toStateRes() = RegisterStateRes(localPhone(), nbSmsSent)
 }
