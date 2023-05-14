@@ -159,7 +159,7 @@ export default defineComponent({
         this.error = "Une erreur est survenue, merci de réessayer dans quelques instants"
       }
 
-      let element = this.$refs['error']
+      let element = this.$refs['error'] as HTMLElement
       let top = element.offsetTop
       window.scrollTo(0, top)
     }
