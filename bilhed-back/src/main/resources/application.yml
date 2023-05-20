@@ -1,1 +1,9 @@
-spring.liquibase.changeLog: classpath:/db/changelog/db.changelog-master.xml
+spring:
+  liquibase.changeLog: classpath:/db/changelog/db.changelog-master.xml
+
+  security.oauth2:
+    resourceserver:
+      jwt:
+        issuer-uri: https://auth.breizhcamp.org/auth/realms/BreizhCamp
+        jwk-set-uri: https://auth.breizhcamp.org/auth/realms/BreizhCamp/protocol/openid-connect/certs
+

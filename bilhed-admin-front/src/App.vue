@@ -16,8 +16,12 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { RouterView } from 'vue-router'
+<script lang="ts">
+import { defineComponent } from 'vue'
+
+export default defineComponent({
+  name: "AppView",
+})
 </script>
 
 <style scoped>
