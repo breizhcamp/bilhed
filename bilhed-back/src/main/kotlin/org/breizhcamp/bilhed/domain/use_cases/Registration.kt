@@ -82,6 +82,4 @@ class Registration(
 
         logger.info { "Validated [${registered.lastname} ${registered.firstname}] as a participant" }
     }
-
-    fun Registered.getMailAddress() = listOf(MailAddress(email, "$firstname $lastname"))
 }

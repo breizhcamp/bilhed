@@ -1,15 +1,13 @@
 package org.breizhcamp.bilhed.domain.entities
 
-import org.apache.commons.lang3.RandomStringUtils
 import java.time.ZonedDateTime
 import java.util.*
 
 /**
- * Person that will be participating in the lottery
+ * Person that will be drawn and asked to confirm his participation
  */
-data class Registered(
+data class Participant(
     override val id: UUID,
-
     override val lastname: String,
     override val firstname: String,
     override val email: String,
@@ -17,16 +15,19 @@ data class Registered(
     override val pass: PassType,
     override val kids: String?,
 
-    val registrationDate: ZonedDateTime = ZonedDateTime.now(),
+    val drawOrder: Int?,
 
     val smsStatus: SmsStatus = SmsStatus.NOT_SENT,
     val nbSmsSent: Int = 0,
-    val lastSmsSentDate: ZonedDateTime? = null,
     val smsError: String? = null,
-    val token: String = genSmsToken(),
-    val nbTokenTries: Int = 0,
-): Person() {
-    companion object {
-        private fun genSmsToken(): String = RandomStringUtils.randomNumeric(6)
-    }
+    val smsConfirmSentDate: ZonedDateTime? = null,
+    val mailConfirmSentDate: ZonedDateTime? = null,
+
+    val confirmationDate: ZonedDateTime? = null,
+    val confirmationType: ConfirmationType? = null,
+
+    ): Person()
+
+enum class ConfirmationType {
+    SMS, MAIL
 }
