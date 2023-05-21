@@ -7,3 +7,7 @@ spring:
         issuer-uri: https://auth.breizhcamp.org/auth/realms/BreizhCamp
         jwk-set-uri: https://auth.breizhcamp.org/auth/realms/BreizhCamp/protocol/openid-connect/certs
 
+
+bilhed.back:
+  - TWO_DAYS: 170
+  - THREE_DAYS: 160

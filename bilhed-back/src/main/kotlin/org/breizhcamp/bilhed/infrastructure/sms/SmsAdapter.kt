@@ -2,6 +2,7 @@ package org.breizhcamp.bilhed.infrastructure.sms
 
 import mu.KotlinLogging
 import org.breizhcamp.bilhed.domain.entities.Registered
+import org.breizhcamp.bilhed.domain.entities.Sms
 import org.breizhcamp.bilhed.domain.use_cases.ports.SmsPort
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.stereotype.Service
@@ -21,6 +22,7 @@ class SmsAdapter(
             id = registered.id,
             phone = registered.telephone,
             message = "Votre code pour l'inscription à la loterie du BreizhCamp est ${registered.token}"
-        ))
+        )
+        )
     }
 }

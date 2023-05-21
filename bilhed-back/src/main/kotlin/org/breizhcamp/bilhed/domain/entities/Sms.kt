@@ -1,4 +1,4 @@
-package org.breizhcamp.bilhed.infrastructure.sms
+package org.breizhcamp.bilhed.domain.entities
 
 import java.util.*
 

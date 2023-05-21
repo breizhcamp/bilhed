@@ -2,7 +2,9 @@ package org.breizhcamp.bilhed.domain.use_cases
 
 import mu.KotlinLogging
 import org.apache.commons.lang3.RandomStringUtils
+import org.breizhcamp.bilhed.domain.entities.Participant
 import org.breizhcamp.bilhed.domain.entities.Registered
+import org.breizhcamp.bilhed.domain.entities.Sms
 import org.breizhcamp.bilhed.domain.entities.SmsStatus
 import org.breizhcamp.bilhed.domain.use_cases.ports.RegisteredPort
 import org.breizhcamp.bilhed.domain.use_cases.ports.SmsPort
@@ -33,6 +35,9 @@ class SendSms(
             throw IllegalArgumentException("Un SMS a déjà été envoyé il y a moins de 30 secondes. Veuillez patienter.")
         }
 
+        // add some delay to avoid sms flood
+        Thread.sleep(1000)
+
         val res = registered.copy(
             smsStatus = SmsStatus.SENDING,
             nbSmsSent = registered.nbSmsSent + 1,
@@ -40,12 +45,23 @@ class SendSms(
             token = registered.token
         )
 
-        // add some delay to avoid sms flood
-        Thread.sleep(1000)
-
         smsPort.sendRegistered(res)
         registeredPort.save(res)
         return res
     }
 
+    fun sendSms(participant: Participant): Participant {
+        val res = participant.copy(
+            smsStatus = SmsStatus.SENDING,
+            nbSmsSent = participant.nbSmsSent + 1,
+            smsConfirmSentDate = ZonedDateTime.now(),
+        )
+
+        smsPort.send(Sms(
+            id = participant.id,
+            phone = participant.telephone,
+            message = ""
+        ))
+        return res
+    }
 }
