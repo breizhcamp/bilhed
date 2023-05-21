@@ -5,6 +5,7 @@ import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import org.breizhcamp.bilhed.domain.entities.ConfirmationType
 import org.breizhcamp.bilhed.domain.entities.PassType
 import org.breizhcamp.bilhed.domain.entities.SmsStatus
 import java.time.ZonedDateTime
@@ -38,6 +39,19 @@ data class ParticipantDB(
     val registrationSmsError: String? = null,
     val registrationToken: String,
     val registrationNbTokenTries: Int = 0,
+
+
+    val drawOrder: Int? = null,
+    @Enumerated(EnumType.STRING)
+    val participantSmsStatus: SmsStatus? = null,
+    val participantNbSmsSent: Int = 0,
+    val participantSmsError: String? = null,
+    val participantSmsConfirmSentDate: ZonedDateTime? = null,
+    val participantMailConfirmSentDate: ZonedDateTime? = null,
+
+    val participantConfirmationDate: ZonedDateTime? = null,
+    @Enumerated(EnumType.STRING)
+    val participantConfirmationType: ConfirmationType? = null,
 )
 
 enum class ParticipantDBStatus {
