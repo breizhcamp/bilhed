@@ -1,11 +1,17 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import ParticipantView from '@/views/ParticipantView.vue'
+import RegisteredView from '@/views/RegisteredView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    { path: '/', redirect: '/registered' },
     {
-      path: '/',
+      path: '/registered',
+      name: 'registered',
+      component: RegisteredView
+    },{
+      path: '/participants',
       name: 'persons',
       component: ParticipantView
     }

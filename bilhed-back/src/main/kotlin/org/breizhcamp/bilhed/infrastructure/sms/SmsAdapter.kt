@@ -25,4 +25,8 @@ class SmsAdapter(
         )
         )
     }
+
+    override fun send(sms: Sms) {
+        TODO("Not yet implemented")
+    }
 }

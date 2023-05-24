@@ -50,5 +50,16 @@
         <addColumn tableName="participant"><column name="kids" type="text" /></addColumn>
     </changeSet>
 
+    <changeSet id="5" author="alex">
+        <addColumn tableName="participant"><column name="draw_order" type="int"/></addColumn>
+        <addColumn tableName="participant"><column name="participant_sms_status" type="text"/></addColumn>
+        <addColumn tableName="participant"><column name="participant_nb_sms_sent" type="int" defaultValueNumeric="0"><constraints nullable="false"/></column></addColumn>
+        <addColumn tableName="participant"><column name="participant_sms_error" type="text"/></addColumn>
+        <addColumn tableName="participant"><column name="participant_sms_confirm_sent_date" type="timestamp with time zone"/></addColumn>
+        <addColumn tableName="participant"><column name="participant_mail_confirm_sent_date" type="timestamp with time zone"/></addColumn>
+        <addColumn tableName="participant"><column name="participant_confirmation_date" type="timestamp with time zone"/></addColumn>
+        <addColumn tableName="participant"><column name="participant_confirmation_type" type="text"/></addColumn>
+    </changeSet>
+
 
 </databaseChangeLog>

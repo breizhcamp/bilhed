@@ -15,6 +15,8 @@ data class Participant(
     override val pass: PassType,
     override val kids: String?,
 
+    val participationDate: ZonedDateTime,
+
     val drawOrder: Int?,
 
     val smsStatus: SmsStatus = SmsStatus.NOT_SENT,

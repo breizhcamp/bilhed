@@ -35,6 +35,7 @@ private fun Participant.toDto() = ParticipantDTO(
     telephone = telephone,
     pass = pass,
     kids = kids,
+    participationDate = participationDate,
 
     drawOrder = drawOrder,
     smsStatus = smsStatus,

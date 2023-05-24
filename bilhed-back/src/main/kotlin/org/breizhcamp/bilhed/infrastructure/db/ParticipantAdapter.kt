@@ -14,7 +14,7 @@ import java.util.*
 class ParticipantAdapter(
     private val participantRepo: ParticipantRepo,
 ): ParticipantPort {
-    override fun list(): List<Participant> = participantRepo.findAll().map { it.toParticipant() }
+    override fun list(): List<Participant> = participantRepo.listParticipants().map { it.toParticipant() }
 
     override fun save(participant: Participant) {
         requireNotNull(participantRepo.findByIdOrNull(participant.id)) { "Unable to update participant [${participant.id}] - Not found" }
@@ -65,6 +65,8 @@ private fun ParticipantDB.toParticipant() = Participant(
     telephone = telephone,
     pass = pass,
     kids = kids,
+
+    participationDate = requireNotNull(participationDate) { "Participant [$id] has no participation date" },
 
     drawOrder = null,
 

@@ -7,6 +7,17 @@
           Bilhed Admin
         </a>
 
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <router-link to="/registered" class="nav-link">Registered</router-link>
+            </li>
+            <li class="nav-item">
+              <router-link to="/participants" class="nav-link">Participants</router-link>
+            </li>
+          </ul>
+        </div>
+
       </div>
     </nav>
   </header>

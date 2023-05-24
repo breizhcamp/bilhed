@@ -1,13 +1,13 @@
 package org.breizhcamp.bilhed.application.dto.admin
 
-import org.breizhcamp.bilhed.domain.entities.ConfirmationType
 import org.breizhcamp.bilhed.domain.entities.PassType
 import org.breizhcamp.bilhed.domain.entities.SmsStatus
 import java.time.ZonedDateTime
-import java.util.UUID
+import java.util.*
 
-data class ParticipantDTO(
+data class RegisteredDTO (
     val id: UUID,
+
     val lastname: String,
     val firstname: String,
     val email: String,
@@ -15,16 +15,13 @@ data class ParticipantDTO(
     val pass: PassType,
     val kids: String?,
 
-    val participationDate: ZonedDateTime,
-
-    val drawOrder: Int?,
+    val registrationDate: ZonedDateTime,
 
     val smsStatus: SmsStatus,
     val nbSmsSent: Int,
-    val smsError: String?,
-    val smsConfirmSentDate: ZonedDateTime?,
-    val mailConfirmSentDate: ZonedDateTime?,
 
-    val confirmationDate: ZonedDateTime?,
-    val confirmationType: ConfirmationType?,
+    val lastSmsSentDate: ZonedDateTime?,
+    val smsError: String?,
+    val token: String,
+    val nbTokenTries: Int,
 )

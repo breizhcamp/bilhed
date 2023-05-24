@@ -9,5 +9,6 @@ spring:
 
 
 bilhed.back:
-  - TWO_DAYS: 170
-  - THREE_DAYS: 160
+  passNumber:
+    TWO_DAYS: 170
+    THREE_DAYS: 160

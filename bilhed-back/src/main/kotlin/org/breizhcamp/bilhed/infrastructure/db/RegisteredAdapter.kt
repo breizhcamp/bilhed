@@ -16,6 +16,8 @@ class RegisteredAdapter(
     private val participantRepo: ParticipantRepo,
 ): RegisteredPort {
 
+    override fun list(): List<Registered> = participantRepo.listRegistered().map { it.toModel() }
+
     override fun existsEmailOrPhone(email: String, phone: String): Boolean {
         return participantRepo.countByEmailOrTelephone(email, phone) > 0
     }
