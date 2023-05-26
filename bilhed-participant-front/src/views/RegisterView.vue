@@ -23,7 +23,7 @@
         </p>
 
         <p class="lead text-center fw-bold">
-            Fermeture des inscriptions le 26 mai à 23h59
+            Fermeture des inscriptions le 31 mai à 23h59
         </p>
       </div>
     </div>
