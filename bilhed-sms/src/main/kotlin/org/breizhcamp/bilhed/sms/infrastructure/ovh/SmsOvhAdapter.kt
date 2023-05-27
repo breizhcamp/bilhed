@@ -1,22 +1,17 @@
 package org.breizhcamp.bilhed.sms.infrastructure.ovh
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.netty.handler.logging.LogLevel
 import jakarta.annotation.PostConstruct
 import mu.KotlinLogging
 import org.breizhcamp.bilhed.sms.config.BilhedSmsConfig
 import org.breizhcamp.bilhed.sms.config.OvhConfig
-import org.breizhcamp.bilhed.sms.domain.entities.Sms
 import org.breizhcamp.bilhed.sms.domain.use_cases.ports.SmsPort
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
-import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
-import reactor.netty.http.client.HttpClient
-import reactor.netty.transport.logging.AdvancedByteBufFormat
 import java.time.Instant
 
 private val logger = KotlinLogging.logger {}
@@ -35,20 +30,20 @@ class SmsOvhAdapter(
         requireNotNull(config.ovh) { "OVH SMS provider enabled but OVH configuration is null" }
     }
 
-    override fun send(sms: Sms) {
-        logger.info { "[OVH] Sending SMS to [${sms.phone}] with message [${sms.message}]" }
+    override fun send(phone: String, message: String, tag: String) {
+        logger.info { "[OVH] Sending SMS to [${phone}] with message [${message}]" }
 
         val ovhConfig = config.ovh ?: throw IllegalStateException("OVH config is null")
 
         val ovhSms = SmsOvhDto(
-            sms.message,
-            listOf(sms.phone),
+            message,
+            listOf(phone),
             ovhConfig.sender,
             true,
             "high",
             false,
             30,
-            "register",
+            tag,
         ).let { objectMapper.writeValueAsString(it) }
 
         val res = createOvhRequest(ovhConfig, HttpMethod.POST, "/${ovhConfig.serviceName}/jobs", ovhSms)

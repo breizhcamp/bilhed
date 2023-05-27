@@ -45,7 +45,14 @@ class SendSms(
             token = registered.token
         )
 
-        smsPort.sendRegistered(res)
+        val sms = Sms(
+            id = registered.id,
+            phone = registered.telephone,
+            template = "registered_token",
+            model = mapOf("token" to registered.token),
+        )
+
+        smsPort.send(sms)
         registeredPort.save(res)
         return res
     }
@@ -60,7 +67,8 @@ class SendSms(
         smsPort.send(Sms(
             id = participant.id,
             phone = participant.telephone,
-            message = ""
+            template = "participant_confirm",
+            model = mapOf(),
         ))
         return res
     }

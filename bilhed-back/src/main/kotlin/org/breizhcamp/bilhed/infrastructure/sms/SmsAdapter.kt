@@ -14,19 +14,8 @@ class SmsAdapter(
     private val rabbitTemplate: RabbitTemplate,
 ): SmsPort {
 
-    override fun sendRegistered(registered: Registered) {
-        logger.info { "Sending SMS to AMQP to [${registered.lastname} ${registered.firstname}] / " +
-                "[${registered.telephone}] with token [${registered.token}]" }
-
-        rabbitTemplate.convertAndSend("sms-send", "", Sms(
-            id = registered.id,
-            phone = registered.telephone,
-            message = "Votre code pour l'inscription à la loterie du BreizhCamp est ${registered.token}"
-        )
-        )
-    }
-
     override fun send(sms: Sms) {
-        TODO("Not yet implemented")
+        logger.info { "Sending SMS to AMQP to [${sms.phone}] with template [${sms.template}] and model: ${sms.model}" }
+        rabbitTemplate.convertAndSend("sms-send", "", sms)
     }
 }

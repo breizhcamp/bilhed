@@ -4,7 +4,6 @@ import org.breizhcamp.bilhed.domain.entities.Registered
 import org.breizhcamp.bilhed.domain.entities.Sms
 
 interface SmsPort {
-    fun sendRegistered(registered: Registered)
 
     fun send(sms: Sms)
 }

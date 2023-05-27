@@ -5,5 +5,6 @@ import java.util.*
 data class Sms(
     val id: UUID,
     val phone: String,
-    val message: String,
+    val template: String,
+    val model: Map<String, String>,
 )
