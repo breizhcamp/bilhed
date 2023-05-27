@@ -18,4 +18,6 @@ interface RegisteredPort {
     /** Confirmed the registered to be a participant to the lottery */
     fun levelUpToParticipant(id: UUID)
 
+    fun resetSmsCount(id: UUID)
+
 }

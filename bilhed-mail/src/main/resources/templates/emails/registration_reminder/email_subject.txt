@@ -1,0 +1,1 @@
+[BreizhCamp] Votre enregistrement à la billetterie du BreizhCamp [(${year})] est toujours en attente

@@ -41,6 +41,10 @@ class RegisteredAdapter(
         }
     }
 
+    override fun resetSmsCount(id: UUID) {
+        participantRepo.resetSmsCount(id)
+    }
+
 
     fun Registered.toDB() = ParticipantDB(
         id = id,

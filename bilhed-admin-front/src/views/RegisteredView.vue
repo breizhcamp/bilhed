@@ -31,7 +31,8 @@
           <td>{{ r.pass }}</td>
           <td><DateView :date="r.registrationDate"/></td>
           <td>
-            <button type="button" class="btn btn-link btn-sm"><BiChatText/></button>
+            <button type="button" class="btn btn-link btn-sm" title="Send SMS reminder" @click="sendReminder(r.id, 'sms')" :disabled="loading"><BiChatText/></button>
+            <button type="button" class="btn btn-link btn-sm ms-1" title="Send email reminder" @click="sendReminder(r.id, 'email')" :disabled="loading"><BiEnvelope/></button>
           </td>
         </tr>
       </tbody>
@@ -56,10 +57,11 @@ import axios from 'axios'
 import DateView from '@/components/DateView.vue'
 import ModalForm from '@/components/ModalForm.vue'
 import BiChatText from 'bootstrap-icons/icons/chat-text.svg'
+import BiEnvelope from 'bootstrap-icons/icons/envelope.svg'
 
 export default defineComponent({
   name: "RegisteredView",
-  components: { ModalForm, DateView, BiChatText },
+  components: { ModalForm, DateView, BiChatText, BiEnvelope },
 
   data() {
     return {
@@ -85,6 +87,18 @@ export default defineComponent({
     load() {
       axios.get('/registered').then((response) => {
         this.registered = response.data
+      })
+    },
+
+    sendReminder(id: string, type: string) {
+      this.loading = true
+      let data = {}
+      data[type] = true
+
+      axios.post(`/registered/${id}/reminder`, data).then(() => {
+        this.load()
+      }).finally(() => {
+        this.loading = false
       })
     },
 

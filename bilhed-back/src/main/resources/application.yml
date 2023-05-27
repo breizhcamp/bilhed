@@ -9,6 +9,8 @@ spring:
 
 
 bilhed.back:
+  participantFrontUrl: https://billets.breizhcamp.org
+
   passNumber:
     TWO_DAYS: 170
     THREE_DAYS: 160

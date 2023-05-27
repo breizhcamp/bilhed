@@ -1,0 +1,22 @@
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<body>
+Bonjour <span th:text="${firstname}"></span>,
+
+<p>
+  Vous avez démarré votre enregistrement pour la billetterie du BreizhCamp <span th:text="${year}"></span> mais celui-ci n'est pas terminé !
+</p>
+
+<p>
+  Pour terminer votre enregistrement, vous pouvez cliquer sur le lien suivant : <a th:href="${link}"><span th:text="${link}"></span></a>
+</p>
+
+<p>
+  Le code reçu par SMS est toujours valide, sinon attendez 30 secondes afin de voir apparaitre le bouton pour renvoyer le code.
+</p>
+
+<p>
+  Cordialement,<br>
+  L'équipe du BreizhCamp
+</p>
+
+</body>

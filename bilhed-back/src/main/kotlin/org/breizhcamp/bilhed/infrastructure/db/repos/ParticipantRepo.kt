@@ -25,4 +25,8 @@ interface ParticipantRepo: JpaRepository<ParticipantDB, UUID> {
     @Modifying
     @Query("UPDATE ParticipantDB p SET p.drawOrder = :drawOrder WHERE p.id = :id")
     fun updateDrawOrder(id: UUID, drawOrder: Int)
+
+    @Modifying
+    @Query("UPDATE ParticipantDB p SET p.registrationNbSmsSent = 0 WHERE p.id = :id")
+    fun resetSmsCount(id: UUID)
 }
