@@ -3,7 +3,7 @@
     <nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark">
       <div class="container">
         <a class="navbar-brand">
-          <img src="@/assets/logo-breizhcamp-icone.svg" width="30" height="30" class="d-inline-block align-top" alt="">
+          <Logo width="30" height="30" class="d-inline-block align-top" />
           Bilhed Admin
         </a>
 
@@ -29,9 +29,11 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import Logo from '@/assets/logo-breizhcamp-icone.svg'
 
 export default defineComponent({
   name: "AppView",
+  components: { Logo },
 })
 </script>
 

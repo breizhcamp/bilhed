@@ -18,6 +18,7 @@
           <th scope="col">Telephone</th>
           <th scope="col">Pass</th>
           <th scope="col">Reg date</th>
+          <th scope="col"></th>
         </tr>
       </thead>
       <tbody>
@@ -29,6 +30,9 @@
           <td>{{ r.telephone }}</td>
           <td>{{ r.pass }}</td>
           <td><DateView :date="r.registrationDate"/></td>
+          <td>
+            <button type="button" class="btn btn-link btn-sm"><BiChatText/></button>
+          </td>
         </tr>
       </tbody>
     </table>
@@ -47,15 +51,15 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent } from 'vue'
 import axios from 'axios'
-import dayjs from 'dayjs'
 import DateView from '@/components/DateView.vue'
 import ModalForm from '@/components/ModalForm.vue'
+import BiChatText from 'bootstrap-icons/icons/chat-text.svg'
 
 export default defineComponent({
   name: "RegisteredView",
-  components: { ModalForm, DateView },
+  components: { ModalForm, DateView, BiChatText },
 
   data() {
     return {
@@ -125,3 +129,12 @@ export default defineComponent({
   }
 })
 </script>
+
+<style scoped>
+button.btn-sm {
+  padding: 0;
+  color: #212529;
+  line-height: 0;
+  vertical-align: text-top;
+}
+</style>

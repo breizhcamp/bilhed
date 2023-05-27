@@ -51,7 +51,7 @@ export default defineComponent({
 
   watch: {
     allChecked() {
-      this.registered.forEach((r) => r.checked = this.allChecked)
+      this.participants.forEach((r) => r.checked = this.allChecked)
     }
   },
 
