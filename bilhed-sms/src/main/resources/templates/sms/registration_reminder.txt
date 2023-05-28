@@ -1,0 +1,1 @@
+Votre inscription à la loterie du BreizhCamp n'est pas complète, terminez-la sur [(${link})] avec le code [(${token})]

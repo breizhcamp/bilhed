@@ -4,6 +4,6 @@ import java.util.UUID
 
 interface BackPort {
 
-    fun ackSmsSent(id: UUID, error: String? = null)
+    fun ackSmsSent(id: UUID, template: String, error: String? = null)
 
 }

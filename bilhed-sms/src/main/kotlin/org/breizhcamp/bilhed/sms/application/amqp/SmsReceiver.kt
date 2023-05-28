@@ -16,10 +16,10 @@ class SmsReceiver(
 
     @RabbitListener(queues = ["sms-send-queue"], containerFactory = "smsContainerFactory")
     fun receive(sms: SmsFromBack) {
-        logger.info { "Received SMS from backend to [${sms.phone}] with message [${sms.message}]" }
+        logger.info { "Received SMS from backend to [${sms.phone}] with template [${sms.template}] and model: ${sms.model}" }
         smsSending.send(sms.toSms())
     }
 
 }
 
-private fun SmsFromBack.toSms() = Sms(id, phone, message)
+private fun SmsFromBack.toSms() = Sms(id, phone, template, model)

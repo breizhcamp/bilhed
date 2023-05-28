@@ -14,3 +14,6 @@ bilhed.back:
   passNumber:
     TWO_DAYS: 170
     THREE_DAYS: 160
+
+  bihan:
+    url: https://bzh.camp

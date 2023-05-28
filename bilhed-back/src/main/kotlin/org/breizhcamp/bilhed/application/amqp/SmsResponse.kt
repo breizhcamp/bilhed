@@ -16,7 +16,11 @@ class SmsResponse(
     @RabbitListener(queues = ["sms-response-queue"], containerFactory = "smsContainerFactory")
     fun receive(response: SmsResponseDTO) {
         logger.info { "Received SMS response from SMS service: $response" }
-        registration.saveSmsStatus(response.id, response.error)
+
+        when (response.template) {
+            "register" -> registration.saveSmsStatus(response.id, response.error)
+            else -> logger.info { "Unknown handling for template: ${response.template}" }
+        }
     }
 
 }

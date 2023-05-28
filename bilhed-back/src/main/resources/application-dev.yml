@@ -13,4 +13,7 @@ spring:
 server.port: 4006
 
 bilhed.back:
+  participantFrontUrl: http://localhost:5000
   breizhCampYear: 2023
+
+  registerCloseDate: 2023-05-31T23:59:59+02:00

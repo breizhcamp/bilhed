@@ -25,12 +25,12 @@ class SmsSending(
 
             logger.info { "Sending SMS to [${sms.phone}] with message [${message}]" }
             smsPort.send(sms.phone, message, sms.template)
-            backPort.ackSmsSent(sms.id)
+            backPort.ackSmsSent(sms.id, sms.template)
             logger.info { "SMS sent to [${sms.phone}]" }
 
         } catch (e: Exception) {
             logger.error(e) { "Error while sending SMS to [${sms.phone}]" }
-            backPort.ackSmsSent(sms.id, e.message)
+            backPort.ackSmsSent(sms.id, sms.template, e.message)
         }
     }
 

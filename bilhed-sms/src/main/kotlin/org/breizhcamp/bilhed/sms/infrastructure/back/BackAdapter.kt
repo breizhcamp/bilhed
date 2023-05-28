@@ -10,7 +10,7 @@ class BackAdapter(
     private val rabbitTemplate: RabbitTemplate,
 ): BackPort {
 
-    override fun ackSmsSent(id: UUID, error: String?) {
-        rabbitTemplate.convertAndSend("sms-response", "", SmsResponseDTO(id, error))
+    override fun ackSmsSent(id: UUID, template: String, error: String?) {
+        rabbitTemplate.convertAndSend("sms-response", "", SmsResponseDTO(id, template, error))
     }
 }
