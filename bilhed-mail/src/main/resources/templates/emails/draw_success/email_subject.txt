@@ -1,0 +1,1 @@
+[BreizhCamp] Vous avez été retenu pour la billetterie du BreizhCamp [(${year})]

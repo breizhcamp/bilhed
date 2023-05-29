@@ -2,11 +2,14 @@ package org.breizhcamp.bilhed.domain.use_cases.ports
 
 import org.breizhcamp.bilhed.domain.entities.Participant
 import org.breizhcamp.bilhed.domain.entities.PassType
+import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
 interface ParticipantPort {
 
     fun list(): List<Participant>
+
+    fun get(id: UUID): Participant
 
     fun save(participant: Participant)
 
@@ -16,5 +19,5 @@ interface ParticipantPort {
 
     fun updateDrawOrder(id: UUID, drawOrder: Int)
 
-    fun getAlreadyDrawnCount(): Map<PassType, Int>
+    fun getAlreadyNotifCount(): Map<PassType, Int>
 }

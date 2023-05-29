@@ -9,6 +9,7 @@ data class BilhedBackConfig(
     val breizhCampYear: Int,
     val participantFrontUrl: String,
     val registerCloseDate: ZonedDateTime,
+    val breizhCampCloseDate: ZonedDateTime,
 
     val passNumber: Map<PassType, Int>,
 

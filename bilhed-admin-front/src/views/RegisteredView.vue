@@ -73,8 +73,8 @@ export default defineComponent({
     }
   },
 
-  mounted() {
-    this.load()
+  created() {
+    this.$watch(() => this.$route.params, () => this.load(), { immediate: true })
   },
 
   watch: {

@@ -25,6 +25,7 @@ data class Participant(
     val smsConfirmSentDate: ZonedDateTime? = null,
     val mailConfirmSentDate: ZonedDateTime? = null,
 
+    val confirmationLimitDate: ZonedDateTime? = null,
     val confirmationDate: ZonedDateTime? = null,
     val confirmationType: ConfirmationType? = null,
 

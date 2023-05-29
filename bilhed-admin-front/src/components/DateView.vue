@@ -1,5 +1,5 @@
 <template>
-  <slot>{{day.format('DD/MM/YYYY HH:mm:ss')}}<sup>{{day.format('Z')}}</sup></slot>
+  <slot v-if="date">{{day.format('DD/MM/YYYY HH:mm:ss')}}<sup>{{day.format('Z')}}</sup></slot>
 </template>
 
 <script lang="ts">
@@ -10,7 +10,7 @@ export default defineComponent({
   name: "DateView",
 
   props: {
-    date: { type: String, required: true },
+    date: { type: String, required: false },
   },
 
   computed: {

@@ -25,6 +25,7 @@ data class ParticipantDTO(
     val smsConfirmSentDate: ZonedDateTime?,
     val mailConfirmSentDate: ZonedDateTime?,
 
+    val confirmationLimitDate: ZonedDateTime? = null,
     val confirmationDate: ZonedDateTime?,
     val confirmationType: ConfirmationType?,
 )

@@ -56,20 +56,4 @@ class SendSms(
         registeredPort.save(res)
         return res
     }
-
-    fun sendSms(participant: Participant): Participant {
-        val res = participant.copy(
-            smsStatus = SmsStatus.SENDING,
-            nbSmsSent = participant.nbSmsSent + 1,
-            smsConfirmSentDate = ZonedDateTime.now(),
-        )
-
-        smsPort.send(Sms(
-            id = participant.id,
-            phone = participant.telephone,
-            template = "participant_confirm",
-            model = mapOf(),
-        ))
-        return res
-    }
 }

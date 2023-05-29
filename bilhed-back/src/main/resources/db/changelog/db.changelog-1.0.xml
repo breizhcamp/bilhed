@@ -61,5 +61,8 @@
         <addColumn tableName="participant"><column name="participant_confirmation_type" type="text"/></addColumn>
     </changeSet>
 
+    <changeSet id="6" author="alex">
+        <addColumn tableName="participant"><column name="participant_confirmation_limit_date" type="timestamp with time zone"/></addColumn>
+    </changeSet>
 
 </databaseChangeLog>

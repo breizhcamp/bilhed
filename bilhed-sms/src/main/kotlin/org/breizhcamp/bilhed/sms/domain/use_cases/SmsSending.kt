@@ -20,6 +20,8 @@ class SmsSending(
 
     fun send(sms: Sms) {
         try {
+            // rate limiting
+            Thread.sleep(100)
             val ctx = Context(Locale.FRANCE, sms.model)
             val message = templateEngine.process("sms/${sms.template}.txt", ctx)
 

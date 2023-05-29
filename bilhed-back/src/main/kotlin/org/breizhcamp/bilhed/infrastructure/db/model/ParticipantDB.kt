@@ -42,16 +42,18 @@ data class ParticipantDB(
 
 
     val drawOrder: Int? = null,
-    @Enumerated(EnumType.STRING)
-    val participantSmsStatus: SmsStatus? = null,
-    val participantNbSmsSent: Int = 0,
-    val participantSmsError: String? = null,
-    val participantSmsConfirmSentDate: ZonedDateTime? = null,
-    val participantMailConfirmSentDate: ZonedDateTime? = null,
 
-    val participantConfirmationDate: ZonedDateTime? = null,
     @Enumerated(EnumType.STRING)
-    val participantConfirmationType: ConfirmationType? = null,
+    var participantSmsStatus: SmsStatus? = null,
+    var participantNbSmsSent: Int = 0,
+    var participantSmsError: String? = null,
+    var participantConfirmationLimitDate: ZonedDateTime? = null,
+    var participantSmsConfirmSentDate: ZonedDateTime? = null,
+    var participantMailConfirmSentDate: ZonedDateTime? = null,
+
+    var participantConfirmationDate: ZonedDateTime? = null,
+    @Enumerated(EnumType.STRING)
+    var participantConfirmationType: ConfirmationType? = null,
 )
 
 enum class ParticipantDBStatus {

@@ -7,7 +7,7 @@ import org.springframework.web.service.annotation.PostExchange
 
 interface BihanClient {
 
-    @PostExchange("/api/add")
+    @PostExchange("/api/links")
     fun createLink(@RequestBody req: AddLinkReq): AddLinkRes
 
 }

@@ -6,8 +6,10 @@ import org.breizhcamp.bilhed.domain.entities.SmsStatus
 import org.breizhcamp.bilhed.domain.use_cases.ports.ParticipantPort
 import org.breizhcamp.bilhed.infrastructure.db.model.ParticipantDB
 import org.breizhcamp.bilhed.infrastructure.db.repos.ParticipantRepo
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 import java.util.*
 
 @Component
@@ -16,13 +18,18 @@ class ParticipantAdapter(
 ): ParticipantPort {
     override fun list(): List<Participant> = participantRepo.listParticipants().map { it.toParticipant() }
 
+    override fun get(id: UUID): Participant {
+        return participantRepo.findByIdOrNull(id)?.toParticipant() ?: throw IllegalArgumentException("Unable to find participant [$id]")
+    }
+
+    @Transactional
     override fun save(participant: Participant) {
         requireNotNull(participantRepo.findByIdOrNull(participant.id)) { "Unable to update participant [${participant.id}] - Not found" }
             .update(participant)
     }
 
     override fun listTopDrawByPassWithLimit(pass: PassType, limit: Int): List<Participant> {
-        TODO("Not yet implemented")
+        return participantRepo.listByPass(pass, PageRequest.of(0, limit)).map { it.toParticipant() }
     }
 
     override fun listIdsWithNoDraw(): Map<PassType, List<UUID>> = participantRepo.listParticipantWithNoDraw()
@@ -33,29 +40,23 @@ class ParticipantAdapter(
         participantRepo.updateDrawOrder(id, drawOrder)
     }
 
-    override fun getAlreadyDrawnCount(): Map<PassType, Int> {
-        TODO("Not yet implemented")
+    override fun getAlreadyNotifCount(): Map<PassType, Int> {
+        val res = participantRepo.countAlreadyNotif().toMap()
+        return PassType.values().associateWith { res[it] ?: 0 }
     }
 }
 
-private fun ParticipantDB.update(src: Participant) = this.copy(
-    id = src.id,
-    lastname = src.lastname,
-    firstname = src.firstname,
-    email = src.email,
-    telephone = src.telephone,
-    pass = src.pass,
-    kids = src.kids,
+private fun ParticipantDB.update(src: Participant) = this.apply {
+    participantSmsStatus = src.smsStatus
+    participantNbSmsSent = src.nbSmsSent
+    participantSmsError = src.smsError
+    participantConfirmationLimitDate = src.confirmationLimitDate
+    participantSmsConfirmSentDate = src.smsConfirmSentDate
+    participantMailConfirmSentDate = src.mailConfirmSentDate
 
-    participantSmsStatus = src.smsStatus,
-    participantNbSmsSent = src.nbSmsSent,
-    participantSmsError = src.smsError,
-    participantSmsConfirmSentDate = src.smsConfirmSentDate,
-    participantMailConfirmSentDate = src.mailConfirmSentDate,
-
-    participantConfirmationDate = null,
-    participantConfirmationType = null,
-)
+    participantConfirmationDate = src.confirmationDate
+    participantConfirmationType = src.confirmationType
+}
 
 private fun ParticipantDB.toParticipant() = Participant(
     id = id,
@@ -68,11 +69,12 @@ private fun ParticipantDB.toParticipant() = Participant(
 
     participationDate = requireNotNull(participationDate) { "Participant [$id] has no participation date" },
 
-    drawOrder = null,
+    drawOrder = drawOrder,
 
     smsStatus = participantSmsStatus ?: SmsStatus.NOT_SENT,
     nbSmsSent = participantNbSmsSent,
     smsError = participantSmsError,
+    confirmationLimitDate = participantConfirmationLimitDate,
     smsConfirmSentDate = participantSmsConfirmSentDate,
     mailConfirmSentDate = participantMailConfirmSentDate,
 
