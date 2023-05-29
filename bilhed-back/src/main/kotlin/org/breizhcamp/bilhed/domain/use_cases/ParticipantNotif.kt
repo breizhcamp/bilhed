@@ -50,7 +50,7 @@ class ParticipantNotif(
 
         participants.forEach {
             logger.info { "Notifying participant to confirm the ticket [${it.firstname} ${it.lastname}]" }
-            val link = "${config.participantFrontUrl}/#/${it.id}/confirm"
+            val link = "${config.participantFrontUrl}/#/${it.id}/success"
             val shortLink = urlShortenerPort.shorten(link, config.breizhCampCloseDate)
             val model = mapOf("firstname" to it.firstname, "lastname" to it.lastname, "year" to config.breizhCampYear.toString(),
                 "link" to shortLink, "limit_date" to limitDateStr)
