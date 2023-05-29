@@ -8,7 +8,7 @@ spring:
         jwk-set-uri: https://auth.breizhcamp.org/auth/realms/BreizhCamp/protocol/openid-connect/certs
 
 
-logging.level.reactor.netty.http.client: DEBUG
+#logging.level.reactor.netty.http.client: DEBUG
 
 bilhed.back:
   participantFrontUrl: https://billets.breizhcamp.org
@@ -26,3 +26,7 @@ bilhed.back:
     passNames:
       TWO_DAYS: "Billet > Pass 2 jours"
       THREE_DAYS: "Billet > Pass 3 jours"
+
+    passPrices:
+      TWO_DAYS: 75.00
+      THREE_DAYS: 90.00

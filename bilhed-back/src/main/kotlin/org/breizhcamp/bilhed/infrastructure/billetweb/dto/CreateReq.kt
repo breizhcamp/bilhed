@@ -1,6 +1,7 @@
 package org.breizhcamp.bilhed.infrastructure.billetweb.dto
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import java.math.BigDecimal
 
 data class CreateReq(
     val data: List<CreateCmd>,
@@ -25,4 +26,6 @@ data class CreateProduct(
     val name: String,
     val firstname: String,
     val email: String,
+
+    val price: BigDecimal,
 )

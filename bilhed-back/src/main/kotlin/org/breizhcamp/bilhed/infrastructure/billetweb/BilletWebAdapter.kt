@@ -1,7 +1,6 @@
 package org.breizhcamp.bilhed.infrastructure.billetweb
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.netty.handler.logging.LogLevel
 import mu.KotlinLogging
 import org.breizhcamp.bilhed.config.BilhedBackConfig
 import org.breizhcamp.bilhed.domain.entities.Participant
@@ -13,7 +12,6 @@ import org.breizhcamp.bilhed.infrastructure.billetweb.dto.CreateProduct
 import org.breizhcamp.bilhed.infrastructure.billetweb.dto.CreateReq
 import org.breizhcamp.bilhed.infrastructure.db.model.BilletWebDB
 import org.breizhcamp.bilhed.infrastructure.db.repos.BilletWebRepo
-import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.http.codec.json.Jackson2JsonDecoder
 import org.springframework.stereotype.Component
 import org.springframework.util.MimeType
@@ -21,8 +19,6 @@ import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.support.WebClientAdapter
 import org.springframework.web.service.invoker.HttpServiceProxyFactory
-import reactor.netty.http.client.HttpClient
-import reactor.netty.transport.logging.AdvancedByteBufFormat
 import java.nio.charset.StandardCharsets
 import java.time.Instant
 import java.time.ZoneId
@@ -71,6 +67,7 @@ class BilletWebAdapter(
             name = lastname,
             firstname = firstname,
             email = email,
+            price = requireNotNull(config.billetWeb.passPrices[pass]) { "No BilletWeb pass price found for pass type [$pass]" },
         ))
     )
 
@@ -82,11 +79,11 @@ class BilletWebAdapter(
             )
         }.build()
 
-        val httpClient = HttpClient.create().wiretap("reactor.netty.http.client.HttpClient",
-            LogLevel.DEBUG, AdvancedByteBufFormat.TEXTUAL)
+//        val httpClient = HttpClient.create().wiretap("reactor.netty.http.client.HttpClient",
+//            LogLevel.DEBUG, AdvancedByteBufFormat.TEXTUAL)
 
         val webClient = WebClient.builder()
-            .clientConnector(ReactorClientHttpConnector(httpClient))
+//            .clientConnector(ReactorClientHttpConnector(httpClient))
             .exchangeStrategies(strategies)
             .defaultHeader("Authorization", "Basic ${config.billetWeb.apiKey}")
             .baseUrl(config.billetWeb.url).build()

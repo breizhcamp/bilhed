@@ -2,6 +2,7 @@ package org.breizhcamp.bilhed.config
 
 import org.breizhcamp.bilhed.domain.entities.PassType
 import org.springframework.boot.context.properties.ConfigurationProperties
+import java.math.BigDecimal
 import java.time.ZonedDateTime
 
 @ConfigurationProperties(prefix = "bilhed.back")
@@ -29,4 +30,5 @@ data class BilletWeb(
     val apiKey: String,
 
     val passNames: Map<PassType, String>,
+    val passPrices: Map<PassType, BigDecimal>,
 )
