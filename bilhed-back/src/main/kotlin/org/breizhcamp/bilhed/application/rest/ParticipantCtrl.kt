@@ -1,16 +1,15 @@
 package org.breizhcamp.bilhed.application.rest
 
 import mu.KotlinLogging
+import org.breizhcamp.bilhed.application.dto.ErrorRes
 import org.breizhcamp.bilhed.application.dto.ParticipantConfirmReq
+import org.breizhcamp.bilhed.application.dto.ParticipantConfirmInfo
 import org.breizhcamp.bilhed.application.dto.ParticipantConfirmRes
 import org.breizhcamp.bilhed.domain.entities.Participant
+import org.breizhcamp.bilhed.domain.entities.Ticket
 import org.breizhcamp.bilhed.domain.use_cases.ParticipantConfirm
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PatchMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.http.HttpStatus
+import org.springframework.web.bind.annotation.*
 import java.util.*
 
 private val logger = KotlinLogging.logger {}
@@ -22,18 +21,23 @@ class ParticipantCtrl(
 ) {
 
     @GetMapping("/{id}")
-    fun get(@PathVariable id: UUID): ParticipantConfirmRes {
+    fun get(@PathVariable id: UUID): ParticipantConfirmInfo {
         return participantConfirm.get(id).toDTO()
     }
 
-    @PatchMapping("/{id}")
-    fun confirm(@PathVariable id: UUID, @RequestBody req: ParticipantConfirmReq) {
-        logger.info { "Confirm participant [$id] with coming [${req.coming}]" }
-        //TODO plug saving data
+    @PostMapping("/{id}/confirm")
+    fun confirm(@PathVariable id: UUID, @RequestBody req: ParticipantConfirmReq): ParticipantConfirmRes {
+        logger.info { "Confirm participant [$id]" }
+        return participantConfirm.confirm(id).toConfirmRes()
     }
+
+    @ExceptionHandler(IllegalArgumentException::class) @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun handleIAE(e: IllegalArgumentException) = ErrorRes(e.message ?: "Une erreur est survenue")
 }
 
-private fun Participant.toDTO() = ParticipantConfirmRes(
+private fun Participant.toDTO() = ParticipantConfirmInfo(
     firstname = firstname,
     confirmationLimitDate = requireNotNull(confirmationLimitDate),
 )
+
+private fun Ticket.toConfirmRes() = ParticipantConfirmRes(payUrl)

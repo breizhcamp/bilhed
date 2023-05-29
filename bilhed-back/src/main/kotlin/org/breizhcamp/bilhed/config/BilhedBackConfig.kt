@@ -14,9 +14,19 @@ data class BilhedBackConfig(
     val passNumber: Map<PassType, Int>,
 
     val bihan: BihanConfig,
+    val billetWeb: BilletWeb,
 )
 
 data class BihanConfig(
     val url: String,
     val apiKey: String,
+)
+
+data class BilletWeb(
+    val url: String,
+    val eventId: String,
+
+    val apiKey: String,
+
+    val passNames: Map<PassType, String>,
 )

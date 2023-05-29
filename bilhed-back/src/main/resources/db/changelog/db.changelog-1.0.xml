@@ -65,4 +65,12 @@
         <addColumn tableName="participant"><column name="participant_confirmation_limit_date" type="timestamp with time zone"/></addColumn>
     </changeSet>
 
+    <changeSet id="7" author="alex">
+        <createTable tableName="billetweb">
+            <column name="participant_id" type="uuid"><constraints primaryKey="true" nullable="false"/></column>
+            <column name="attendee_id" type="text"><constraints nullable="false"/></column>
+            <column name="order_manager_url" type="text"><constraints nullable="false"/></column>
+        </createTable>
+    </changeSet>
+
 </databaseChangeLog>

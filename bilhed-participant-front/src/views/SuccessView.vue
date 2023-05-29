@@ -42,13 +42,13 @@
     <div class="row" v-if="participant.firstname">
 
       <div class="col-md-6 text-center mb-2">
-        <button class="btn btn-light btn-lg " @click="confirm(false)">
+        <button class="btn btn-light btn-lg" @click="cancel()" :disabled="loading">
           Je ne suis plus disponible, libérer ma place
         </button>
       </div>
 
       <div class="col-md-6 text-center mb-2">
-        <button class="btn btn-primary btn-lg" @click="confirm(true)">
+        <button class="btn btn-primary btn-lg" @click="confirm()" :disabled="loading">
           Confirmer ma venue et acheter mon billet
         </button>
       </div>
@@ -94,11 +94,25 @@ export default defineComponent({
         .finally(() => this.loading = false)
     },
 
-    confirm(coming: boolean) {
+    confirm() {
       this.error = ""
       this.loading = true
 
-      axios.patch('/participants/' + this.id, { coming: coming }).then(res => {
+      axios.post('/participants/' + this.id + '/confirm', { }).then(res => {
+        if (res.data.payUrl) {
+          window.location.href = res.data.payUrl
+        } else {
+          this.error = "Une erreur est survenue lors de la récupération de l'URL de paiement, contactez l'équipe pour finaliser le paiement"
+        }
+      }).catch(this.displayError)
+        .finally(() => this.loading = false)
+    },
+
+    cancel() {
+      this.error = ""
+      this.loading = true
+
+      axios.post('/participants/' + this.id + '/cancel').then(res => {
 
       }).catch(this.displayError)
         .finally(() => this.loading = false)
