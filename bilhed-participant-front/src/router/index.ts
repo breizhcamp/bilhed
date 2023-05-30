@@ -3,6 +3,7 @@ import SmsView from '@/views/SmsView.vue';
 import { createRouter, createWebHashHistory } from 'vue-router'
 import RegisterView from '../views/RegisterView.vue'
 import SuccessView from '@/views/SuccessView.vue'
+import ReleasedView from '@/views/ReleasedView.vue'
 
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
@@ -23,6 +24,10 @@ const router = createRouter({
       path: '/confirmed',
       name: 'confirmed',
       component: ConfirmedView
+    }, {
+      path: '/released',
+      name: 'released',
+      component: ReleasedView
     }, {
       path: '/data-usage',
       name: 'data-usage',

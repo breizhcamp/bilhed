@@ -33,12 +33,20 @@ class ParticipantConfirm(
     @Transactional
     fun confirm(id: UUID, data: AttendeeData): Ticket {
         val p = get(id)
-        logger.info { "Create ticket for participant [$id] / [${p.lastname}] [${p.firstname}]" }
+        logger.info { "Level up participant to attendee [$id] / [${p.lastname}] [${p.firstname}]" }
         participantPort.levelUpToAttendee(id)
+        logger.info { "Save attendee data for participant [$id] / [${p.lastname}] [${p.firstname}]" }
         attendeePort.saveData(id, data)
+        logger.info { "Create ticket for participant [$id] / [${p.lastname}] [${p.firstname}]" }
         val ticket = ticketPort.create(p)
         logger.info { "Ticket created for participant [$id] / [${p.lastname}] [${p.firstname}]" }
         return ticket
     }
 
+    @Transactional
+    fun cancel(id: UUID) {
+        val p = get(id)
+        logger.info { "Level up participant to released [$id] / [${p.lastname}] [${p.firstname}]" }
+        participantPort.levelUpToReleased(id)
+    }
 }

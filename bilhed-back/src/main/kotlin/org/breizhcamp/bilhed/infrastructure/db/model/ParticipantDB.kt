@@ -57,5 +57,5 @@ data class ParticipantDB(
 )
 
 enum class ParticipantDBStatus {
-    REGISTERED, PARTICIPANT, ATTENDEE
+    REGISTERED, PARTICIPANT, ATTENDEE, RELEASED, BLOCKED
 }

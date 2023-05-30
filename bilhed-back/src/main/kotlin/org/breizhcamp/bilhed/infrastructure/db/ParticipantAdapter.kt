@@ -24,12 +24,12 @@ class ParticipantAdapter(
     override fun list(): List<Participant> = participantRepo.listParticipants().map { it.toParticipant() }
 
     override fun get(id: UUID): Participant {
-        return participantRepo.findByIdOrNull(id)?.toParticipant() ?: throw IllegalArgumentException("Unable to find participant [$id]")
+        return participantRepo.findParticipant(id)?.toParticipant() ?: throw IllegalArgumentException("Unable to find participant [$id]")
     }
 
     @Transactional
     override fun save(participant: Participant) {
-        requireNotNull(participantRepo.findByIdOrNull(participant.id)) { "Unable to update participant [${participant.id}] - Not found" }
+        requireNotNull(participantRepo.findParticipant(participant.id)) { "Unable to update participant [${participant.id}] - Not found" }
             .update(participant)
     }
 
@@ -51,8 +51,16 @@ class ParticipantAdapter(
     }
 
     override fun levelUpToAttendee(id: UUID) {
-        participantRepo.findByIdOrNull(id)?.apply {
+        participantRepo.findParticipant(id)?.apply {
             status = ParticipantDBStatus.ATTENDEE
+            participantConfirmationDate = ZonedDateTime.now()
+            participantConfirmationType = ConfirmationType.MAIL
+        } ?: throw EntityNotFoundException("Unable to find participant [$id]")
+    }
+
+    override fun levelUpToReleased(id: UUID) {
+        participantRepo.findParticipant(id)?.apply {
+            status = ParticipantDBStatus.RELEASED
             participantConfirmationDate = ZonedDateTime.now()
             participantConfirmationType = ConfirmationType.MAIL
         } ?: throw EntityNotFoundException("Unable to find participant [$id]")

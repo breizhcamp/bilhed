@@ -33,6 +33,12 @@ class ParticipantCtrl(
         return participantConfirm.confirm(id, req.toData()).toConfirmRes()
     }
 
+    @PostMapping("/{id}/cancel")
+    fun cancel(@PathVariable id: UUID) {
+        logger.info { "Cancel participant [$id]" }
+        participantConfirm.cancel(id)
+    }
+
     @ExceptionHandler(IllegalArgumentException::class) @ResponseStatus(HttpStatus.BAD_REQUEST)
     fun handleIAE(e: IllegalArgumentException) = ErrorRes(e.message ?: "Une erreur est survenue")
 }

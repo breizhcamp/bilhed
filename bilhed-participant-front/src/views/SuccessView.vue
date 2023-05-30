@@ -16,7 +16,7 @@
         </p>
       </div>
 
-      <div class="placeholder-glow" v-else>
+      <div class="placeholder-glow" v-else-if="!error">
         <p class="lead text-center fw-bold mb-0">
           <span class="placeholder col-6"></span>
         </p>
@@ -39,10 +39,10 @@
     </div>
 
 
-    <div class="row" v-if="participant.firstname && !showForm">
+    <div class="row" v-if="participant.firstname && !showForm && !showCancelConfirm">
 
       <div class="col-md-6 text-center mb-2">
-        <button class="btn btn-light btn-lg" @click="cancel()" :disabled="loading">
+        <button class="btn btn-light btn-lg" @click="cancelConfirm()" :disabled="loading">
           Je ne suis plus disponible, libérer ma place
         </button>
       </div>
@@ -55,7 +55,29 @@
 
     </div>
 
-    <form @submit.prevent="save()" v-else>
+    <div class="row justify-content-center" v-if="showCancelConfirm">
+      <div class="col-md-6">
+        <div class="row justify-content-center mt-4 mb-4">
+          <h3 class="col-md-8 text-center">Libérez ma place ?</h3>
+        </div>
+
+        <div class="row text-center mb-3">
+          <button type="button" class="btn btn-lg btn-primary" :disabled="loading" @click="cancel()">
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" v-if="loading"></span>
+            Oui, je libère ma place pour une autre personne
+          </button>
+        </div>
+
+        <div class="row text-center mb-3">
+          <button type="button" class="btn btn-lg btn-light" :disabled="loading" @click="back()">
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" v-if="loading"></span>
+            Non, je reviens à la page précédente
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <form @submit.prevent="save()" v-if="showForm">
       <div class="row justify-content-center mb-3">
         <p class="col-md-8 text-center">Les billets sont nominatifs, il n'est pas possible de modifier votre nom, prénom ou e-mail.</p>
       </div>
@@ -192,6 +214,7 @@ export default defineComponent({
       participant: new Participant(),
       loading: false,
       showForm: false,
+      showCancelConfirm: false,
       error: "",
     }
   },
@@ -219,8 +242,13 @@ export default defineComponent({
       this.showForm = true
     },
 
+    cancelConfirm() {
+      this.showCancelConfirm = true
+    },
+
     back() {
       this.showForm = false
+      this.showCancelConfirm = false
     },
 
     save() {
@@ -242,7 +270,7 @@ export default defineComponent({
       this.loading = true
 
       axios.post('/participants/' + this.id + '/cancel').then(res => {
-
+        this.$router.push({ name: 'released' })
       }).catch(this.displayError)
         .finally(() => this.loading = false)
     },
