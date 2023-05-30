@@ -1,16 +1,21 @@
 package org.breizhcamp.bilhed.infrastructure.db
 
+import jakarta.persistence.EntityNotFoundException
+import org.breizhcamp.bilhed.domain.entities.ConfirmationType
 import org.breizhcamp.bilhed.domain.entities.Participant
 import org.breizhcamp.bilhed.domain.entities.PassType
 import org.breizhcamp.bilhed.domain.entities.SmsStatus
 import org.breizhcamp.bilhed.domain.use_cases.ports.ParticipantPort
 import org.breizhcamp.bilhed.infrastructure.db.model.ParticipantDB
+import org.breizhcamp.bilhed.infrastructure.db.model.ParticipantDBStatus
 import org.breizhcamp.bilhed.infrastructure.db.repos.ParticipantRepo
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
-import java.util.*
+import java.time.ZonedDateTime
+import java.util.UUID
+import kotlin.IllegalStateException
 
 @Component
 class ParticipantAdapter(
@@ -43,6 +48,14 @@ class ParticipantAdapter(
     override fun getAlreadyNotifCount(): Map<PassType, Int> {
         val res = participantRepo.countAlreadyNotif().toMap()
         return PassType.values().associateWith { res[it] ?: 0 }
+    }
+
+    override fun levelUpToAttendee(id: UUID) {
+        participantRepo.findByIdOrNull(id)?.apply {
+            status = ParticipantDBStatus.ATTENDEE
+            participantConfirmationDate = ZonedDateTime.now()
+            participantConfirmationType = ConfirmationType.MAIL
+        } ?: throw EntityNotFoundException("Unable to find participant [$id]")
     }
 }
 

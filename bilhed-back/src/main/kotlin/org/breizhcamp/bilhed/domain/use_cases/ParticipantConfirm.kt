@@ -34,6 +34,7 @@ class ParticipantConfirm(
     fun confirm(id: UUID, data: AttendeeData): Ticket {
         val p = get(id)
         logger.info { "Create ticket for participant [$id] / [${p.lastname}] [${p.firstname}]" }
+        participantPort.levelUpToAttendee(id)
         attendeePort.saveData(id, data)
         val ticket = ticketPort.create(p)
         logger.info { "Ticket created for participant [$id] / [${p.lastname}] [${p.firstname}]" }

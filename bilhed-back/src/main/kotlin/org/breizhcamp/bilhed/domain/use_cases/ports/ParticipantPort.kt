@@ -20,4 +20,6 @@ interface ParticipantPort {
     fun updateDrawOrder(id: UUID, drawOrder: Int)
 
     fun getAlreadyNotifCount(): Map<PassType, Int>
+
+    fun levelUpToAttendee(id: UUID)
 }
