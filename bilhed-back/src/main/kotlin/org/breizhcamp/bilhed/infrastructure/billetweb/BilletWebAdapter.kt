@@ -1,6 +1,7 @@
 package org.breizhcamp.bilhed.infrastructure.billetweb
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import jakarta.annotation.PostConstruct
 import mu.KotlinLogging
 import org.breizhcamp.bilhed.config.BilhedBackConfig
 import org.breizhcamp.bilhed.domain.entities.Participant
@@ -12,6 +13,7 @@ import org.breizhcamp.bilhed.infrastructure.billetweb.dto.CreateProduct
 import org.breizhcamp.bilhed.infrastructure.billetweb.dto.CreateReq
 import org.breizhcamp.bilhed.infrastructure.db.model.BilletWebDB
 import org.breizhcamp.bilhed.infrastructure.db.repos.BilletWebRepo
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.http.codec.json.Jackson2JsonDecoder
 import org.springframework.stereotype.Component
 import org.springframework.util.MimeType
@@ -26,6 +28,7 @@ import java.time.ZoneId
 private val logger = KotlinLogging.logger {}
 
 @Component
+@ConditionalOnProperty(prefix = "bilhed.back", name = ["billetWeb.enabled"], havingValue = "true")
 class BilletWebAdapter(
     private val config: BilhedBackConfig,
     private val objectMapper: ObjectMapper,
@@ -33,6 +36,11 @@ class BilletWebAdapter(
 ): TicketPort {
 
     private val billetWebClient = createClient()
+
+    @PostConstruct
+    fun setup() {
+        logger.info { "[BilletWeb] Using BilletWeb for ticket creation" }
+    }
 
     override fun create(participant: Participant): Ticket {
         logger.info { "[BilletWeb] Create ticket for participant [${participant.id}] / [${participant.lastname}] [${participant.firstname}]" }

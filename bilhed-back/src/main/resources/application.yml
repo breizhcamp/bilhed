@@ -21,6 +21,7 @@ bilhed.back:
     url: https://bzh.camp
 
   billetWeb:
+    enabled: true
     url: https://www.billetweb.fr/
 
     passNames:

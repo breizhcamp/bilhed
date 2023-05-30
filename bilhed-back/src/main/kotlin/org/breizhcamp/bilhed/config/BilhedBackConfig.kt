@@ -24,6 +24,7 @@ data class BihanConfig(
 )
 
 data class BilletWeb(
+    val enabled: Boolean,
     val url: String,
     val eventId: String,
 

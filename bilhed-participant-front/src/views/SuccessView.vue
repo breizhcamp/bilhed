@@ -39,7 +39,7 @@
     </div>
 
 
-    <div class="row" v-if="participant.firstname">
+    <div class="row" v-if="participant.firstname && !showForm">
 
       <div class="col-md-6 text-center mb-2">
         <button class="btn btn-light btn-lg" @click="cancel()" :disabled="loading">
@@ -54,6 +54,126 @@
       </div>
 
     </div>
+
+    <form @submit.prevent="save()" v-else>
+      <div class="row justify-content-center mb-3">
+        <p class="col-md-8 text-center">Les billets sont nominatifs, il n'est pas possible de modifier votre nom, prénom ou e-mail.</p>
+      </div>
+
+      <div class="row justify-content-center">
+        <div class="col-md-6">
+          <div class="mb-3 row">
+            <label for="lastname" class="col-sm-3 col-form-label">Nom</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" name="lastname" id="lastname" disabled v-model="participant.lastname">
+            </div>
+          </div>
+
+          <div class="mb-3 row">
+            <label for="firstname" class="col-sm-3 col-form-label">Prénom</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" name="firstname" id="firstname" disabled v-model="participant.firstname">
+            </div>
+          </div>
+
+          <div class="mb-3 row">
+            <label for="email" class="col-sm-3 col-form-label">E-Mail</label>
+            <div class="col-sm-9">
+              <input type="email" class="form-control" name="email" id="email" disabled v-model="participant.email">
+            </div>
+          </div>
+
+          <div class="mb-3 row">
+            <label for="company" class="col-sm-3 col-form-label">Entreprise</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" name="company" id="company" :disabled="loading" v-model="participant.company">
+            </div>
+          </div>
+
+          <div class="mb-3 row">
+            <label for="tShirtSize" class="col-sm-3 col-form-label">Taille T-Shirt*</label>
+            <div class="col-sm-9">
+              <select class="form-select" name="tShirtSize" id="tShirtSize" required :disabled="loading" v-model="participant.tShirtSize">
+                <option></option>
+                <option value="no">Je ne souhaite pas de T-Shirt</option>
+                <option value="xs">XS</option>
+                <option value="s">S</option>
+                <option value="m">M</option>
+                <option value="l">L</option>
+                <option value="xl">XL</option>
+                <option value="xxl">XXL</option>
+                <option value="3xl">3XL</option>
+              </select>
+
+            </div>
+          </div>
+
+          <div class="mb-3 row" v-if="participant.tShirtSize && participant.tShirtSize != 'no'">
+            <label for="tShirtCut" class="col-sm-3 col-form-label">Coupe T-Shirt*</label>
+            <div class="col-sm-9">
+              <select class="form-select" name="tShirtCut" id="tShirtCut" required :disabled="loading" v-model="participant.tShirtCut">
+                <option></option>
+                <option value="m">Homme</option>
+                <option value="f">Femme</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mb-4 row">
+            <label class="col-sm-3 col-form-label">Meet and Greet*</label>
+            <div class="col-sm-9">
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="meetAndGreet" id="meetAndGreetYes" v-model="participant.meetAndGreet" :value="true" required :disabled="loading">
+                <label class="form-check-label" for="meetAndGreetYes">Oui</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="meetAndGreet" id="meetAndGreetNo" v-model="participant.meetAndGreet" :value="false" required :disabled="loading">
+                <label class="form-check-label" for="meetAndGreetNo">Non</label>
+              </div>
+              <div id="postalCodeHelp" class="form-text">Souhaitez vous rester le jeudi soir (19h-21h) ? Le repas est offert.</div>
+            </div>
+          </div>
+
+          <div class="mb-3 row">
+            <label for="vegan" class="col-sm-3 col-form-label">Repas végétarien</label>
+            <div class="col-sm-9">
+              <div class="form-check pt-2">
+                <input class="form-check-input" type="checkbox" value="true" id="vegan" v-model="participant.vegan">
+                Cette année la journée de jeudi sera entièrement végétarienne. Afin d'estimer les quantités pour les autres jours,
+                vous pouvez cocher cette case si vous souhaitez un repas végétarien.
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-4 row">
+            <label for="postalCode" class="col-sm-3 col-form-label">Code postal</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" name="postalCode" id="postalCode" :disabled="loading" v-model="participant.postalCode">
+              <div id="postalCodeHelp" class="form-text">Nous permet de savoir d'où vous venez.</div>
+            </div>
+          </div>
+
+          <div class="row text-center mb-3">
+            <button type="submit" class="btn btn-lg btn-primary" :disabled="loading">
+              <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" v-if="loading"></span>
+              Enregistrer et payer
+            </button>
+          </div>
+
+          <div class="row text-center mb-3">
+            <button type="button" class="btn btn-lg btn-light" :disabled="loading" @click="back()">
+              <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" v-if="loading"></span>
+              Annuler et revenir à la page précédente
+            </button>
+          </div>
+
+          <div class="row text-center">
+            <p class="small"><router-link to="/data-usage" target="_blank">Utilisation des données personnelles</router-link></p>
+          </div>
+        </div>
+      </div>
+    </form>
+
   </div>
 </template>
 
@@ -71,6 +191,7 @@ export default defineComponent({
     return {
       participant: new Participant(),
       loading: false,
+      showForm: false,
       error: "",
     }
   },
@@ -95,10 +216,18 @@ export default defineComponent({
     },
 
     confirm() {
+      this.showForm = true
+    },
+
+    back() {
+      this.showForm = false
+    },
+
+    save() {
       this.error = ""
       this.loading = true
 
-      axios.post('/participants/' + this.id + '/confirm', { }).then(res => {
+      axios.post('/participants/' + this.id + '/confirm', this.participant).then(res => {
         if (res.data.payUrl) {
           window.location.href = res.data.payUrl
         } else {

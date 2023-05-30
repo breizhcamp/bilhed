@@ -73,4 +73,16 @@
         </createTable>
     </changeSet>
 
+    <changeSet id="8" author="alex">
+        <createTable tableName="attendee_data">
+            <column name="id" type="uuid"><constraints primaryKey="true" nullable="false"/></column>
+            <column name="company" type="text"/>
+            <column name="t_shirt_size" type="text"><constraints nullable="false"/></column>
+            <column name="t_shirt_cut" type="text"/>
+            <column name="vegan" type="boolean"><constraints nullable="false"/></column>
+            <column name="meet_and_greet" type="boolean"><constraints nullable="false"/></column>
+            <column name="postal_code" type="text"/>
+        </createTable>
+    </changeSet>
+
 </databaseChangeLog>
