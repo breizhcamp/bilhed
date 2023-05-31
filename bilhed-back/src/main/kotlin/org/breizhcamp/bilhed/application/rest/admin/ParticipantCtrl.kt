@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+import java.util.UUID
 
 @RestController("adminParticipantCtrl")
 @RequestMapping("/admin/participants")
@@ -32,7 +33,12 @@ class ParticipantCtrl(
 
     @PostMapping("/notif") @ResponseStatus(HttpStatus.NO_CONTENT)
     fun notifAll(@RequestBody override: Map<PassType, Int>?) {
-        participantNotif.notif(override ?: emptyMap())
+        participantNotif.notify(override ?: emptyMap())
+    }
+
+    @PostMapping("/notif/success") @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun succeed(@RequestBody ids: List<UUID>) {
+        participantNotif.notifySuccess(ids)
     }
 }
 

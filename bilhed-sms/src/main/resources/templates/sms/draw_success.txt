@@ -1,1 +1,1 @@
-Bonne nouvelle, vous avez été retenu pour la billetterie du BreizhCamp, vous avez 72h pour confirmer ou libérer votre place sur [(${link})]
+Bonne nouvelle, vous avez été retenu pour la billetterie du BreizhCamp, vous avez [(${delay})] pour confirmer ou libérer votre place sur [(${link})]

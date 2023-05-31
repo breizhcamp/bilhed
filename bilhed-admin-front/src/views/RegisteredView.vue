@@ -52,9 +52,9 @@
 </template>
 
 <script lang="ts">
-import type { Registered } from '@/dto/Registered';
-
 /// <reference types="vite-svg-loader" />
+
+import type { Registered } from '@/dto/Registered';
 import { defineComponent } from 'vue'
 import axios from 'axios'
 import DateView from '@/components/DateView.vue'

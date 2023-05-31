@@ -7,7 +7,7 @@ Bonjour <span th:text="${firstname}"></span>,
 </p>
 
 <p>
-  <b>Vous avez 72h, soit jusqu'à [(${limit_date})]</b>, pour confirmer ou libérer votre place
+  <b>Vous avez <span th:text="${delay}"></span>, soit jusqu'à <span th:text="${limit_date}"></span></b>, pour confirmer ou libérer votre place
   en suivant ce lien : <a th:href="${link}"><span th:text="${link}"></span></a>
 </p>
 
