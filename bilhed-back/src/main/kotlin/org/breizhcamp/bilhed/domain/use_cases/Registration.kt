@@ -10,6 +10,7 @@ import org.breizhcamp.bilhed.domain.use_cases.ports.MailPort
 import org.breizhcamp.bilhed.domain.use_cases.ports.RegisteredPort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.ZonedDateTime
 import java.util.*
 
 private val logger = KotlinLogging.logger {}
@@ -26,6 +27,10 @@ class Registration(
 ) {
 
     fun register(registered: Registered): Registered {
+        if (config.registerCloseDate.isBefore(ZonedDateTime.now())) {
+            throw IllegalArgumentException("Les inscriptions sont closes.")
+        }
+
         if (registeredPort.existsEmailOrPhone(registered.email, registered.telephone)) {
             throw IllegalArgumentException("Une inscription avec cet email ou ce téléphone existe déjà.")
         }
