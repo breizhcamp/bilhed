@@ -28,8 +28,9 @@
 </template>
 
 <script lang="ts">
+/// <reference types="vite-svg-loader" />
 import { defineComponent } from 'vue'
-import Logo from '@/assets/logo-breizhcamp-icone.svg'
+import Logo from '@/assets/logo-breizhcamp-icone.svg?component'
 
 export default defineComponent({
   name: "AppView",

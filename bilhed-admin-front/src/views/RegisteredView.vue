@@ -52,12 +52,15 @@
 </template>
 
 <script lang="ts">
+import type { Registered } from '@/dto/Registered';
+
+/// <reference types="vite-svg-loader" />
 import { defineComponent } from 'vue'
 import axios from 'axios'
 import DateView from '@/components/DateView.vue'
 import ModalForm from '@/components/ModalForm.vue'
-import BiChatText from 'bootstrap-icons/icons/chat-text.svg'
-import BiEnvelope from 'bootstrap-icons/icons/envelope.svg'
+import BiChatText from 'bootstrap-icons/icons/chat-text.svg?component'
+import BiEnvelope from 'bootstrap-icons/icons/envelope.svg?component'
 
 export default defineComponent({
   name: "RegisteredView",
@@ -65,7 +68,7 @@ export default defineComponent({
 
   data() {
     return {
-      registered: [],
+      registered: [] as Registered[],
       importModal: false,
       loading: false,
       file: null as File | null,
@@ -93,6 +96,7 @@ export default defineComponent({
     sendReminder(id: string, type: string) {
       this.loading = true
       let data = {}
+      // @ts-ignore
       data[type] = true
 
       axios.post(`/registered/${id}/reminder`, data).then(() => {

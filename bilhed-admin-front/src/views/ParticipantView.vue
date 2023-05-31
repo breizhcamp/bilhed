@@ -41,6 +41,7 @@
 </template>
 
 <script lang="ts">
+import type { Participant } from '@/dto/Participant';
 import { defineComponent } from 'vue'
 import axios from 'axios'
 import DateView from '@/components/DateView.vue'
@@ -51,7 +52,7 @@ export default defineComponent({
 
   data() {
     return {
-      participants: [],
+      participants: [] as Participant[],
       allChecked: false,
       loading: false,
     }
