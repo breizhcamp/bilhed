@@ -20,7 +20,7 @@ class SmsResponse(
         logger.info { "Received SMS response from SMS service: $response" }
 
         when (response.template) {
-            "register" -> registration.saveSmsStatus(response.id, response.error)
+            "registered_token" -> registration.saveSmsStatus(response.id, response.error)
             "draw_success" -> participantNotif.saveSmsStatus(response.id, response.error)
             else -> logger.info { "Unknown handling for template: ${response.template}" }
         }
