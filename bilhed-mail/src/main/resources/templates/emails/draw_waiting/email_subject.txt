@@ -1,0 +1,1 @@
+[BreizhCamp] Vous êtes en liste d'attente pour la billetterie du BreizhCamp [(${year})]

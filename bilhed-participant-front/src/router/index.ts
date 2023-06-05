@@ -1,5 +1,6 @@
 import ConfirmedView from '@/views/ConfirmedView.vue';
 import SmsView from '@/views/SmsView.vue';
+import TicketEndView from '@/views/TicketEndView.vue';
 import { createRouter, createWebHashHistory } from 'vue-router'
 import RegisterView from '../views/RegisterView.vue'
 import SuccessView from '@/views/SuccessView.vue'
@@ -33,6 +34,10 @@ const router = createRouter({
       path: '/released',
       name: 'released',
       component: ReleasedView
+    }, {
+      path: '/ticket',
+      name: 'ticket',
+      component: TicketEndView
     }, {
       path: '/data-usage',
       name: 'data-usage',

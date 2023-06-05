@@ -25,7 +25,7 @@ class TicketConsoleAdapter(
 
     override fun create(participant: Participant): Ticket {
         logger.info { "[TicketConsole] Create ticket for participant [${participant.id}] / [${participant.lastname}] [${participant.firstname}]" }
-        return Ticket(config.participantFrontUrl, PayStatus.TO_PAY)
+        return Ticket("${config.participantFrontUrl}/#/ticket", PayStatus.TO_PAY)
     }
 
 }

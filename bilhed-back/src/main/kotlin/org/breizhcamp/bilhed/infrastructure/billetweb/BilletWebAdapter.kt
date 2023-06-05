@@ -43,8 +43,10 @@ class BilletWebAdapter(
     }
 
     override fun create(participant: Participant): Ticket {
+        val eventId = requireNotNull(config.billetWeb.eventId) { "Erreur config, impossible de créer de Billet sans eventId" }
+
         logger.info { "[BilletWeb] Create ticket for participant [${participant.id}] / [${participant.lastname}] [${participant.firstname}]" }
-        val createRes = billetWebClient.create(config.billetWeb.eventId, CreateReq(participant.toCreateReq())).firstOrNull()
+        val createRes = billetWebClient.create(eventId, CreateReq(participant.toCreateReq())).firstOrNull()
             ?: throw IllegalStateException("Impossible de créer la commande BilletWeb, merci de contacter l'équipe")
         logger.info { "[BilletWeb] Ticket created for participant [${participant.id}] / [${participant.lastname}] [${participant.firstname}] with res: $createRes" }
 
@@ -53,7 +55,7 @@ class BilletWebAdapter(
 
         val lastUpdate = Instant.now().minusSeconds(10)
         logger.info { "[BilletWeb] Retrieving attendees updated after " + lastUpdate.atZone(ZoneId.of("Europe/Paris")) }
-        val attendees = billetWebClient.listAttendees(config.billetWeb.eventId, lastUpdate.epochSecond)
+        val attendees = billetWebClient.listAttendees(eventId, lastUpdate.epochSecond)
         logger.info { "[BilletWeb] [${attendees.size}] Attendees retrieved" }
 
         val attendee = attendees.find { it.id == productId } ?: throw IllegalStateException("Impossible de retrouver la commande BilletWeb, merci de contacter l'équipe")
@@ -80,6 +82,8 @@ class BilletWebAdapter(
     )
 
     private fun createClient(): BilletWebClient {
+        val apiKey = requireNotNull(config.billetWeb.apiKey) { "Config error, BilletWeb apiKey is missing" }
+
         /** In order to override incorrect text/html returned by BilletWeb... */
         val strategies = ExchangeStrategies.builder().codecs { clientCodecConfigurer ->
             clientCodecConfigurer.customCodecs().register(
@@ -93,7 +97,7 @@ class BilletWebAdapter(
         val webClient = WebClient.builder()
 //            .clientConnector(ReactorClientHttpConnector(httpClient))
             .exchangeStrategies(strategies)
-            .defaultHeader("Authorization", "Basic ${config.billetWeb.apiKey}")
+            .defaultHeader("Authorization", "Basic ${apiKey}")
             .baseUrl(config.billetWeb.url).build()
 
         val factory = HttpServiceProxyFactory.builder(WebClientAdapter.forClient(webClient)).build()

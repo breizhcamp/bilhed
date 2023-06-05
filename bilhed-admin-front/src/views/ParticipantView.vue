@@ -36,14 +36,18 @@
         <td>{{ p.drawOrder }}</td>
         <td><DateView :date="p.confirmationLimitDate"/></td>
         <td>
-          <button type="button" class="btn btn-link btn-sm" title="Notify success" @click="notifySuccess(p.id)" :disabled="loading"><BiSendCheck/></button>
+          <button type="button" class="btn btn-link btn-sm" title="Notify success" @click="notifyOne(p.id, 'success')" :disabled="loading"><BiSendCheck/></button>
+          <button type="button" class="btn btn-link btn-sm" title="Notify waiting" @click="notifyOne(p.id, 'waiting')" :disabled="loading"><BiSendExclamation/></button>
+          <button type="button" class="btn btn-link btn-sm" title="Notify failed" @click="notifyOne(p.id, 'failed')" :disabled="loading"><BiSendX/></button>
         </td>
       </tr>
       </tbody>
     </table>
 
     <div class="mb-3">
-      <button type="button" class="btn btn-primary" v-on:click="notifySuccessSel()" :disabled="loading">Notify success</button>
+      <button type="button" class="btn btn-primary" v-on:click="notifySel('success')" :disabled="loading">Notify success</button>
+      <button type="button" class="btn btn-primary" v-on:click="notifySel('waiting')" :disabled="loading">Notify waiting</button>
+      <button type="button" class="btn btn-primary" v-on:click="notifySel('failed')" :disabled="loading">Notify failed</button>
     </div>
   </div>
 </template>
@@ -51,15 +55,17 @@
 <script lang="ts">
 /// <reference types="vite-svg-loader" />
 
-import type { Participant } from '@/dto/Participant';
-import { defineComponent } from 'vue'
-import axios from 'axios'
 import DateView from '@/components/DateView.vue'
+import type { Participant } from '@/dto/Participant';
+import axios from 'axios'
 import BiSendCheck from 'bootstrap-icons/icons/send-check.svg?component'
+import BiSendExclamation from 'bootstrap-icons/icons/send-exclamation.svg?component'
+import BiSendX from 'bootstrap-icons/icons/send-x.svg?component'
+import { defineComponent } from 'vue'
 
 export default defineComponent({
   name: "ParticipantView",
-  components: { DateView, BiSendCheck },
+  components: { DateView, BiSendCheck, BiSendExclamation, BiSendX },
 
   data() {
     return {
@@ -95,26 +101,25 @@ export default defineComponent({
       })
     },
 
-    notifySuccess(id: string) {
-      this.loading = true
-      axios.post('/participants/notif/success', [id]).then(() => {
-        this.load()
-      }).finally(() => {
-        this.loading = false
-      })
+    notifyOne(id: string, type: string) {
+      this.sendNotify([id], type);
     },
 
-    notifySuccessSel() {
-      this.loading = true
+    notifySel(type: string) {
       const ids = this.participants.filter((p) => p.checked).map((p) => p.id)
-      axios.post('/participants/notif/success', ids).then(() => {
+      this.sendNotify(ids, type);
+    },
+
+    sendNotify(ids: string[], type: string) {
+      this.loading = true
+      axios.post('/participants/notif/' + type, ids).then(() => {
         this.load()
       }).finally(() => {
         this.loading = false
       })
     },
 
-    notify() {
+    notifyAll() {
       this.loading = true
       axios.post('/participants/notif').then(() => {
         this.load()

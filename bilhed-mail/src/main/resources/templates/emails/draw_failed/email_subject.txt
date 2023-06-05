@@ -1,0 +1,1 @@
+[BreizhCamp] Vous n'avez pas été sélectionné pour la billetterie du BreizhCamp [(${year})] :(

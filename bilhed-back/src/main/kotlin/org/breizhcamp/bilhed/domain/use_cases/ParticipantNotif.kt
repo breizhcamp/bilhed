@@ -25,16 +25,6 @@ class ParticipantNotif(
     private val urlShortenerPort: UrlShortenerPort,
 ) {
 
-    /** Notify the list of [ids] that they have been drawn */
-    fun notifySuccess(ids: List<UUID>) {
-        val limitDate = getLimitDate()
-
-        ids.forEach {
-            val participant = participantPort.get(it)
-            notifyParticipant(participant, limitDate)
-        }
-    }
-
     fun notify(overrideNbNotif: Map<PassType, Int>) {
         val count = participantPort.getAlreadyNotifCount()
         val nbToNotif = count.mapValues { (type, count) ->
@@ -56,12 +46,22 @@ class ParticipantNotif(
         val limitDate = getLimitDate()
 
         participants.forEach {
-            notifyParticipant(it, limitDate)
+            notifySuccessParticipant(it, limitDate)
         }
     }
 
-    private fun notifyParticipant(p: Participant, limitDate: LimitDate) {
-        logger.info { "Notifying participant to confirm the ticket [${p.firstname} ${p.lastname}]" }
+    /** Notify the list of [ids] that they have been drawn */
+    fun notifySuccess(ids: List<UUID>) {
+        val limitDate = getLimitDate()
+
+        ids.forEach {
+            val participant = participantPort.get(it)
+            notifySuccessParticipant(participant, limitDate)
+        }
+    }
+
+    private fun notifySuccessParticipant(p: Participant, limitDate: LimitDate) {
+        logger.info { "Notifying success participant to confirm the ticket [${p.firstname} ${p.lastname}]" }
         val link = "${config.participantFrontUrl}/#/${p.id}/success"
         val shortLink = urlShortenerPort.shorten(link, config.breizhCampCloseDate)
         val model = mapOf(
@@ -73,6 +73,17 @@ class ParticipantNotif(
         mailPort.send(Mail(p.getMailAddress(), "draw_success", model))
 
         participantPort.save(resSms.copy(mailConfirmSentDate = limitDate.now, confirmationLimitDate = limitDate.date))
+    }
+
+    fun notifyWaiting(ids: List<UUID>) = ids.forEach { notifyWaitingParticipant(it, "draw_waiting") }
+    fun notifyFailed(ids: List<UUID>) = ids.forEach { notifyWaitingParticipant(it, "draw_failed") }
+
+
+    private fun notifyWaitingParticipant(id: UUID, template: String) {
+        val p = participantPort.get(id)
+        logger.info { "Notifying [$template] participant [${p.firstname} ${p.lastname}]" }
+        val model = mapOf("firstname" to p.firstname, "lastname" to p.lastname, "year" to config.breizhCampYear.toString())
+        mailPort.send(Mail(p.getMailAddress(), template, model))
     }
 
     private fun getLimitDate(): LimitDate {

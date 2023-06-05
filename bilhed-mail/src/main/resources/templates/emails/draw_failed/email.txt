@@ -1,0 +1,10 @@
+Bonjour [(${firstname})],
+
+Suite à la sélection des billets pour la billetterie du BreizhCamp [(${year})], vous n'avez hélas pas été sélectionné.
+
+Comme vous le savez, la place est limité par l'Université qui nous accueille et nous sommes obligés de limiter le nombre de participants.
+
+Nous espérons cependant vous voir pour une prochaine édition !
+
+Cordialement,
+L'équipe du BreizhCamp

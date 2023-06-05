@@ -40,6 +40,16 @@ class ParticipantCtrl(
     fun succeed(@RequestBody ids: List<UUID>) {
         participantNotif.notifySuccess(ids)
     }
+
+    @PostMapping("/notif/waiting") @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun waiting(@RequestBody ids: List<UUID>) {
+        participantNotif.notifyWaiting(ids)
+    }
+
+    @PostMapping("/notif/failed") @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun failed(@RequestBody ids: List<UUID>) {
+        participantNotif.notifyFailed(ids)
+    }
 }
 
 private fun Participant.toDto() = ParticipantDTO(

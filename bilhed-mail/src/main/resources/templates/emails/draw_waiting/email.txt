@@ -1,0 +1,8 @@
+Bonjour [(${firstname})],
+
+Suite à la sélection des billets pour la billetterie du BreizhCamp [(${year})], vous êtes actuellement en liste d'attente.
+
+Nous vous recontacterons dans le cas où des places se libèrent.
+
+Cordialement,
+L'équipe du BreizhCamp

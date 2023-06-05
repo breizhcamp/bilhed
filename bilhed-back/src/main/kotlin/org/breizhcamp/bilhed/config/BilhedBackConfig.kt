@@ -26,9 +26,9 @@ data class BihanConfig(
 data class BilletWeb(
     val enabled: Boolean,
     val url: String,
-    val eventId: String,
 
-    val apiKey: String,
+    val eventId: String?,
+    val apiKey: String?,
 
     val passNames: Map<PassType, String>,
     val passPrices: Map<PassType, BigDecimal>,
