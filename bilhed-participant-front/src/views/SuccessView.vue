@@ -11,6 +11,13 @@
           ou bien libérer votre place pour qu'elle soit attribuée à une autre personne si vous n'êtes plus disponible.
         </p>
 
+        <p class="mt-4 mb-4">
+          Vous aviez choisi un pass
+          <span v-if="participant.pass === 'TWO_DAYS'"><strong>2 jours</strong> (jeudi 29 et vendredi 30 juin)</span>
+            <span v-else-if="participant.pass === 'THREE_DAYS'"><strong>3 jours</strong> (mercredi 28, jeudi 29 et vendredi 30 juin)</span>
+          lors de votre inscription à la loterie.
+        </p>
+
         <p class="fw-bold">
           Vous avez jusqu'au <DateView :date="participant.confirmationLimitDate" /> pour confirmer votre choix.
         </p>
@@ -203,6 +210,7 @@
 import { defineComponent } from 'vue'
 import { Participant } from '@/dto/Participant'
 import DateView from '@/components/DateView.vue'
+import type { AxiosResponse } from 'axios'
 import axios from 'axios'
 
 export default defineComponent({
@@ -234,7 +242,13 @@ export default defineComponent({
 
       axios.get('/participants/' + this.id).then(res => {
         this.participant = res.data
-      }).catch(this.displayError)
+      }).catch(err => {
+        if (err.response.status == 404) {
+          return axios.get('/attendees/' + this.id).then(this.handlePayUrl).catch(this.displayError)
+        } else {
+          this.displayError(err)
+        }
+      })
         .finally(() => this.loading = false)
     },
 
@@ -251,16 +265,20 @@ export default defineComponent({
       this.showCancelConfirm = false
     },
 
+    handlePayUrl: function (res: AxiosResponse<any>) {
+      if (res.data.payUrl) {
+        window.location.href = res.data.payUrl
+      } else {
+        this.error = "Une erreur est survenue lors de la récupération de l'URL de paiement, contactez l'équipe pour finaliser le paiement"
+      }
+    },
+
     save() {
       this.error = ""
       this.loading = true
 
       axios.post('/participants/' + this.id + '/confirm', this.participant).then(res => {
-        if (res.data.payUrl) {
-          window.location.href = res.data.payUrl
-        } else {
-          this.error = "Une erreur est survenue lors de la récupération de l'URL de paiement, contactez l'équipe pour finaliser le paiement"
-        }
+        this.handlePayUrl(res)
       }).catch(this.displayError)
         .finally(() => this.loading = false)
     },

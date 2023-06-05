@@ -24,7 +24,7 @@ class ParticipantAdapter(
     override fun list(): List<Participant> = participantRepo.listParticipants().map { it.toParticipant() }
 
     override fun get(id: UUID): Participant {
-        return participantRepo.findParticipant(id)?.toParticipant() ?: throw IllegalArgumentException("Unable to find participant [$id]")
+        return participantRepo.findParticipant(id)?.toParticipant() ?: throw EntityNotFoundException("Unable to find participant [$id]")
     }
 
     @Transactional

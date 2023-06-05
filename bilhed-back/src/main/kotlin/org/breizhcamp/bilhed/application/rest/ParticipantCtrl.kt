@@ -1,5 +1,6 @@
 package org.breizhcamp.bilhed.application.rest
 
+import jakarta.persistence.EntityNotFoundException
 import mu.KotlinLogging
 import org.breizhcamp.bilhed.application.dto.ErrorRes
 import org.breizhcamp.bilhed.application.dto.ParticipantConfirmReq
@@ -41,6 +42,9 @@ class ParticipantCtrl(
 
     @ExceptionHandler(IllegalArgumentException::class) @ResponseStatus(HttpStatus.BAD_REQUEST)
     fun handleIAE(e: IllegalArgumentException) = ErrorRes(e.message ?: "Une erreur est survenue")
+
+    @ExceptionHandler(EntityNotFoundException::class) @ResponseStatus(HttpStatus.NOT_FOUND)
+    fun handleENFE(e: EntityNotFoundException) = ErrorRes("Not found")
 }
 
 private fun ParticipantConfirmReq.toData() = AttendeeData(
@@ -56,6 +60,7 @@ private fun Participant.toDTO() = ParticipantConfirmInfo(
     lastname = lastname,
     firstname = firstname,
     email = email,
+    pass = pass,
     confirmationLimitDate = requireNotNull(confirmationLimitDate),
 )
 

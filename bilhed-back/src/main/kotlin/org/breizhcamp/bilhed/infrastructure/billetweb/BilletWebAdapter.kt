@@ -2,6 +2,7 @@ package org.breizhcamp.bilhed.infrastructure.billetweb
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.annotation.PostConstruct
+import jakarta.persistence.EntityNotFoundException
 import mu.KotlinLogging
 import org.breizhcamp.bilhed.config.BilhedBackConfig
 import org.breizhcamp.bilhed.domain.entities.Participant
@@ -14,6 +15,7 @@ import org.breizhcamp.bilhed.infrastructure.billetweb.dto.CreateReq
 import org.breizhcamp.bilhed.infrastructure.db.model.BilletWebDB
 import org.breizhcamp.bilhed.infrastructure.db.repos.BilletWebRepo
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.codec.json.Jackson2JsonDecoder
 import org.springframework.stereotype.Component
 import org.springframework.util.MimeType
@@ -24,6 +26,7 @@ import org.springframework.web.service.invoker.HttpServiceProxyFactory
 import java.nio.charset.StandardCharsets
 import java.time.Instant
 import java.time.ZoneId
+import java.util.*
 
 private val logger = KotlinLogging.logger {}
 
@@ -64,8 +67,19 @@ class BilletWebAdapter(
         val billetWeb = BilletWebDB(participant.id, createRes.id, attendee.orderManagement)
         billetWebRepo.save(billetWeb)
 
-        return Ticket("${attendee.orderManagement}&action=pay", PayStatus.TO_PAY)
+        return Ticket(buildPayUrl(attendee.orderManagement), PayStatus.TO_PAY)
     }
+
+    override fun getPayUrl(id: UUID): String {
+        val billetWebInfo = billetWebRepo.findByIdOrNull(id)
+            ?: throw EntityNotFoundException("Impossible de retrouver la commande BilletWeb, merci de contacter l'équipe")
+
+        return buildPayUrl(billetWebInfo.orderManagerUrl)
+    }
+
+    private fun buildPayUrl(orderManagement: String) = "$orderManagement&action=pay"
+
+
 
     private fun Participant.toCreateReq() = CreateCmd(
         name = lastname,

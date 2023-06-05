@@ -9,6 +9,7 @@ import org.breizhcamp.bilhed.domain.entities.Ticket
 import org.breizhcamp.bilhed.domain.use_cases.ports.TicketPort
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
+import java.util.*
 
 private val logger = KotlinLogging.logger {}
 
@@ -25,7 +26,11 @@ class TicketConsoleAdapter(
 
     override fun create(participant: Participant): Ticket {
         logger.info { "[TicketConsole] Create ticket for participant [${participant.id}] / [${participant.lastname}] [${participant.firstname}]" }
-        return Ticket("${config.participantFrontUrl}/#/ticket", PayStatus.TO_PAY)
+        return Ticket(generatePayUrl(), PayStatus.TO_PAY)
     }
+
+    override fun getPayUrl(id: UUID): String = generatePayUrl()
+
+    private fun generatePayUrl() = "${config.participantFrontUrl}/#/ticket"
 
 }
