@@ -25,7 +25,7 @@
       </tr>
       </thead>
       <tbody>
-      <tr v-for="p in participants" :key="p.id">
+      <tr v-for="p in participants" :key="p.id" @click.exact="p.checked = !p.checked" @click.shift="checkBetween(p)">
         <td><input type="checkbox" v-model="p.checked"></td>
         <td>{{ p.lastname }}</td>
         <td>{{ p.firstname }}</td>
@@ -44,11 +44,16 @@
       </tbody>
     </table>
 
-    <div class="mb-3">
-      <button type="button" class="btn btn-primary" v-on:click="notifySel('success')" :disabled="loading">Notify success</button>
-      <button type="button" class="btn btn-primary" v-on:click="notifySel('waiting')" :disabled="loading">Notify waiting</button>
-      <button type="button" class="btn btn-primary" v-on:click="notifySel('failed')" :disabled="loading">Notify failed</button>
-    </div>
+    <nav class="navbar sticky-bottom bg-light">
+      <div class="container-fluid">
+        <div>
+          <button type="button" class="btn btn-primary me-1" v-on:click="notifySel('success')" :disabled="loading"><BiSendCheck/> Notify success</button>
+          <button type="button" class="btn btn-warning me-1" v-on:click="notifySel('waiting')" :disabled="loading"><BiSendExclamation/> Notify waiting</button>
+          <button type="button" class="btn btn-outline-danger" v-on:click="notifySel('failed')" :disabled="loading"><BiSendX/> Notify failed</button>
+          <div class="d-inline-block ms-3" v-if="checked.length > 0">{{ checked.length }}/{{ participants.length }}</div>
+        </div>
+      </div>
+    </nav>
   </div>
 </template>
 
@@ -75,6 +80,12 @@ export default defineComponent({
     }
   },
 
+  computed: {
+    checked(): Participant[] {
+      return this.participants.filter((r) => r.checked)
+    }
+  },
+
   created() {
     this.$watch(() => this.$route.params, () => this.load(), { immediate: true })
   },
@@ -86,6 +97,20 @@ export default defineComponent({
   },
 
   methods: {
+    checkBetween(p: Participant) {
+      const first = this.participants.findIndex((r) => r.checked)
+      const clicked = this.participants.findIndex((r) => r.id === p.id)
+      if (first === -1) {
+        p.checked = !p.checked
+      } else {
+        const min = Math.min(first, clicked)
+        const max = Math.max(first, clicked)
+        for (let i = min; i <= max; i++) {
+          this.participants[i].checked = !p.checked
+        }
+      }
+    },
+
     load() {
       axios.get('/participants').then((response) => {
         this.participants = response.data
