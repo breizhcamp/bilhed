@@ -54,6 +54,8 @@ data class ParticipantDB(
     var participantConfirmationDate: ZonedDateTime? = null,
     @Enumerated(EnumType.STRING)
     var participantConfirmationType: ConfirmationType? = null,
+
+    val payed: Boolean = false,
 )
 
 enum class ParticipantDBStatus {

@@ -32,4 +32,6 @@ data class Attendee(
         val orderEmail: String,
         @JsonProperty("order_management")
         val orderManagement: String,
+        @JsonProperty("order_paid")
+        val orderPaid: String,
 )

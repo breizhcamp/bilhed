@@ -37,4 +37,8 @@ interface ParticipantRepo: JpaRepository<ParticipantDB, UUID>, ParticipantRepoCu
     @Modifying
     @Query("UPDATE ParticipantDB p SET p.registrationNbSmsSent = 0 WHERE p.id = :id")
     fun resetSmsCount(id: UUID)
+
+    @Modifying
+    @Query("UPDATE ParticipantDB p SET p.payed = true WHERE p.id IN (:ids)")
+    fun setPayed(ids: List<UUID>)
 }

@@ -85,4 +85,10 @@
         </createTable>
     </changeSet>
 
+    <changeSet id="9" author="alex">
+        <addColumn tableName="participant">
+            <column name="payed" type="boolean" defaultValueBoolean="false"><constraints nullable="false"/></column>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

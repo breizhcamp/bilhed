@@ -9,4 +9,6 @@ interface TicketPort {
     fun create(participant: Participant): Ticket
 
     fun getPayUrl(id: UUID): String
+
+    fun getPayed(): List<UUID>
 }

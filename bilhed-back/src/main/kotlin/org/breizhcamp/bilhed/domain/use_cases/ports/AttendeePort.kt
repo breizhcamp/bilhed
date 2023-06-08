@@ -7,4 +7,5 @@ interface AttendeePort {
 
     fun saveData(id: UUID, data: AttendeeData)
 
+    fun setPayed(ids: List<UUID>)
 }

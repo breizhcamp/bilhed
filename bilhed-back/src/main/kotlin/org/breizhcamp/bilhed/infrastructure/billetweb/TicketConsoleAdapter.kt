@@ -30,6 +30,7 @@ class TicketConsoleAdapter(
     }
 
     override fun getPayUrl(id: UUID): String = generatePayUrl()
+    override fun getPayed(): List<UUID> = emptyList()
 
     private fun generatePayUrl() = "${config.participantFrontUrl}/#/ticket"
 

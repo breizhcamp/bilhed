@@ -15,6 +15,6 @@ interface BilletWebClient {
     fun create(@PathVariable eventId: String, @RequestBody req: CreateReq): List<CreateRes>
 
     @GetExchange("/api/event/{eventId}/attendees")
-    fun listAttendees(@PathVariable eventId: String, @RequestParam("last_update") lastUpdate: Long): List<Attendee>
+    fun listAttendees(@PathVariable eventId: String, @RequestParam(value = "last_update", required = false) lastUpdate: Long? = null): List<Attendee>
 
 }

@@ -77,6 +77,14 @@ class BilletWebAdapter(
         return buildPayUrl(billetWebInfo.orderManagerUrl)
     }
 
+    override fun getPayed(): List<UUID> {
+        val eventId = requireNotNull(config.billetWeb.eventId) { "Erreur config, impossible de sync sans eventId" }
+        val attendees = billetWebClient.listAttendees(eventId).filter { it.orderPaid == "1" }
+        val tickets = billetWebRepo.findAll().groupBy { it.attendeeId }
+
+        return attendees.mapNotNull { tickets[it.orderId] }.flatten().map { it.participantId }
+    }
+
     private fun buildPayUrl(orderManagement: String) = "$orderManagement&action=pay"
 
 
