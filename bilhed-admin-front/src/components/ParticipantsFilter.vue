@@ -2,17 +2,17 @@
   <form class="row row-cols-lg-auto g-3 align-items-center mt-2 mb-3" @submit.prevent="search()">
     <div class="col-12">
       <label class="form-label" for="lastname">Lastname</label>
-      <input type="text" class="form-control" id="lastname" :value="f.lastname" @input="event => f.lastname = event.target.value || undefined">
+      <input type="text" class="form-control" id="lastname" :value="f.lastname" @input="event => f.lastname = getValue(event)">
     </div>
 
     <div class="col-12">
       <label class="form-label" for="firstname">Firstname</label>
-      <input type="text" class="form-control" id="firstname" :value="f.firstname" @input="event => f.firstname = event.target.value || undefined">
+      <input type="text" class="form-control" id="firstname" :value="f.firstname" @input="event => f.firstname = getValue(event)">
     </div>
 
     <div class="col-12">
       <label class="form-label" for="email">Email</label>
-      <input type="text" class="form-control" id="email" :value="f.email" @input="event => f.email = event.target.value || undefined">
+      <input type="text" class="form-control" id="email" :value="f.email" @input="event => f.email = getValue(event)">
     </div>
 
     <div class="col-12">
@@ -50,7 +50,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import { defineComponent } from 'vue'
+import type { PropType } from 'vue'
 import type { ParticipantFilter } from '@/dto/ParticipantFilter'
 
 
@@ -71,6 +72,10 @@ export default defineComponent({
   methods: {
     search() {
       this.$emit('filter', this.f)
+    },
+
+    getValue(event: Event) {
+      return (event.target as HTMLInputElement)?.value || undefined
     }
   }
 })
