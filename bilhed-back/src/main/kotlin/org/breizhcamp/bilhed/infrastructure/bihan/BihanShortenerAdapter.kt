@@ -1,7 +1,6 @@
 package org.breizhcamp.bilhed.infrastructure.bihan
 
 import mu.KotlinLogging
-import org.breizhcamp.bihan.application.dto.AddLinkReq
 import org.breizhcamp.bilhed.config.BilhedBackConfig
 import org.breizhcamp.bilhed.domain.use_cases.ports.UrlShortenerPort
 import org.springframework.stereotype.Component

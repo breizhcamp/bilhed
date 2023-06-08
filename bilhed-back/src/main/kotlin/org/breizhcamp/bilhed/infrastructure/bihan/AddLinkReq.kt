@@ -1,4 +1,4 @@
-package org.breizhcamp.bihan.application.dto
+package org.breizhcamp.bilhed.infrastructure.bihan
 
 import java.time.ZonedDateTime
 
