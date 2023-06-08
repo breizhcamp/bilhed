@@ -18,7 +18,6 @@
         <th scope="col">Email</th>
         <th scope="col">Telephone</th>
         <th scope="col">Pass</th>
-        <th scope="col">Reg date</th>
         <th scope="col">Or.</th>
         <th scope="col">Limit date</th>
         <th scope="col"></th>
@@ -31,10 +30,9 @@
         <td>{{ p.firstname }}</td>
         <td>{{ p.email }}</td>
         <td>{{ p.telephone }}</td>
-        <td>{{ p.pass }}</td>
-        <td><DateView :date="p.participationDate"/></td>
+        <td><Pass :pass="p.pass"/></td>
         <td>{{ p.drawOrder }}</td>
-        <td><DateView :date="p.confirmationLimitDate"/></td>
+        <td><DateView :date="p.confirmationLimitDate" format="DD/MM HH:mm" sup=""/></td>
         <td>
           <button type="button" class="btn btn-link btn-sm" title="Notify success" @click="notifyOne(p.id, 'success')" :disabled="loading"><BiSendCheck/></button>
           <button type="button" class="btn btn-link btn-sm" title="Notify waiting" @click="notifyOne(p.id, 'waiting')" :disabled="loading"><BiSendExclamation/></button>
@@ -67,10 +65,11 @@ import BiSendCheck from 'bootstrap-icons/icons/send-check.svg?component'
 import BiSendExclamation from 'bootstrap-icons/icons/send-exclamation.svg?component'
 import BiSendX from 'bootstrap-icons/icons/send-x.svg?component'
 import { defineComponent } from 'vue'
+import Pass from '@/components/Pass.vue'
 
 export default defineComponent({
   name: "ParticipantView",
-  components: { DateView, BiSendCheck, BiSendExclamation, BiSendX },
+  components: { Pass, DateView, BiSendCheck, BiSendExclamation, BiSendX },
 
   data() {
     return {

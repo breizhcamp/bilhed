@@ -1,5 +1,5 @@
 <template>
-  <slot v-if="date">{{day.format('DD/MM/YYYY HH:mm:ss')}}<sup>{{day.format('Z')}}</sup></slot>
+  <slot v-if="date">{{day.format(format)}}<sup v-if="sup">{{day.format(sup)}}</sup></slot>
 </template>
 
 <script lang="ts">
@@ -11,6 +11,8 @@ export default defineComponent({
 
   props: {
     date: { type: String, required: false },
+    format: { type: String, required: false, default: 'DD/MM/YYYY HH:mm:ss' },
+    sup: { type: String, required: false, default: 'Z' },
   },
 
   computed: {
