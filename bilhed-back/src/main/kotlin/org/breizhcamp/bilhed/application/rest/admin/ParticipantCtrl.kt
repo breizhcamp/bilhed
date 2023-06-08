@@ -1,6 +1,7 @@
 package org.breizhcamp.bilhed.application.rest.admin
 
 import org.breizhcamp.bilhed.application.dto.admin.ParticipantDTO
+import org.breizhcamp.bilhed.domain.entities.ParticipantFilter
 import org.breizhcamp.bilhed.domain.entities.Participant
 import org.breizhcamp.bilhed.domain.entities.PassType
 import org.breizhcamp.bilhed.domain.use_cases.ParticipantDraw
@@ -25,6 +26,9 @@ class ParticipantCtrl(
 
     @GetMapping
     fun listParticipants(): List<ParticipantDTO> = participantList.list().map { it.toDto() }
+
+    @PostMapping("/filter")
+    fun filter(@RequestBody filter: ParticipantFilter): List<ParticipantDTO> = participantList.filter(filter).map { it.toDto() }
 
     @PostMapping("/draw") @ResponseStatus(HttpStatus.NO_CONTENT)
     fun draw() {

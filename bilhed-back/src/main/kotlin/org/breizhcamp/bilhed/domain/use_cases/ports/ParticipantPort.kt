@@ -1,6 +1,7 @@
 package org.breizhcamp.bilhed.domain.use_cases.ports
 
 import org.breizhcamp.bilhed.domain.entities.Participant
+import org.breizhcamp.bilhed.domain.entities.ParticipantFilter
 import org.breizhcamp.bilhed.domain.entities.PassType
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
@@ -8,6 +9,8 @@ import java.util.UUID
 interface ParticipantPort {
 
     fun list(): List<Participant>
+
+    fun filter(filter: ParticipantFilter): List<Participant>
 
     fun get(id: UUID): Participant
 

@@ -1,10 +1,7 @@
 package org.breizhcamp.bilhed.infrastructure.db
 
 import jakarta.persistence.EntityNotFoundException
-import org.breizhcamp.bilhed.domain.entities.ConfirmationType
-import org.breizhcamp.bilhed.domain.entities.Participant
-import org.breizhcamp.bilhed.domain.entities.PassType
-import org.breizhcamp.bilhed.domain.entities.SmsStatus
+import org.breizhcamp.bilhed.domain.entities.*
 import org.breizhcamp.bilhed.domain.use_cases.ports.ParticipantPort
 import org.breizhcamp.bilhed.infrastructure.db.model.ParticipantDB
 import org.breizhcamp.bilhed.infrastructure.db.model.ParticipantDBStatus
@@ -21,7 +18,11 @@ import kotlin.IllegalStateException
 class ParticipantAdapter(
     private val participantRepo: ParticipantRepo,
 ): ParticipantPort {
-    override fun list(): List<Participant> = participantRepo.listParticipants().map { it.toParticipant() }
+    override fun list(): List<Participant> = participantRepo.filter(ParticipantFilter.empty()).map { it.toParticipant() }
+
+    override fun filter(filter: ParticipantFilter): List<Participant> {
+        return participantRepo.filter(filter).map { it.toParticipant() }
+    }
 
     override fun get(id: UUID): Participant {
         return participantRepo.findParticipant(id)?.toParticipant() ?: throw EntityNotFoundException("Unable to find participant [$id]")

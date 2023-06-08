@@ -9,6 +9,8 @@
   </h1>
 
   <div class="mb-3">
+    <ParticipantsFilter :filter="filter" @filter="(f) => load(f)"/>
+
     <table class="table table-striped table-hover">
       <thead>
       <tr>
@@ -66,16 +68,19 @@ import BiSendExclamation from 'bootstrap-icons/icons/send-exclamation.svg?compon
 import BiSendX from 'bootstrap-icons/icons/send-x.svg?component'
 import { defineComponent } from 'vue'
 import Pass from '@/components/Pass.vue'
+import ParticipantsFilter from '@/components/ParticipantsFilter.vue'
+import type { ParticipantFilter } from '@/dto/ParticipantFilter'
 
 export default defineComponent({
   name: "ParticipantView",
-  components: { Pass, DateView, BiSendCheck, BiSendExclamation, BiSendX },
+  components: { ParticipantsFilter, Pass, DateView, BiSendCheck, BiSendExclamation, BiSendX },
 
   data() {
     return {
       participants: [] as Participant[],
       allChecked: false,
       loading: false,
+      filter: {} as ParticipantFilter,
     }
   },
 
@@ -110,8 +115,11 @@ export default defineComponent({
       }
     },
 
-    load() {
-      axios.get('/participants').then((response) => {
+    load(filter?: ParticipantFilter) {
+      const method = filter ? 'post' : 'get'
+      const url = filter ? '/participants/filter' : '/participants'
+
+      axios.request({ method, url, data: filter }).then((response) => {
         this.participants = response.data
       })
     },

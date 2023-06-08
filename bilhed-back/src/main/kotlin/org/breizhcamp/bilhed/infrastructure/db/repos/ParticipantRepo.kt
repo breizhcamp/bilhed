@@ -10,16 +10,13 @@ import org.springframework.stereotype.Repository
 import java.util.*
 
 @Repository
-interface ParticipantRepo: JpaRepository<ParticipantDB, UUID> {
+interface ParticipantRepo: JpaRepository<ParticipantDB, UUID>, ParticipantRepoCustom {
 
     @Query("select p from ParticipantDB p where p.id = :id and p.status = 'PARTICIPANT'")
     fun findParticipant(id: UUID): ParticipantDB?
 
     @Query("select p from ParticipantDB p where p.status = 'REGISTERED' order by p.registrationDate asc")
     fun listRegistered(): List<ParticipantDB>
-
-    @Query("select p from ParticipantDB p where p.status = 'PARTICIPANT' order by p.pass, p.drawOrder, p.participationDate asc")
-    fun listParticipants(): List<ParticipantDB>
 
     fun countByEmailOrTelephone(email: String, telephone: String): Int
     fun countByTelephone(phone: String): Int
