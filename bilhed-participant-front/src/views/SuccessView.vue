@@ -266,7 +266,9 @@ export default defineComponent({
     },
 
     handlePayUrl: function (res: AxiosResponse<any>) {
-      if (res.data.payUrl) {
+      if (res.status == 204) {
+        this.$router.push({ name: 'released' })
+      } else if (res.data.payUrl) {
         window.location.href = res.data.payUrl
       } else {
         this.error = "Une erreur est survenue lors de la récupération de l'URL de paiement, contactez l'équipe pour finaliser le paiement"

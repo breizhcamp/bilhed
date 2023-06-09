@@ -61,7 +61,7 @@ class BilletWebAdapter(
         val attendees = billetWebClient.listAttendees(eventId, lastUpdate.epochSecond)
         logger.info { "[BilletWeb] [${attendees.size}] Attendees retrieved" }
 
-        val attendee = attendees.find { it.id == productId } ?: throw IllegalStateException("Impossible de retrouver la commande BilletWeb, merci de contacter l'équipe")
+        val attendee = attendees.find { it.id == productId } ?: throw IllegalStateException("Impossible de retrouver la commande BilletWeb (create), merci de contacter l'équipe")
         logger.info { "[BilletWeb] Attendee found, id commande [${attendee.orderExtId}]" }
 
         val billetWeb = BilletWebDB(participant.id, createRes.id, attendee.orderManagement)
@@ -72,7 +72,7 @@ class BilletWebAdapter(
 
     override fun getPayUrl(id: UUID): String {
         val billetWebInfo = billetWebRepo.findByIdOrNull(id)
-            ?: throw EntityNotFoundException("Impossible de retrouver la commande BilletWeb, merci de contacter l'équipe")
+            ?: throw EntityNotFoundException("Impossible de retrouver la commande BilletWeb, merci de contacter l'équipe ($id)")
 
         return buildPayUrl(billetWebInfo.orderManagerUrl)
     }
