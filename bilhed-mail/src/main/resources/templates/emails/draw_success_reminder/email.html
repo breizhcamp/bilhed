@@ -1,0 +1,23 @@
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<body>
+Bonjour <span th:text="${firstname}"></span>,
+
+<p>
+  Vous avez été retenu pour la billetterie du BreizhCamp <span th:text="${year}"></span> mais votre billet reste à confirmer !
+</p>
+
+<p>
+  Vous avez jusqu'à <b><span th:text="${limit_date}"></span></b>, pour confirmer ou libérer votre place
+  en suivant ce lien : <a th:href="${link}"><span th:text="${link}"></span></a>
+</p>
+
+<p>
+  Passé ce délai, la place sera remise en jeu pour les personnes en liste d'attente.
+</p>
+
+<p>
+  Cordialement,<br>
+  L'équipe du BreizhCamp
+</p>
+
+</body>

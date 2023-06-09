@@ -49,7 +49,9 @@
         <div>
           <button type="button" class="btn btn-primary me-1" v-on:click="notifySel('success')" :disabled="loading"><BiSendCheck/> Notify success</button>
           <button type="button" class="btn btn-warning me-1" v-on:click="notifySel('waiting')" :disabled="loading"><BiSendExclamation/> Notify waiting</button>
-          <button type="button" class="btn btn-outline-danger" v-on:click="notifySel('failed')" :disabled="loading"><BiSendX/> Notify failed</button>
+          <button type="button" class="btn btn-outline-danger me-4" v-on:click="notifySel('failed')" :disabled="loading"><BiSendX/> Notify failed</button>
+
+          <button type="button" class="btn btn-outline-primary me-1" v-on:click="notifySel('success/reminder')" :disabled="loading"><BiSendCheck/> Remind success</button>
           <div class="d-inline-block ms-3" v-if="checked.length > 0">{{ checked.length }}/{{ participants.length }}</div>
         </div>
       </div>

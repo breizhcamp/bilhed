@@ -62,8 +62,7 @@ class ParticipantNotif(
 
     private fun notifySuccessParticipant(p: Participant, limitDate: LimitDate) {
         logger.info { "Notifying success participant to confirm the ticket [${p.firstname} ${p.lastname}]" }
-        val link = "${config.participantFrontUrl}/#/${p.id}/success"
-        val shortLink = urlShortenerPort.shorten(link, config.breizhCampCloseDate)
+        val shortLink = urlShortenerPort.shorten(getConfirmSuccessLink(p), config.breizhCampCloseDate)
         val model = mapOf(
             "firstname" to p.firstname, "lastname" to p.lastname, "year" to config.breizhCampYear.toString(),
             "link" to shortLink, "limit_date" to limitDate.str, "delay" to limitDate.delayStr
@@ -76,22 +75,42 @@ class ParticipantNotif(
     }
 
     fun notifyWaiting(ids: List<UUID>) = ids.forEach { notifyWaitingParticipant(it, "draw_waiting") }
-    fun notifyFailed(ids: List<UUID>) = ids.forEach { notifyWaitingParticipant(it, "draw_failed") }
 
+    fun notifyFailed(ids: List<UUID>) = ids.forEach { notifyWaitingParticipant(it, "draw_failed") }
+    fun remindSuccess(ids: List<UUID>) = ids.forEach {
+        val p = participantPort.get(it)
+        try {
+            logger.info { "Reminding success participant to confirm the ticket [${p.firstname} ${p.lastname}]" }
+            val limitDate = requireNotNull(p.confirmationLimitDate) { "Participant [${p.firstname} ${p.lastname}] has no confirmation limit date" }
+            val model = mapOf("firstname" to p.firstname, "lastname" to p.lastname, "year" to config.breizhCampYear.toString(),
+                "link" to getConfirmSuccessLink(p), "limit_date" to formatDate(limitDate))
+            mailPort.send(Mail(p.getMailAddress(), "draw_success_reminder", model))
+
+        } catch (e: Exception) {
+            logger.warn(e) { "Unable to remind participant [${p.firstname} ${p.lastname}]" }
+        }
+    }
 
     private fun notifyWaitingParticipant(id: UUID, template: String) {
         val p = participantPort.get(id)
         logger.info { "Notifying [$template] participant [${p.firstname} ${p.lastname}]" }
-        val model = mapOf("firstname" to p.firstname, "lastname" to p.lastname, "year" to config.breizhCampYear.toString())
+        val model = mapOf("firstname" to p.firstname, "lastname" to p.lastname, "year" to config.breizhCampYear.toString(),
+            )
         mailPort.send(Mail(p.getMailAddress(), template, model))
     }
 
+    private fun getConfirmSuccessLink(p: Participant) = "${config.participantFrontUrl}/#/${p.id}/success"
+
     private fun getLimitDate(): LimitDate {
         val now = ZonedDateTime.now(ZoneId.of("Europe/Paris"))
-        val dateFormatter = DateTimeFormatter.ofPattern("eeee d MMMM à HH:mm", Locale.FRENCH)
         val limitDate = now.plusDays(7)
-        val limitDateStr = dateFormatter.format(limitDate)
+        val limitDateStr = formatDate(limitDate)
         return LimitDate(now, limitDate, limitDateStr, "7j")
+    }
+
+    private fun formatDate(limitDate: ZonedDateTime): String {
+        val dateFormatter = DateTimeFormatter.ofPattern("eeee d MMMM à HH:mm", Locale.FRENCH)
+        return dateFormatter.format(limitDate)
     }
 
     private fun sendDrawSuccessSms(participant: Participant, model: Map<String, String>): Participant {

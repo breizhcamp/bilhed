@@ -45,6 +45,11 @@ class ParticipantCtrl(
         participantNotif.notifySuccess(ids)
     }
 
+    @PostMapping("/notif/success/reminder") @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun successReminder(@RequestBody ids: List<UUID>) {
+        participantNotif.remindSuccess(ids)
+    }
+
     @PostMapping("/notif/waiting") @ResponseStatus(HttpStatus.NO_CONTENT)
     fun waiting(@RequestBody ids: List<UUID>) {
         participantNotif.notifyWaiting(ids)
