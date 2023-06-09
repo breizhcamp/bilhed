@@ -15,6 +15,9 @@ interface ParticipantRepo: JpaRepository<ParticipantDB, UUID>, ParticipantRepoCu
     @Query("select p from ParticipantDB p where p.id = :id and p.status = 'PARTICIPANT'")
     fun findParticipant(id: UUID): ParticipantDB?
 
+    @Query("select p from ParticipantDB p where p.id = :id and p.status = 'ATTENDEE'")
+    fun findAttendee(id: UUID): ParticipantDB?
+
     @Query("select p from ParticipantDB p where p.status = 'REGISTERED' order by p.registrationDate asc")
     fun listRegistered(): List<ParticipantDB>
 

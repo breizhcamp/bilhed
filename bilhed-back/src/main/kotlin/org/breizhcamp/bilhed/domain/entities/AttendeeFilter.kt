@@ -1,13 +1,13 @@
 package org.breizhcamp.bilhed.domain.entities
 
-data class ParticipantFilter(
+data class AttendeeFilter(
     override val lastname: String?,
     override val firstname: String?,
     override val email: String?,
     override val pass: PassType?,
-    val success: Boolean?,
+    val payed: Boolean?,
 ): PersonFilter() {
     companion object {
-        fun empty() = ParticipantFilter(null, null, null, null, null)
+        fun empty() = AttendeeFilter(null, null, null, null, null)
     }
 }

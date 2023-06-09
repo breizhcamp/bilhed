@@ -1,0 +1,12 @@
+Bonjour [(${firstname})],
+
+Vous avez été retenu pour la billetterie du BreizhCamp [(${year})] mais votre billet reste à payer !
+
+Vous avez jusqu'à *[(${limit_date})]*, pour payer votre place en suivant ce lien :
+
+[(${link})]
+
+Passé ce délai, la place sera remise en jeu pour les personnes en liste d'attente.
+
+Cordialement,
+L'équipe du BreizhCamp

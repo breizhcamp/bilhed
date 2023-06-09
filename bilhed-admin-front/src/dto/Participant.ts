@@ -18,7 +18,6 @@ export interface Participant {
   postalCode?: string
 
   confirmationLimitDate?: string
-  payed: boolean
 
   checked: boolean
 }

@@ -1,5 +1,6 @@
 package org.breizhcamp.bilhed.domain.entities
 
+import java.time.ZonedDateTime
 import java.util.*
 
 data class Attendee(
@@ -11,6 +12,8 @@ data class Attendee(
     override val pass: PassType,
     override val kids: String?,
 
+    val confirmationLimitDate: ZonedDateTime,
+    val participantConfirmationDate: ZonedDateTime,
     val payed: Boolean,
 
 ): Person()

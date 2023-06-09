@@ -7,21 +7,19 @@ import org.breizhcamp.bilhed.infrastructure.db.model.ParticipantDB
 import org.breizhcamp.bilhed.infrastructure.db.model.ParticipantDBStatus
 import org.breizhcamp.bilhed.infrastructure.db.repos.ParticipantRepo
 import org.springframework.data.domain.PageRequest
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import java.time.ZonedDateTime
 import java.util.UUID
-import kotlin.IllegalStateException
 
 @Component
 class ParticipantAdapter(
     private val participantRepo: ParticipantRepo,
 ): ParticipantPort {
-    override fun list(): List<Participant> = participantRepo.filter(ParticipantFilter.empty()).map { it.toParticipant() }
+    override fun list(): List<Participant> = participantRepo.filterParticipant(ParticipantFilter.empty()).map { it.toParticipant() }
 
     override fun filter(filter: ParticipantFilter): List<Participant> {
-        return participantRepo.filter(filter).map { it.toParticipant() }
+        return participantRepo.filterParticipant(filter).map { it.toParticipant() }
     }
 
     override fun get(id: UUID): Participant {

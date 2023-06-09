@@ -1,6 +1,7 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
+import AttendeeView from '@/views/AttendeeView.vue';
 import ParticipantView from '@/views/ParticipantView.vue'
 import RegisteredView from '@/views/RegisteredView.vue'
+import { createRouter, createWebHashHistory } from 'vue-router'
 
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
@@ -14,6 +15,10 @@ const router = createRouter({
       path: '/participants',
       name: 'persons',
       component: ParticipantView
+    },{
+      path: '/attendees',
+      name: 'attendees',
+      component: AttendeeView
     }
   ]
 })

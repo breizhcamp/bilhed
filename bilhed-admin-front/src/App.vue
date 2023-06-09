@@ -15,6 +15,9 @@
             <li class="nav-item">
               <router-link to="/participants" class="nav-link">Participants</router-link>
             </li>
+            <li class="nav-item">
+              <router-link to="/attendees" class="nav-link">Attendees</router-link>
+            </li>
           </ul>
         </div>
 
