@@ -5,6 +5,7 @@ import jakarta.annotation.PostConstruct
 import jakarta.persistence.EntityNotFoundException
 import mu.KotlinLogging
 import org.breizhcamp.bilhed.config.BilhedBackConfig
+import org.breizhcamp.bilhed.config.BilletWeb
 import org.breizhcamp.bilhed.domain.entities.Participant
 import org.breizhcamp.bilhed.domain.entities.PayStatus
 import org.breizhcamp.bilhed.domain.entities.Ticket
@@ -106,9 +107,11 @@ class BilletWebAdapter(
     private fun createClient(): BilletWebClient {
         val apiKey = requireNotNull(config.billetWeb.apiKey) { "Config error, BilletWeb apiKey is missing" }
 
-        /** In order to override incorrect text/html returned by BilletWeb... */
         val strategies = ExchangeStrategies.builder().codecs { clientCodecConfigurer ->
-            clientCodecConfigurer.customCodecs().register(
+            clientCodecConfigurer.defaultCodecs().maxInMemorySize(16 * 1024 * 1024)
+
+            // In order to override incorrect text/html returned by BilletWeb...
+            clientCodecConfigurer.customCodecs().registerWithDefaultConfig(
                 Jackson2JsonDecoder(objectMapper, MimeType("text", "html", StandardCharsets.UTF_8))
             )
         }.build()

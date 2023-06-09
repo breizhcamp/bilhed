@@ -11,7 +11,7 @@ class AttendeePayedCron(
 ) {
 
     /** Sync paid status every one hour */
-    @Scheduled(fixedRate = 60 * 60, timeUnit = TimeUnit.SECONDS, initialDelay = 10)
+    @Scheduled(fixedRate = 60 * 60, timeUnit = TimeUnit.SECONDS, initialDelay = 5)
     fun sync() {
         attendeeSyncPayed.sync()
     }
