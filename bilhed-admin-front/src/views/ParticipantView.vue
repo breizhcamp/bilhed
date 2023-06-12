@@ -47,11 +47,13 @@
     <nav class="navbar sticky-bottom bg-light">
       <div class="container-fluid">
         <div>
-          <button type="button" class="btn btn-primary me-1" v-on:click="notifySel('success')" :disabled="loading"><BiSendCheck/> Notify success</button>
-          <button type="button" class="btn btn-warning me-1" v-on:click="notifySel('waiting')" :disabled="loading"><BiSendExclamation/> Notify waiting</button>
-          <button type="button" class="btn btn-outline-danger me-4" v-on:click="notifySel('failed')" :disabled="loading"><BiSendX/> Notify failed</button>
+          <button type="button" class="btn btn-primary me-1" @click="notifySel('success')" :disabled="loading"><BiSendCheck/> Notify success</button>
+          <button type="button" class="btn btn-warning me-1" @click="notifySel('waiting')" :disabled="loading"><BiSendExclamation/> Notify waiting</button>
+          <button type="button" class="btn btn-outline-danger me-4" @click="notifySel('failed')" :disabled="loading"><BiSendX/> Notify failed</button>
 
-          <button type="button" class="btn btn-outline-primary me-1" v-on:click="notifySel('success/reminder')" :disabled="loading"><BiSendCheck/> Remind success</button>
+          <button type="button" class="btn btn-outline-primary me-4" @click="levelUp()" :disabled="loading"><BiArrowUp/> Level Up to attendee</button>
+
+          <button type="button" class="btn btn-outline-primary me-1" @click="notifySel('success/reminder')" :disabled="loading"><BiSendCheck/> Remind success</button>
           <div class="d-inline-block ms-3" v-if="checked.length > 0">{{ checked.length }}/{{ participants.length }}</div>
         </div>
       </div>
@@ -63,11 +65,12 @@
 /// <reference types="vite-svg-loader" />
 
 import DateView from '@/components/DateView.vue'
-import type { Participant } from '@/dto/Participant';
+import type { Participant } from '@/dto/Participant'
 import axios from 'axios'
 import BiSendCheck from 'bootstrap-icons/icons/send-check.svg?component'
 import BiSendExclamation from 'bootstrap-icons/icons/send-exclamation.svg?component'
 import BiSendX from 'bootstrap-icons/icons/send-x.svg?component'
+import BiArrowUp from 'bootstrap-icons/icons/arrow-bar-up.svg?component'
 import { defineComponent } from 'vue'
 import Pass from '@/components/Pass.vue'
 import ParticipantsFilter from '@/components/ParticipantsFilter.vue'
@@ -75,7 +78,7 @@ import type { ParticipantFilter } from '@/dto/ParticipantFilter'
 
 export default defineComponent({
   name: "ParticipantView",
-  components: { ParticipantsFilter, Pass, DateView, BiSendCheck, BiSendExclamation, BiSendX },
+  components: { ParticipantsFilter, Pass, DateView, BiSendCheck, BiSendExclamation, BiSendX, BiArrowUp },
 
   data() {
     return {
@@ -140,8 +143,7 @@ export default defineComponent({
     },
 
     notifySel(type: string) {
-      const ids = this.participants.filter((p) => p.checked).map((p) => p.id)
-      this.sendNotify(ids, type);
+      this.sendNotify(this.getSelected(), type);
     },
 
     sendNotify(ids: string[], type: string) {
@@ -160,6 +162,20 @@ export default defineComponent({
       }).finally(() => {
         this.loading = false
       })
+    },
+
+    levelUp() {
+      this.loading = true
+      const ids = this.getSelected()
+      axios.post('/participants/levelUp', ids).then(() => {
+        this.load()
+      }).finally(() => {
+        this.loading = false
+      })
+    },
+
+    getSelected: function () {
+      return this.participants.filter((p) => p.checked).map((p) => p.id)
     },
   }
 })

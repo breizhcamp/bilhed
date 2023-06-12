@@ -46,29 +46,30 @@ class BilletWebAdapter(
         logger.info { "[BilletWeb] Using BilletWeb for ticket creation" }
     }
 
-    override fun create(participant: Participant): Ticket {
+    override fun create(participants: List<Participant>): List<Ticket> {
         val eventId = requireNotNull(config.billetWeb.eventId) { "Erreur config, impossible de créer de Billet sans eventId" }
 
-        logger.info { "[BilletWeb] Create ticket for participant [${participant.id}] / [${participant.lastname}] [${participant.firstname}]" }
-        val createRes = billetWebClient.create(eventId, CreateReq(participant.toCreateReq())).firstOrNull()
+        logger.info { "[BilletWeb] Create ticket for [${participants.size}] participants: " + participants.joinToString { "${it.id}: ${it.lastname} ${it.firstname}" } }
+        val createRes = billetWebClient.create(eventId, CreateReq(participants.toCreateReq())).firstOrNull()
             ?: throw IllegalStateException("Impossible de créer la commande BilletWeb, merci de contacter l'équipe")
-        logger.info { "[BilletWeb] Ticket created for participant [${participant.id}] / [${participant.lastname}] [${participant.firstname}] with res: $createRes" }
 
-        val productId = createRes.products.firstOrNull()?.toString()
-            ?: throw IllegalStateException("Impossible de créer la commande BilletWeb (pas de product), merci de contacter l'équipe")
+        val productsId = createRes.products.map { it.toString() }
+        if (productsId.size != participants.size) throw IllegalStateException("Impossible de créer la commande BilletWeb (nb product != nb participants), merci de contacter l'équipe")
 
         val lastUpdate = Instant.now().minusSeconds(10)
         logger.info { "[BilletWeb] Retrieving attendees updated after " + lastUpdate.atZone(ZoneId.of("Europe/Paris")) }
         val attendees = billetWebClient.listAttendees(eventId, lastUpdate.epochSecond)
         logger.info { "[BilletWeb] [${attendees.size}] Attendees retrieved" }
 
-        val attendee = attendees.find { it.id == productId } ?: throw IllegalStateException("Impossible de retrouver la commande BilletWeb (create), merci de contacter l'équipe")
-        logger.info { "[BilletWeb] Attendee found, id commande [${attendee.orderExtId}]" }
+        val billetWeb = participants.mapIndexed { index, p ->
+            val attId = productsId[index]
+            val attendee = attendees.find { attId == it.id } ?: throw IllegalStateException("Impossible de retrouver la commande BilletWeb (create - $attId), merci de contacter l'équipe")
+            logger.info { "[BilletWeb] Attendee found for [${p.id}: ${p.lastname} ${p.firstname}], id commande [${attendee.orderExtId}]" }
+            BilletWebDB(p.id, createRes.id, attendee.orderManagement)
+        }
+        billetWebRepo.saveAll(billetWeb)
 
-        val billetWeb = BilletWebDB(participant.id, createRes.id, attendee.orderManagement)
-        billetWebRepo.save(billetWeb)
-
-        return Ticket(buildPayUrl(attendee.orderManagement), PayStatus.TO_PAY)
+        return billetWeb.map { Ticket(buildPayUrl(it.orderManagerUrl), PayStatus.TO_PAY) }
     }
 
     override fun getPayUrl(id: UUID): String {
@@ -102,6 +103,20 @@ class BilletWebAdapter(
             email = email,
             price = requireNotNull(config.billetWeb.passPrices[pass]) { "No BilletWeb pass price found for pass type [$pass]" },
         ))
+    )
+
+    private fun List<Participant>.toCreateReq() = CreateCmd(
+        name = first().lastname,
+        firstname = first().firstname,
+        email = first().email,
+        paymentType = "reservation",
+        products = map { CreateProduct(
+            ticket = requireNotNull(config.billetWeb.passNames[it.pass]) { "No BilletWeb pass name found for pass type [${it.pass}]" },
+            name = it.lastname,
+            firstname = it.firstname,
+            email = it.email,
+            price = requireNotNull(config.billetWeb.passPrices[it.pass]) { "No BilletWeb pass price found for pass type [${it.pass}]" },
+        ) }
     )
 
     private fun createClient(): BilletWebClient {

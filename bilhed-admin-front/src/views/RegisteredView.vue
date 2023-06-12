@@ -45,6 +45,10 @@
 
   <ModalForm v-model:open="importModal" :loading="loading" title="Import" @save="importCsv()">
     <div class="mb-3">
+      Format (with header): lastname, firstname, email, telephone
+    </div>
+
+    <div class="mb-3">
       <label for="file" class="form-label">File</label>
       <input type="file" class="form-control" id="file" accept="text/csv" @change="onFileSelected($event)">
     </div>

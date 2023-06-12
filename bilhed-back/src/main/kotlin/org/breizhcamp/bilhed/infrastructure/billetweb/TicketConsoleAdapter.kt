@@ -24,9 +24,11 @@ class TicketConsoleAdapter(
         logger.info { "[TicketConsole] Using console for ticket creation" }
     }
 
-    override fun create(participant: Participant): Ticket {
-        logger.info { "[TicketConsole] Create ticket for participant [${participant.id}] / [${participant.lastname}] [${participant.firstname}]" }
-        return Ticket(generatePayUrl(), PayStatus.TO_PAY)
+    override fun create(participants: List<Participant>): List<Ticket> {
+        return participants.map {
+            logger.info { "[TicketConsole] Create ticket for participant [${it.id}] / [${it.lastname}] [${it.firstname}]" }
+            Ticket(generatePayUrl(), PayStatus.TO_PAY)
+        }
     }
 
     override fun getPayUrl(id: UUID): String = generatePayUrl()

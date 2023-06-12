@@ -24,7 +24,7 @@ interface ParticipantPort {
 
     fun getAlreadyNotifCount(): Map<PassType, Int>
 
-    fun levelUpToAttendee(id: UUID)
+    fun levelUpToAttendee(id: UUID): Participant
 
     fun levelUpToReleased(id: UUID)
 }

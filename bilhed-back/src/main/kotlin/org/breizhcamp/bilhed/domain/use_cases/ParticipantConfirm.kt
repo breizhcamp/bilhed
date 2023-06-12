@@ -33,15 +33,29 @@ class ParticipantConfirm(
 
     @Transactional
     fun confirm(id: UUID, data: AttendeeData): Ticket {
-        val p = get(id)
-        logger.info { "Level up participant to attendee [$id] / [${p.lastname}] [${p.firstname}]" }
-        participantPort.levelUpToAttendee(id)
+        logger.info { "Level up participant to attendee [$id]" }
+        val p = participantPort.levelUpToAttendee(id)
         logger.info { "Save attendee data for participant [$id] / [${p.lastname}] [${p.firstname}]" }
         attendeePort.saveData(id, data)
         logger.info { "Create ticket for participant [$id] / [${p.lastname}] [${p.firstname}]" }
         val ticket = ticketPort.create(p)
         logger.info { "Ticket created for participant [$id] / [${p.lastname}] [${p.firstname}]" }
         return ticket
+    }
+
+    @Transactional
+    fun confirmList(ids: List<UUID>): List<Ticket> {
+        val participants = ids.map {
+            logger.info { "Level up participant to attendee [$it]" }
+            participantPort.levelUpToAttendee(it).also { p ->
+                logger.info { "Participant [$it] / [${p.lastname}] [${p.firstname}] leveled up to attendee" }
+            }
+        }
+
+        logger.info { "Create tickets for [${participants.size}] participants" }
+        val tickets = ticketPort.create(participants)
+        logger.info { "[${tickets.size}] tickets created for [${participants.size}] participants" }
+        return tickets
     }
 
     @Transactional

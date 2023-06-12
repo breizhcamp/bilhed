@@ -1,6 +1,7 @@
 package org.breizhcamp.bilhed.infrastructure.db
 
 import jakarta.persistence.EntityNotFoundException
+import org.breizhcamp.bilhed.config.BilhedBackConfig
 import org.breizhcamp.bilhed.domain.entities.*
 import org.breizhcamp.bilhed.domain.use_cases.ports.ParticipantPort
 import org.breizhcamp.bilhed.infrastructure.db.model.ParticipantDB
@@ -14,6 +15,7 @@ import java.util.UUID
 
 @Component
 class ParticipantAdapter(
+    private val config: BilhedBackConfig,
     private val participantRepo: ParticipantRepo,
 ): ParticipantPort {
     override fun list(): List<Participant> = participantRepo.filterParticipant(ParticipantFilter.empty()).map { it.toParticipant() }
@@ -49,12 +51,13 @@ class ParticipantAdapter(
         return PassType.values().associateWith { res[it] ?: 0 }
     }
 
-    override fun levelUpToAttendee(id: UUID) {
-        participantRepo.findParticipant(id)?.apply {
+    override fun levelUpToAttendee(id: UUID): Participant {
+        return participantRepo.findParticipant(id)?.apply {
             status = ParticipantDBStatus.ATTENDEE
+            participantConfirmationLimitDate = participantConfirmationLimitDate ?: config.breizhCampCloseDate.minusDays(5)
             participantConfirmationDate = ZonedDateTime.now()
             participantConfirmationType = ConfirmationType.MAIL
-        } ?: throw EntityNotFoundException("Unable to find participant [$id]")
+        }?.toParticipant() ?: throw EntityNotFoundException("Unable to find participant [$id]")
     }
 
     override fun levelUpToReleased(id: UUID) {

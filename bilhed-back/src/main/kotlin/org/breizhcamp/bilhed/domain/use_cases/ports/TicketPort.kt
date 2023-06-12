@@ -6,7 +6,9 @@ import java.util.*
 
 interface TicketPort {
 
-    fun create(participant: Participant): Ticket
+    fun create(participant: Participant): Ticket = create(listOf(participant)).first()
+
+    fun create(participants: List<Participant>): List<Ticket>
 
     fun getPayUrl(id: UUID): String
 
