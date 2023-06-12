@@ -22,6 +22,7 @@ class SmsResponse(
         when (response.template) {
             "registered_token" -> registration.saveSmsStatus(response.id, response.error)
             "draw_success" -> participantNotif.saveSmsStatus(response.id, response.error)
+            "payed_reminder" -> Unit
             else -> logger.info { "Unknown handling for template: ${response.template}" }
         }
     }

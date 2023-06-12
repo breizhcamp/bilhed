@@ -1,0 +1,1 @@
+Bonjour, dernier rappel, il vous reste [(${remaining_time})] soit jusqu'à [(${limit_time})] pour payer votre billet BreizhCamp sur [(${link})] sinon il sera remis en jeu.

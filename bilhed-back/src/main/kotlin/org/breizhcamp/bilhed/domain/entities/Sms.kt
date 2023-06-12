@@ -7,4 +7,6 @@ data class Sms(
     val phone: String,
     val template: String,
     val model: Map<String, String>,
-)
+) {
+    constructor(phone: String, template: String, model: Map<String, String>): this(UUID.randomUUID(), phone, template, model)
+}

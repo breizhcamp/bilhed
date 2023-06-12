@@ -29,6 +29,10 @@ class AttendeeCtrl(
         attendeeNotify.remindPayedMail(ids)
     }
 
+    @PostMapping("/notif/payed/reminder/sms") @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun payedReminderSms(@RequestBody ids: List<UUID>) {
+        attendeeNotify.remindPayedSms(ids)
+    }
 }
 
 private fun Attendee.toDto() = AttendeeDTO(
