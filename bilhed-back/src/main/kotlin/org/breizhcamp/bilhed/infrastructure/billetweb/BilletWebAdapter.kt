@@ -5,9 +5,7 @@ import jakarta.annotation.PostConstruct
 import jakarta.persistence.EntityNotFoundException
 import mu.KotlinLogging
 import org.breizhcamp.bilhed.config.BilhedBackConfig
-import org.breizhcamp.bilhed.config.BilletWeb
 import org.breizhcamp.bilhed.domain.entities.Participant
-import org.breizhcamp.bilhed.domain.entities.PayStatus
 import org.breizhcamp.bilhed.domain.entities.Ticket
 import org.breizhcamp.bilhed.domain.use_cases.ports.TicketPort
 import org.breizhcamp.bilhed.infrastructure.billetweb.dto.CreateCmd
@@ -69,7 +67,11 @@ class BilletWebAdapter(
         }
         billetWebRepo.saveAll(billetWeb)
 
-        return billetWeb.map { Ticket(buildPayUrl(it.orderManagerUrl), PayStatus.TO_PAY) }
+        return billetWeb.map { Ticket(buildPayUrl(it.orderManagerUrl), false) }
+    }
+
+    override fun hasTicket(id: UUID): Boolean {
+        return billetWebRepo.existsById(id)
     }
 
     override fun getPayUrl(id: UUID): String {

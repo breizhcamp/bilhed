@@ -6,7 +6,7 @@
           Bonne nouvelle {{participant.firstname}}, vous avez été sélectionné pour la billetterie du BreizhCamp !
         </p>
 
-        <p class="mt-4 mb-4">
+        <p class="mt-4 mb-4" v-if="!dataTicket.hasTicket">
           Vous pouvez confirmer votre venue et acheter votre billet,
           ou bien libérer votre place pour qu'elle soit attribuée à une autre personne si vous n'êtes plus disponible.
         </p>
@@ -18,7 +18,7 @@
           lors de votre inscription à la loterie.
         </p>
 
-        <p class="fw-bold">
+        <p class="fw-bold" v-if="!dataTicket.hasTicket">
           Vous avez jusqu'au <DateView :date="participant.confirmationLimitDate" /> pour confirmer votre choix.
         </p>
       </div>
@@ -185,11 +185,11 @@
           <div class="row text-center mb-3">
             <button type="submit" class="btn btn-lg btn-primary" :disabled="loading">
               <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" v-if="loading"></span>
-              Enregistrer et payer
+              Enregistrer<span v-if="!dataTicket.hasPayed"> et payer</span>
             </button>
           </div>
 
-          <div class="row text-center mb-3">
+          <div class="row text-center mb-3" v-if="!dataTicket.hasTicket">
             <button type="button" class="btn btn-lg btn-light" :disabled="loading" @click="back()">
               <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" v-if="loading"></span>
               Annuler et revenir à la page précédente
@@ -207,6 +207,8 @@
 </template>
 
 <script lang="ts">
+import type { ConfirmRes } from '@/dto/ConfirmRes';
+import type { PersonDataTicket } from '@/dto/PersonDataTicket';
 import { defineComponent } from 'vue'
 import { Participant } from '@/dto/Participant'
 import DateView from '@/components/DateView.vue'
@@ -220,9 +222,11 @@ export default defineComponent({
   data() {
     return {
       participant: new Participant(),
+      dataTicket: {} as PersonDataTicket,
       loading: false,
       showForm: false,
       showCancelConfirm: false,
+      payed: false,
       error: "",
     }
   },
@@ -240,16 +244,42 @@ export default defineComponent({
       this.error = ""
       this.loading = true
 
-      axios.get('/participants/' + this.id).then(res => {
-        this.participant = res.data
-      }).catch(err => {
-        if (err.response.status == 404) {
-          return axios.get('/attendees/' + this.id).then(this.handlePayUrl).catch(this.displayError)
-        } else {
-          this.displayError(err)
-        }
-      })
-        .finally(() => this.loading = false)
+      axios.get('/persons/' + this.id + '/ticket')
+          .then(this.handleDataTicketRes)
+          .then(res => { if (res) return this.loadParticipant() })
+          .catch(this.displayError)
+          .finally(() => this.loading = false)
+    },
+
+    loadParticipant() {
+      return axios.get('/participants/' + this.id)
+          .then(res => this.participant = res.data)
+    },
+
+    /**
+     * - Attendee data, ticket paid -> redirect confirm paid
+     * - Attendee data, ticket not paid -> redirect to pay
+     * - No attendee data, no ticket -> display form, then create ticket, then redirect to pay
+     * - No attendee data, ticket not paid -> display form, then redirect to pay
+     * - No attendee data, ticket paid -> display form, then redirect confirm paid
+     *
+     * Return true if participant is to load, false to load nothing
+     */
+    handleDataTicketRes(res: AxiosResponse<PersonDataTicket>): Promise<Boolean> {
+      this.dataTicket = res.data
+      if (!this.dataTicket.hasAttendeeData){
+        if (this.dataTicket.hasTicket) this.showForm = true
+        return Promise.resolve(true);
+      }
+
+      if (this.dataTicket.hasPayed) {
+        this.$router.push({name: 'ticket'})
+      } else if (res.data.payUrl) {
+        window.location.href = res.data.payUrl
+      } else {
+        this.error = "Une erreur est survenue, merci de contacter l'équipe pour finaliser la commande (pas d'URL de paiement avec un ticket non payé)"
+      }
+      return Promise.resolve(false)
     },
 
     confirm() {
@@ -265,24 +295,14 @@ export default defineComponent({
       this.showCancelConfirm = false
     },
 
-    handlePayUrl: function (res: AxiosResponse<any>) {
-      if (res.status == 204) {
-        this.$router.push({ name: 'released' })
-      } else if (res.data.payUrl) {
-        window.location.href = res.data.payUrl
-      } else {
-        this.error = "Une erreur est survenue lors de la récupération de l'URL de paiement, contactez l'équipe pour finaliser le paiement"
-      }
-    },
-
     save() {
       this.error = ""
       this.loading = true
 
-      axios.post('/participants/' + this.id + '/confirm', this.participant).then(res => {
-        this.handlePayUrl(res)
-      }).catch(this.displayError)
-        .finally(() => this.loading = false)
+      axios.post('/participants/' + this.id + '/confirm', this.participant)
+          .then(this.handleConfirm)
+          .catch(this.displayError)
+          .finally(() => this.loading = false)
     },
 
     cancel() {
@@ -295,8 +315,17 @@ export default defineComponent({
         .finally(() => this.loading = false)
     },
 
+    handleConfirm: function (res: AxiosResponse<ConfirmRes>) {
+      if (res.data.payed) {
+        this.$router.push({ name: 'ticket' })
+      } else if (res.data.payUrl) {
+        window.location.href = res.data.payUrl
+      } else {
+        this.error = "Une erreur est survenue lors de la récupération de l'URL de paiement, contactez l'équipe pour finaliser le paiement"
+      }
+    },
+
     displayError(err: any) {
-      console.log(err)
       if (err.response.data && err.response.data.error) {
         this.error = err.response.data.error
       } else {

@@ -153,8 +153,8 @@ export default defineComponent({
     },
 
     displayError(err: any) {
-      if (err.data && err.data.error) {
-        this.error = err.data.error
+      if (err.response.data && err.response.data.error) {
+        this.error = err.response.data.error
       } else {
         this.error = "Une erreur est survenue, merci de réessayer dans quelques instants"
       }

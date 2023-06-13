@@ -2,9 +2,5 @@ package org.breizhcamp.bilhed.domain.entities
 
 data class Ticket(
     val payUrl: String,
-    val payStatus: PayStatus,
+    val payed: Boolean,
 )
-
-enum class PayStatus {
-    TO_PAY, PAYED
-}

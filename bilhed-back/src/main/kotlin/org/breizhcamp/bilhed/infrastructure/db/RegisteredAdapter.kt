@@ -3,7 +3,8 @@ package org.breizhcamp.bilhed.infrastructure.db
 import jakarta.persistence.EntityNotFoundException
 import org.breizhcamp.bilhed.domain.entities.Registered
 import org.breizhcamp.bilhed.domain.use_cases.ports.RegisteredPort
-import org.breizhcamp.bilhed.infrastructure.db.model.ParticipantDB
+import org.breizhcamp.bilhed.infrastructure.db.mappers.toDB
+import org.breizhcamp.bilhed.infrastructure.db.mappers.toRegistered
 import org.breizhcamp.bilhed.infrastructure.db.model.ParticipantDBStatus.*
 import org.breizhcamp.bilhed.infrastructure.db.repos.ParticipantRepo
 import org.springframework.data.repository.findByIdOrNull
@@ -16,7 +17,7 @@ class RegisteredAdapter(
     private val participantRepo: ParticipantRepo,
 ): RegisteredPort {
 
-    override fun list(): List<Registered> = participantRepo.listRegistered().map { it.toModel() }
+    override fun list(): List<Registered> = participantRepo.listRegistered().map { it.toRegistered() }
 
     override fun existsEmailOrPhone(email: String, phone: String): Boolean {
         return participantRepo.countByEmailOrTelephone(email, phone) > 0
@@ -31,7 +32,7 @@ class RegisteredAdapter(
     }
 
     override fun get(id: UUID): Registered {
-        return participantRepo.findByIdOrNull(id)?.toModel() ?: throw EntityNotFoundException()
+        return participantRepo.findByIdOrNull(id)?.toRegistered() ?: throw EntityNotFoundException()
     }
 
     override fun levelUpToParticipant(id: UUID) {
@@ -45,26 +46,4 @@ class RegisteredAdapter(
         participantRepo.resetSmsCount(id)
     }
 
-
-    fun Registered.toDB() = ParticipantDB(
-        id = id,
-        status = REGISTERED,
-        lastname = lastname,
-        firstname = firstname,
-        email = email,
-        telephone = telephone,
-        pass = pass,
-        kids = kids,
-        registrationDate = registrationDate,
-        registrationSmsStatus = smsStatus,
-        registrationNbSmsSent = nbSmsSent,
-        registrationLastSmsSentDate = lastSmsSentDate,
-        registrationSmsError = smsError,
-        registrationToken = token,
-        registrationNbTokenTries = nbTokenTries,
-    )
-
-    fun ParticipantDB.toModel() = Registered(id, lastname, firstname, email, telephone, pass, kids, registrationDate,
-        registrationSmsStatus, registrationNbSmsSent, registrationLastSmsSentDate, registrationSmsError, registrationToken,
-        registrationNbTokenTries)
 }

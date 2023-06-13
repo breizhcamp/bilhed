@@ -13,5 +13,7 @@ interface AttendeePort {
 
     fun saveData(id: UUID, data: AttendeeData)
 
+    fun getData(id: UUID): AttendeeData?
+
     fun setPayed(ids: List<UUID>)
 }

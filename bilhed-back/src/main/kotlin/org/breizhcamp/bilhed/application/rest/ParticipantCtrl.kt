@@ -5,10 +5,8 @@ import mu.KotlinLogging
 import org.breizhcamp.bilhed.application.dto.ErrorRes
 import org.breizhcamp.bilhed.application.dto.ParticipantConfirmReq
 import org.breizhcamp.bilhed.application.dto.ParticipantConfirmInfo
-import org.breizhcamp.bilhed.application.dto.ParticipantConfirmRes
-import org.breizhcamp.bilhed.domain.entities.AttendeeData
-import org.breizhcamp.bilhed.domain.entities.Participant
-import org.breizhcamp.bilhed.domain.entities.Ticket
+import org.breizhcamp.bilhed.application.dto.ConfirmRes
+import org.breizhcamp.bilhed.domain.entities.*
 import org.breizhcamp.bilhed.domain.use_cases.ParticipantConfirm
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
@@ -28,7 +26,7 @@ class ParticipantCtrl(
     }
 
     @PostMapping("/{id}/confirm")
-    fun confirm(@PathVariable id: UUID, @RequestBody req: ParticipantConfirmReq): ParticipantConfirmRes {
+    fun confirm(@PathVariable id: UUID, @RequestBody req: ParticipantConfirmReq): ConfirmRes {
         req.validate()
         logger.info { "Confirm participant [$id] with req: $req" }
         return participantConfirm.confirm(id, req.toData()).toConfirmRes()
@@ -56,12 +54,16 @@ private fun ParticipantConfirmReq.toData() = AttendeeData(
     postalCode = postalCode,
 )
 
-private fun Participant.toDTO() = ParticipantConfirmInfo(
+private fun Person.toDTO() = ParticipantConfirmInfo(
     lastname = lastname,
     firstname = firstname,
     email = email,
     pass = pass,
-    confirmationLimitDate = requireNotNull(confirmationLimitDate),
+    confirmationLimitDate = when(this) {
+        is Participant -> requireNotNull(confirmationLimitDate)
+        is Attendee -> confirmationLimitDate
+        else -> throw IllegalStateException("Not a participant")
+    },
 )
 
-private fun Ticket.toConfirmRes() = ParticipantConfirmRes(payUrl)
+private fun Ticket.toConfirmRes() = ConfirmRes(payUrl, payed)

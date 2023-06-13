@@ -2,8 +2,12 @@ package org.breizhcamp.bilhed.infrastructure.db
 
 import jakarta.persistence.EntityNotFoundException
 import org.breizhcamp.bilhed.config.BilhedBackConfig
-import org.breizhcamp.bilhed.domain.entities.*
+import org.breizhcamp.bilhed.domain.entities.ConfirmationType
+import org.breizhcamp.bilhed.domain.entities.Participant
+import org.breizhcamp.bilhed.domain.entities.ParticipantFilter
+import org.breizhcamp.bilhed.domain.entities.PassType
 import org.breizhcamp.bilhed.domain.use_cases.ports.ParticipantPort
+import org.breizhcamp.bilhed.infrastructure.db.mappers.toParticipant
 import org.breizhcamp.bilhed.infrastructure.db.model.ParticipantDB
 import org.breizhcamp.bilhed.infrastructure.db.model.ParticipantDBStatus
 import org.breizhcamp.bilhed.infrastructure.db.repos.ParticipantRepo
@@ -11,7 +15,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import java.time.ZonedDateTime
-import java.util.UUID
+import java.util.*
 
 @Component
 class ParticipantAdapter(
@@ -80,27 +84,3 @@ private fun ParticipantDB.update(src: Participant) = this.apply {
     participantConfirmationDate = src.confirmationDate
     participantConfirmationType = src.confirmationType
 }
-
-private fun ParticipantDB.toParticipant() = Participant(
-    id = id,
-    lastname = lastname,
-    firstname = firstname,
-    email = email,
-    telephone = telephone,
-    pass = pass,
-    kids = kids,
-
-    participationDate = requireNotNull(participationDate) { "Participant [$id] has no participation date" },
-
-    drawOrder = drawOrder,
-
-    smsStatus = participantSmsStatus ?: SmsStatus.NOT_SENT,
-    nbSmsSent = participantNbSmsSent,
-    smsError = participantSmsError,
-    confirmationLimitDate = participantConfirmationLimitDate,
-    smsConfirmSentDate = participantSmsConfirmSentDate,
-    mailConfirmSentDate = participantMailConfirmSentDate,
-
-    confirmationDate = participantConfirmationDate,
-    confirmationType = participantConfirmationType,
-)

@@ -51,10 +51,11 @@
           <button type="button" class="btn btn-warning me-1" @click="notifySel('waiting')" :disabled="loading"><BiSendExclamation/> Notify waiting</button>
           <button type="button" class="btn btn-outline-danger me-4" @click="notifySel('failed')" :disabled="loading"><BiSendX/> Notify failed</button>
 
-          <button type="button" class="btn btn-outline-primary me-1" @click="levelUp('attendee')" :disabled="loading"><BiArrowUp/> Level Up to attendee</button>
-          <button type="button" class="btn btn-outline-warning me-4" @click="levelUp('release')" :disabled="loading"><BiArrowUp/> Level Up to release</button>
+          <button type="button" class="btn btn-outline-primary me-4" @click="notifySel('success/reminder')" :disabled="loading"><BiSendCheck/> Remind success</button>
 
-          <button type="button" class="btn btn-outline-primary me-1" @click="notifySel('success/reminder')" :disabled="loading"><BiSendCheck/> Remind success</button>
+          <button type="button" class="btn btn-outline-primary me-1" @click="levelUp('attendee')" :disabled="loading"><BiArrowUp/> Level Up to attendee</button>
+          <button type="button" class="btn btn-outline-warning me-1" @click="levelUp('release')" :disabled="loading"><BiArrowUp/> Level Up to release</button>
+
           <div class="d-inline-block ms-3" v-if="checked.length > 0">{{ checked.length }}/{{ participants.length }}</div>
         </div>
       </div>
