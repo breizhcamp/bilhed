@@ -29,8 +29,11 @@ class ParticipantCtrl(
     @GetMapping
     fun listParticipants(): List<ParticipantDTO> = participantList.list().map { it.toDto() }
 
-    @PostMapping("/levelUp")
-    fun levelUpToAttendees(@RequestBody ids: List<UUID>): Int = participantConfirm.confirmList(ids).size
+    @PostMapping("/levelUp/attendee")
+    fun levelUpToAttendee(@RequestBody ids: List<UUID>): Int = participantConfirm.confirmList(ids).size
+
+    @PostMapping("/levelUp/release") @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun levelUpToRelease(@RequestBody ids: List<UUID>) = participantConfirm.release(ids)
 
     @PostMapping("/filter")
     fun filter(@RequestBody filter: ParticipantFilter): List<ParticipantDTO> = participantList.filter(filter).map { it.toDto() }

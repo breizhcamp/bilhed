@@ -58,10 +58,18 @@ class ParticipantConfirm(
         return tickets
     }
 
+
+
     @Transactional
     fun cancel(id: UUID) {
         val p = get(id)
-        logger.info { "Level up participant to released [$id] / [${p.lastname}] [${p.firstname}]" }
+        logger.info { "Level up participant to release [$id] / [${p.lastname}] [${p.firstname}]" }
         participantPort.levelUpToReleased(id)
+    }
+
+    @Transactional
+    fun release(ids: List<UUID>) = ids.forEach {
+        logger.info { "Level up participant to release [$it]" }
+        participantPort.levelUpToReleased(it)
     }
 }
