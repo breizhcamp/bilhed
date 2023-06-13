@@ -3,6 +3,7 @@ package org.breizhcamp.bilhed.application.rest
 import org.breizhcamp.bilhed.application.dto.PersonDataTicketDTO
 import org.breizhcamp.bilhed.domain.entities.PersonDataTicket
 import org.breizhcamp.bilhed.domain.use_cases.PersonDataTicketInfo
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
@@ -16,8 +17,9 @@ class PersonCtrl(
 ) {
 
     @GetMapping("/{id}/ticket")
-    fun getDataTicket(@PathVariable id: UUID): PersonDataTicketDTO {
-        return personDataTicketInfo.getInfos(id).toDto()
+    fun getDataTicket(@PathVariable id: UUID): ResponseEntity<PersonDataTicketDTO> {
+        return personDataTicketInfo.getInfos(id)?.let { ResponseEntity.ok(it.toDto()) }
+            ?: ResponseEntity.noContent().build()
     }
 }
 

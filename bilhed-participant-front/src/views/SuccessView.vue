@@ -266,6 +266,11 @@ export default defineComponent({
      * Return true if participant is to load, false to load nothing
      */
     handleDataTicketRes(res: AxiosResponse<PersonDataTicket>): Promise<Boolean> {
+      if (res.status == 204) {
+        this.$router.push({ name: 'released' })
+        return Promise.resolve(false)
+      }
+
       this.dataTicket = res.data
       if (!this.dataTicket.hasAttendeeData){
         if (this.dataTicket.hasTicket) this.showForm = true

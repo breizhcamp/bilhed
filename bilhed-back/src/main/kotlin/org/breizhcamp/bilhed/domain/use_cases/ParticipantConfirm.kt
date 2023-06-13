@@ -24,17 +24,20 @@ class ParticipantConfirm(
 
     fun get(id: UUID): Person {
         val p = personPort.get(id)
-        val limitDate = when (p) {
-            is Participant -> requireNotNull(p.confirmationLimitDate) { "Vous n'avez pas été tiré au sort" }
-            is Attendee -> p.confirmationLimitDate
+        when (p) {
+            is Participant -> checkLimitDate(p)
+            is Attendee, is Released -> Unit
             else -> throw IllegalStateException("Erreur lors de la récupération")
         }
 
-        if (p is Participant && limitDate.isBefore(ZonedDateTime.now())) {
+        return p
+    }
+
+    private fun checkLimitDate(p: Participant) {
+        val limitDate = requireNotNull(p.confirmationLimitDate) { "Vous n'avez pas été tiré au sort" }
+        if (limitDate.isBefore(ZonedDateTime.now())) {
             throw IllegalArgumentException("Vous avez dépassé la date limite de confirmation, votre place a été remise en jeu")
         }
-
-        return p
     }
 
     @Transactional

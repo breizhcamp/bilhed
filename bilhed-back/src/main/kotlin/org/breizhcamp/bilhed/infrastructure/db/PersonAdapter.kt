@@ -3,9 +3,7 @@ package org.breizhcamp.bilhed.infrastructure.db
 import jakarta.persistence.EntityNotFoundException
 import org.breizhcamp.bilhed.domain.entities.Person
 import org.breizhcamp.bilhed.domain.use_cases.ports.PersonPort
-import org.breizhcamp.bilhed.infrastructure.db.mappers.toAttendee
-import org.breizhcamp.bilhed.infrastructure.db.mappers.toParticipant
-import org.breizhcamp.bilhed.infrastructure.db.mappers.toRegistered
+import org.breizhcamp.bilhed.infrastructure.db.mappers.*
 import org.breizhcamp.bilhed.infrastructure.db.model.ParticipantDBStatus
 import org.breizhcamp.bilhed.infrastructure.db.repos.ParticipantRepo
 import org.springframework.data.repository.findByIdOrNull
@@ -23,8 +21,8 @@ class PersonAdapter(
             ParticipantDBStatus.REGISTERED -> p.toRegistered()
             ParticipantDBStatus.PARTICIPANT -> p.toParticipant()
             ParticipantDBStatus.ATTENDEE -> p.toAttendee()
-            ParticipantDBStatus.RELEASED -> TODO()
-            ParticipantDBStatus.BLOCKED -> TODO()
+            ParticipantDBStatus.RELEASED -> p.toReleased()
+            ParticipantDBStatus.BLOCKED -> p.toBlocked()
         }
     }
 }
