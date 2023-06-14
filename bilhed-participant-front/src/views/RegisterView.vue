@@ -1,6 +1,6 @@
 <template>
 	<div>
-    <div class="row justify-content-center">
+    <div class="row justify-content-center" v-if="isOpen">
       <div class="col-md-8 bg-light rounded-3 px-5 py-3 mb-5">
         <p class="lead text-center fw-bold mb-0">
           Inscription à la loterie du BreizhCamp 2023
@@ -23,10 +23,11 @@
         </p>
 
         <p class="lead text-center fw-bold">
-            Fermeture des inscriptions le 31 mai à 23h59
+            Fermeture des inscriptions le <DateView :date="config.closeDate" format="D MMMM à HH[h]mm" />
         </p>
       </div>
     </div>
+    <ClosedMessage :loading="!config.closeDate" v-else />
 
     <div v-if="error" class="row justify-content-center" ref="error">
       <div class="col-md-8 alert alert-danger px-5 py-3 mb-5">
@@ -35,7 +36,7 @@
     </div>
 
 
-    <form @submit.prevent="save()">
+    <form @submit.prevent="save()" v-if="isOpen">
       <div class="row justify-content-center">
         <div class="col-md-6">
           <div class="mb-3 row">
@@ -126,23 +127,48 @@ etc...
 </template>
 
 <script lang="ts">
+import ClosedMessage from '@/components/ClosedMessage.vue';
+import DateView from '@/components/DateView.vue';
+import type { Config } from '@/dto/config';
 import { Registered } from '@/dto/Registered';
+import dayjs from 'dayjs';
 import { defineComponent } from 'vue'
 import axios from 'axios'
 
 export default defineComponent({
   name: "RegisterView",
+  components: {DateView, ClosedMessage},
 
   data() {
     return {
       loading: false,
       registered: new Registered(),
+      config: {} as Config,
       haveKids: false,
       error: ""
     }
   },
 
+  created() {
+    this.loadConfig()
+  },
+
+  computed: {
+    isOpen() {
+      return this.config && dayjs(this.config.closeDate).isAfter(dayjs())
+    }
+  },
+
   methods: {
+    loadConfig() {
+      this.loading = true
+      this.error = ""
+
+      axios.get('/config').then(res => {
+        this.config = res.data
+      }).catch(this.displayError).finally(() => this.loading = false)
+    },
+
     save() {
       this.loading = true
       this.error = ""
