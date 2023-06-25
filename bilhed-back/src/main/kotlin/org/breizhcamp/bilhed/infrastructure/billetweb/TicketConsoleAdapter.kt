@@ -5,6 +5,7 @@ import mu.KotlinLogging
 import org.breizhcamp.bilhed.config.BilhedBackConfig
 import org.breizhcamp.bilhed.domain.entities.Participant
 import org.breizhcamp.bilhed.domain.entities.Ticket
+import org.breizhcamp.bilhed.domain.entities.TicketExportData
 import org.breizhcamp.bilhed.domain.use_cases.ports.TicketPort
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
@@ -36,6 +37,9 @@ class TicketConsoleAdapter(
 
     override fun getPayUrl(id: UUID): String = generatePayUrl()
     override fun getPayed(): List<UUID> = emptyList()
+    override fun getExportList(): List<TicketExportData> {
+        return emptyList()
+    }
 
     private fun generatePayUrl() = "${config.participantFrontUrl}/#/ticket?payWithConsole"
 

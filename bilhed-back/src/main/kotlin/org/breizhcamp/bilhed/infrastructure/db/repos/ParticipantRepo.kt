@@ -21,6 +21,9 @@ interface ParticipantRepo: JpaRepository<ParticipantDB, UUID>, ParticipantRepoCu
     @Query("select p from ParticipantDB p where p.status = 'REGISTERED' order by p.registrationDate asc")
     fun listRegistered(): List<ParticipantDB>
 
+    @Query("select p from ParticipantDB p where p.status = 'ATTENDEE'")
+    fun listAttendees(): List<ParticipantDB>
+
     fun countByEmailOrTelephone(email: String, telephone: String): Int
     fun countByTelephone(phone: String): Int
 

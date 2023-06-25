@@ -2,6 +2,7 @@ package org.breizhcamp.bilhed.domain.use_cases.ports
 
 import org.breizhcamp.bilhed.domain.entities.Participant
 import org.breizhcamp.bilhed.domain.entities.Ticket
+import org.breizhcamp.bilhed.domain.entities.TicketExportData
 import java.util.*
 
 interface TicketPort {
@@ -15,4 +16,6 @@ interface TicketPort {
     fun getPayUrl(id: UUID): String
 
     fun getPayed(): List<UUID>
+
+    fun getExportList(): List<TicketExportData>
 }

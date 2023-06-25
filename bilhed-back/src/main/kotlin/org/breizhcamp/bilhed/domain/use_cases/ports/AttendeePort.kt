@@ -16,4 +16,6 @@ interface AttendeePort {
     fun getData(id: UUID): AttendeeData?
 
     fun setPayed(ids: List<UUID>)
+
+    fun listWithData(): List<Pair<Attendee, AttendeeData?>>
 }

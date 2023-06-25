@@ -7,6 +7,7 @@ import mu.KotlinLogging
 import org.breizhcamp.bilhed.config.BilhedBackConfig
 import org.breizhcamp.bilhed.domain.entities.Participant
 import org.breizhcamp.bilhed.domain.entities.Ticket
+import org.breizhcamp.bilhed.domain.entities.TicketExportData
 import org.breizhcamp.bilhed.domain.use_cases.ports.TicketPort
 import org.breizhcamp.bilhed.infrastructure.billetweb.dto.CreateCmd
 import org.breizhcamp.bilhed.infrastructure.billetweb.dto.CreateProduct
@@ -87,6 +88,20 @@ class BilletWebAdapter(
         val tickets = billetWebRepo.findAll().groupBy { it.attendeeId }
 
         return attendees.mapNotNull { tickets[it.orderId] }.flatten().map { it.participantId }
+    }
+
+    override fun getExportList(): List<TicketExportData> {
+        val eventId = requireNotNull(config.billetWeb.eventId) { "Erreur config, impossible de lister BilletWeb sans eventId" }
+        val attendees = billetWebClient.listAttendees(eventId).filter { it.orderPaid == "1" }
+        val tickets = billetWebRepo.findAll().groupBy { it.attendeeId }
+
+        return attendees.map {
+            val attendeeId = tickets[it.orderId]?.firstOrNull()?.participantId
+            val noGoodies = if (it.noGoodies) "true" else null
+
+            TicketExportData(attendeeId, it.ticket, it.barcode, it.name, it.firstname, it.email,
+                it.company, noGoodies, it.tShirtSize, it.tShirtCut)
+        }
     }
 
     private fun buildPayUrl(orderManagement: String) = "$orderManagement&action=pay"

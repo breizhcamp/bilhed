@@ -40,4 +40,13 @@ class AttendeeAdapter(
         participantRepo.setPayed(ids)
     }
 
+    override fun listWithData(): List<Pair<Attendee, AttendeeData?>> {
+        val attendees = participantRepo.listAttendees()
+        val attendeesData = attendeeDataRepo.findAll()
+        return attendees.map { attendee ->
+            val attendeeData = attendeesData.find { it.id == attendee.id }
+            attendee.toAttendee() to attendeeData?.toAttendeeData()
+        }
+    }
+
 }

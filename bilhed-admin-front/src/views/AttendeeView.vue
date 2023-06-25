@@ -1,6 +1,10 @@
 <template>
   <h1>
     Conférenciers
+
+    <span class="d-inline-block float-end">
+      <button type="button" class="btn btn-primary" v-on:click="exportAll()">Export</button>
+    </span>
   </h1>
 
   <div class="mb-3">
@@ -61,6 +65,7 @@ import type { AttendeeFilter } from '@/dto/AttendeeFilter';
 import axios from 'axios'
 import BiSendCheck from 'bootstrap-icons/icons/send-check.svg?component'
 import { defineComponent } from 'vue'
+import FileSaver from 'file-saver'
 
 export default defineComponent({
   name: "ParticipantView",
@@ -132,6 +137,12 @@ export default defineComponent({
         this.loading = false
       })
     },
+
+    exportAll() {
+      axios.get('/attendees/export', { responseType: 'blob' }).then(res => {
+        FileSaver.saveAs(res.data, 'inscrits.csv')
+      })
+    }
   }
 })
 </script>

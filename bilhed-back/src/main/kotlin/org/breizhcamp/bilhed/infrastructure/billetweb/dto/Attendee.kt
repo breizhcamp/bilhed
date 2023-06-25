@@ -9,6 +9,7 @@ import java.time.LocalDateTime
  */
 data class Attendee(
         val id: String,
+        val barcode: String,
         val firstname: String,
         val name: String,
         val email: String,
@@ -34,4 +35,14 @@ data class Attendee(
         val orderManagement: String,
         @JsonProperty("order_paid")
         val orderPaid: String,
-)
+
+        val custom: Map<String, String>?,
+
+        @JsonProperty("custom_order")
+        val customOrder: Map<String, String>?,
+) {
+        val company get() = customOrder?.get("Entreprise")
+        val noGoodies get() = custom?.get("Taille T-Shirt") == "Je ne veux pas de TShirt"
+        val tShirtSize get() = if (noGoodies) null else custom?.get("Taille T-Shirt")
+        val tShirtCut get() = if (noGoodies) null else custom?.get("Coupe T-Shirt")
+}
