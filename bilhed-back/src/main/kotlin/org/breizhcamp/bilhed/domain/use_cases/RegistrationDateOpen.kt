@@ -10,7 +10,6 @@ class RegistrationDateOpen(
 ) {
 
     fun getCloseDate(): ZonedDateTime {
-        Thread.sleep(1000)
         return config.registerCloseDate
     }
 

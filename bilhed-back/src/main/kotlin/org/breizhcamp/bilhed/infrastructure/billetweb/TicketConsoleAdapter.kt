@@ -32,7 +32,7 @@ class TicketConsoleAdapter(
     }
 
     override fun hasTicket(id: UUID): Boolean {
-        return true
+        return false
     }
 
     override fun getPayUrl(id: UUID): String = generatePayUrl()

@@ -13,8 +13,8 @@
 
         <p class="mt-4 mb-4">
           Vous aviez choisi un pass
-          <span v-if="participant.pass === 'TWO_DAYS'"><strong>2 jours</strong> (jeudi 29 et vendredi 30 juin)</span>
-            <span v-else-if="participant.pass === 'THREE_DAYS'"><strong>3 jours</strong> (mercredi 28, jeudi 29 et vendredi 30 juin)</span>
+          <span v-if="participant.pass === 'TWO_DAYS'"><strong>2 jours</strong> (jeudi 27 et vendredi 28 juin)</span>
+            <span v-else-if="participant.pass === 'THREE_DAYS'"><strong>3 jours</strong> (mercredi 26, jeudi 27 et vendredi 28 juin)</span>
           lors de votre inscription à la loterie.
         </p>
 
@@ -142,8 +142,8 @@
             <div class="col-sm-9">
               <select class="form-select" name="tShirtCut" id="tShirtCut" required :disabled="loading" v-model="participant.tShirtCut">
                 <option></option>
-                <option value="m">Homme</option>
-                <option value="f">Femme</option>
+                <option value="s">Droite</option>
+                <option value="f">Cintrée</option>
               </select>
             </div>
           </div>
@@ -159,18 +159,7 @@
                 <input class="form-check-input" type="radio" name="meetAndGreet" id="meetAndGreetNo" v-model="participant.meetAndGreet" :value="false" required :disabled="loading">
                 <label class="form-check-label" for="meetAndGreetNo">Non</label>
               </div>
-              <div id="postalCodeHelp" class="form-text">Souhaitez vous rester le jeudi soir (19h-21h) ? Le repas est offert.</div>
-            </div>
-          </div>
-
-          <div class="mb-3 row">
-            <label for="vegan" class="col-sm-3 col-form-label">Repas végétarien</label>
-            <div class="col-sm-9">
-              <div class="form-check pt-2">
-                <input class="form-check-input" type="checkbox" value="true" id="vegan" v-model="participant.vegan">
-                Cette année la journée de jeudi sera entièrement végétarienne. Afin d'estimer les quantités pour les autres jours,
-                vous pouvez cocher cette case si vous souhaitez un repas végétarien.
-              </div>
+              <div id="meetAndGreetHelp" class="form-text">Souhaitez vous rester le jeudi soir (19h-21h) ? Le repas est offert.</div>
             </div>
           </div>
 

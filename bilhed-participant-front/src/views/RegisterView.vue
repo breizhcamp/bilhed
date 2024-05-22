@@ -3,9 +3,9 @@
     <div class="row justify-content-center" v-if="isOpen">
       <div class="col-md-8 bg-light rounded-3 px-5 py-3 mb-5">
         <p class="lead text-center fw-bold mb-0">
-          Inscription à la loterie du BreizhCamp 2023
+          Inscription à la loterie du BreizhCamp 2024
         </p>
-        <p class="text-center small">Du 28 au 30 juin 2023</p>
+        <p class="text-center small">Du 26 au 28 juin 2024</p>
 
         <p>
           Victime de notre succès, et étant limité par la place disponible, l'équipe du BreizhCamp a décidé de mettre en place
@@ -76,39 +76,19 @@
               <div class="form-check">
                 <input class="form-check-input" type="radio" name="pass" id="pass2j" value="TWO_DAYS" required v-model="registered.pass">
                 <label class="form-check-label" for="pass2j">
-                  2 jours / 75 € <small>(jeudi 29 et vendredi 30 juin)</small>
+                  2 jours / 75 € <small>(jeudi 27 et vendredi 28 juin)</small>
                 </label>
               </div>
 
               <div class="form-check">
                 <input class="form-check-input" type="radio" name="pass" id="pass3j" value="THREE_DAYS" required v-model="registered.pass">
                 <label class="form-check-label" for="pass3j">
-                  3 jours / 90 € <small>(mercredi 28, jeudi 29 et vendredi 30 juin)</small>
+                  3 jours / 90 € <small>(mercredi 26, jeudi 27 et vendredi 28 juin)</small>
                 </label>
               </div>
 
             </div>
           </fieldset>
-
-          <div class="row" :class="{ 'mb-4': !haveKids, 'mb-2': haveKids }">
-            <div class="col-sm-12">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="kidsCheck" v-model="haveKids">
-                <label class="form-check-label" for="kidsCheck">
-                  Nous évaluons la possibilité d'une garde d'enfants pendant le BreizhCamp ; cochez cette case si la garde d'enfants aiderait à votre venue.
-                </label>
-              </div>
-            </div>
-          </div>
-
-          <div class="mb-4 row" v-if="haveKids">
-            <label for="kids" class="form-label">Veuillez renseigner les âges et les créneaux de garde nécessaires, s'il vous plaît :</label>
-            <textarea class="form-control" id="kids" rows="4" required v-model="registered.kids" placeholder="Ex:
-- 5 ans, mercredi de 14h à 18h
-- 10 ans, jeudi de 18h à 20h30
-etc...
-"></textarea>
-          </div>
 
           <div class="row text-center mb-3">
             <button type="submit" class="btn btn-lg btn-primary" :disabled="loading">
@@ -144,7 +124,6 @@ export default defineComponent({
       loading: false,
       registered: new Registered(),
       config: {} as Config,
-      haveKids: false,
       error: ""
     }
   },
