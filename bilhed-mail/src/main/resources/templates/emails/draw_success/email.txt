@@ -1,6 +1,6 @@
 Bonjour [(${firstname})],
 
-Bonne nouvelle, vous avez été retenu pour la billetterie du BreizhCamp [(${year})] !
+Bonne nouvelle, vous avez été retenu.e pour la billetterie du BreizhCamp [(${year})] !
 
 Vous avez [(${delay})], soit jusqu'à [(${limit_date})], pour confirmer ou libérer votre place en suivant ce lien :
 
