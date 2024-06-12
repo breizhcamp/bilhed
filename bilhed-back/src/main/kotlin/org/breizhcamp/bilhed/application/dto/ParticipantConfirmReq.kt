@@ -12,7 +12,7 @@ data class ParticipantConfirmReq(
         if (listOf("no", "xs", "s", "m", "l", "xl", "xxl", "3xl").none { it == tShirtSize }) {
             throw IllegalArgumentException("La taille de T-Shirt est invalide")
         }
-        if (tShirtSize != "no" && listOf("s", "m").none { it == tShirtCut }) {
+        if (tShirtSize != "no" && listOf("s", "f").none { it == tShirtCut }) {
             throw IllegalArgumentException("La coupe de T-Shirt est invalide")
         }
     }
