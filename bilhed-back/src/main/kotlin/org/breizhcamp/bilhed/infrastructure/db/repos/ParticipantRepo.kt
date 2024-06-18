@@ -18,7 +18,10 @@ interface ParticipantRepo: JpaRepository<ParticipantDB, UUID>, ParticipantRepoCu
     @Query("select p from ParticipantDB p where p.id = :id and p.status = 'ATTENDEE'")
     fun findAttendee(id: UUID): ParticipantDB?
 
-    @Query("select p from ParticipantDB p where p.status = 'REGISTERED' order by p.registrationDate asc")
+    @Query("select p from ParticipantDB p where p.id IN (:ids) and p.status = 'ATTENDEE'")
+    fun findAttendees(ids: List<UUID>): List<ParticipantDB>
+
+            @Query("select p from ParticipantDB p where p.status = 'REGISTERED' order by p.registrationDate asc")
     fun listRegistered(): List<ParticipantDB>
 
     @Query("select p from ParticipantDB p where p.status = 'ATTENDEE'")

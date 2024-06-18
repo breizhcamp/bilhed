@@ -19,6 +19,7 @@ import java.util.*
 class AttendeeCtrl(
     private val attendeeList: AttendeeList,
     private val attendeeNotify: AttendeeNotify,
+    private val attendeeRelease: AttendeeRelease,
     private val ticketExport: TicketExport,
 ) {
 
@@ -36,6 +37,11 @@ class AttendeeCtrl(
     @PostMapping("/notif/payed/reminder/sms") @ResponseStatus(HttpStatus.NO_CONTENT)
     fun payedReminderSms(@RequestBody ids: List<UUID>) {
         attendeeNotify.remindPayedSms(ids)
+    }
+
+    @PostMapping("/levelUp/release") @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun release(@RequestBody ids: List<UUID>) {
+        attendeeRelease.release(ids)
     }
 
     @GetMapping("/export")

@@ -5,6 +5,7 @@ import jakarta.annotation.PostConstruct
 import jakarta.persistence.EntityNotFoundException
 import mu.KotlinLogging
 import org.breizhcamp.bilhed.config.BilhedBackConfig
+import org.breizhcamp.bilhed.domain.entities.Attendee
 import org.breizhcamp.bilhed.domain.entities.Participant
 import org.breizhcamp.bilhed.domain.entities.Ticket
 import org.breizhcamp.bilhed.domain.entities.TicketExportData
@@ -12,12 +13,14 @@ import org.breizhcamp.bilhed.domain.use_cases.ports.TicketPort
 import org.breizhcamp.bilhed.infrastructure.billetweb.dto.CreateCmd
 import org.breizhcamp.bilhed.infrastructure.billetweb.dto.CreateProduct
 import org.breizhcamp.bilhed.infrastructure.billetweb.dto.CreateReq
+import org.breizhcamp.bilhed.infrastructure.billetweb.dto.DeleteReq
 import org.breizhcamp.bilhed.infrastructure.db.model.BilletWebDB
 import org.breizhcamp.bilhed.infrastructure.db.repos.BilletWebRepo
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.codec.json.Jackson2JsonDecoder
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.util.MimeType
 import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
@@ -69,6 +72,15 @@ class BilletWebAdapter(
         billetWebRepo.saveAll(billetWeb)
 
         return billetWeb.map { Ticket(buildPayUrl(it.orderManagerUrl), false) }
+    }
+
+    override fun delete(attendees: List<Attendee>) {
+        val eventId = requireNotNull(config.billetWeb.eventId) { "Erreur config, impossible de supprimer de Billet sans eventId" }
+
+        val ordersId = billetWebRepo.findAllById(attendees.map { it.id }).map { it.attendeeId }
+        logger.info { "[BilletWeb] Delete ticket for [${attendees.size}] participants: " + attendees.joinToString { "${it.id}: ${it.lastname} ${it.firstname}" } }
+        billetWebClient.delete(eventId, DeleteReq(ordersId))
+        logger.info { "[BilletWeb] Ticket deleted for [${attendees.size}] participants" }
     }
 
     override fun hasTicket(id: UUID): Boolean {

@@ -7,8 +7,13 @@
           Bilhed Admin
         </a>
 
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav">
+        <button class="navbar-toggler" :class="{collapsed: !navbar}" type="button" aria-expanded="false" aria-label="Toggle navigation"
+            @click="navbar = !navbar">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" :class="{show: navbar}">
+          <ul class="navbar-nav" @click="navbar = false">
             <li class="nav-item">
               <router-link to="/registered" class="nav-link">Registered</router-link>
             </li>
@@ -38,6 +43,11 @@ import Logo from '@/assets/logo-breizhcamp-icone.svg?component'
 export default defineComponent({
   name: "AppView",
   components: { Logo },
+  data() {
+    return {
+      navbar: false,
+    }
+  },
 })
 </script>
 

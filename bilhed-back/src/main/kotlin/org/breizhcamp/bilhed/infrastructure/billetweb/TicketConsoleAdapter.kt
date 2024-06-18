@@ -3,6 +3,7 @@ package org.breizhcamp.bilhed.infrastructure.billetweb
 import jakarta.annotation.PostConstruct
 import mu.KotlinLogging
 import org.breizhcamp.bilhed.config.BilhedBackConfig
+import org.breizhcamp.bilhed.domain.entities.Attendee
 import org.breizhcamp.bilhed.domain.entities.Participant
 import org.breizhcamp.bilhed.domain.entities.Ticket
 import org.breizhcamp.bilhed.domain.entities.TicketExportData
@@ -29,6 +30,10 @@ class TicketConsoleAdapter(
             logger.info { "[TicketConsole] Create ticket for participant [${it.id}] / [${it.lastname}] [${it.firstname}]" }
             Ticket(generatePayUrl(), false)
         }
+    }
+
+    override fun delete(attendees: List<Attendee>) {
+        logger.info { "[TicketConsole] Delete ticket for participants: " + attendees.joinToString { "${it.id}: ${it.lastname} ${it.firstname}" } }
     }
 
     override fun hasTicket(id: UUID): Boolean {

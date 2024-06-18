@@ -11,6 +11,8 @@ interface AttendeePort {
 
     fun get(id: UUID): Attendee
 
+    fun get(ids: List<UUID>): List<Attendee>
+
     fun saveData(id: UUID, data: AttendeeData)
 
     fun getData(id: UUID): AttendeeData?
@@ -18,4 +20,6 @@ interface AttendeePort {
     fun setPayed(ids: List<UUID>)
 
     fun listWithData(): List<Pair<Attendee, AttendeeData?>>
+
+    fun levelUpToReleased(id: UUID)
 }

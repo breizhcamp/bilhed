@@ -46,6 +46,7 @@
         <div>
           <button type="button" class="btn btn-primary me-1" v-on:click="notifySel('payed/reminder/mail')" :disabled="loading"><BiSendCheck/> Remind payed mail</button>
           <button type="button" class="btn btn-outline-warning me-1" v-on:click="notifySel('payed/reminder/sms')" :disabled="loading"><BiSendCheck/> Remind payed SMS</button>
+          <button type="button" class="btn btn-outline-danger me-1" v-on:click="levelUp('release')" :disabled="loading"><BiArrowUp/> Level Up to release</button>
 
           <div class="d-inline-block ms-3" v-if="checked.length > 0">{{ checked.length }}/{{ participants.length }}</div>
         </div>
@@ -63,13 +64,14 @@ import Pass from '@/components/Pass.vue'
 import type { Attendee } from '@/dto/Attendee';
 import type { AttendeeFilter } from '@/dto/AttendeeFilter';
 import axios from 'axios'
+import BiArrowUp from 'bootstrap-icons/icons/arrow-bar-up.svg?component'
 import BiSendCheck from 'bootstrap-icons/icons/send-check.svg?component'
 import { defineComponent } from 'vue'
 import FileSaver from 'file-saver'
 
 export default defineComponent({
   name: "ParticipantView",
-  components: {AttendeesFilter, Pass, DateView, BiSendCheck },
+  components: {AttendeesFilter, Pass, DateView, BiSendCheck, BiArrowUp },
 
   data() {
     return {
@@ -125,8 +127,7 @@ export default defineComponent({
     },
 
     notifySel(type: string) {
-      const ids = this.participants.filter((p) => p.checked).map((p) => p.id)
-      this.sendNotify(ids, type);
+      this.sendNotify(this.getSelected(), type);
     },
 
     sendNotify(ids: string[], type: string) {
@@ -138,11 +139,25 @@ export default defineComponent({
       })
     },
 
+    levelUp(level: string) {
+      this.loading = true
+      const ids = this.getSelected()
+      axios.post('/attendees/levelUp/' + level, ids).then(() => {
+        this.load()
+      }).finally(() => {
+        this.loading = false
+      })
+    },
+
     exportAll() {
       axios.get('/attendees/export', { responseType: 'blob' }).then(res => {
         FileSaver.saveAs(res.data, 'inscrits.csv')
       })
-    }
+    },
+
+    getSelected: function () {
+      return this.participants.filter((p) => p.checked).map((p) => p.id)
+    },
   }
 })
 </script>

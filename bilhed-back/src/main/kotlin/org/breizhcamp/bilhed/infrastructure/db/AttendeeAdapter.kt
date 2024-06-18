@@ -4,14 +4,17 @@ import jakarta.persistence.EntityNotFoundException
 import org.breizhcamp.bilhed.domain.entities.Attendee
 import org.breizhcamp.bilhed.domain.entities.AttendeeData
 import org.breizhcamp.bilhed.domain.entities.AttendeeFilter
+import org.breizhcamp.bilhed.domain.entities.ConfirmationType
 import org.breizhcamp.bilhed.domain.use_cases.ports.AttendeePort
 import org.breizhcamp.bilhed.infrastructure.db.mappers.toAttendee
 import org.breizhcamp.bilhed.infrastructure.db.mappers.toAttendeeData
 import org.breizhcamp.bilhed.infrastructure.db.mappers.toDB
+import org.breizhcamp.bilhed.infrastructure.db.model.ParticipantDBStatus
 import org.breizhcamp.bilhed.infrastructure.db.repos.AttendeeDataRepo
 import org.breizhcamp.bilhed.infrastructure.db.repos.ParticipantRepo
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
+import java.time.ZonedDateTime
 import java.util.*
 
 @Component
@@ -26,6 +29,10 @@ class AttendeeAdapter(
 
     override fun get(id: UUID): Attendee {
         return participantRepo.findAttendee(id)?.toAttendee() ?: throw EntityNotFoundException("Unable to find attendee [$id]")
+    }
+
+    override fun get(ids: List<UUID>): List<Attendee> {
+        return participantRepo.findAttendees(ids).map { it.toAttendee() }
     }
 
     override fun saveData(id: UUID, data: AttendeeData) {
@@ -46,6 +53,12 @@ class AttendeeAdapter(
         return attendees.map { attendee ->
             val attendeeData = attendeesData.find { it.id == attendee.id }
             attendee.toAttendee() to attendeeData?.toAttendeeData()
+        }
+    }
+
+    override fun levelUpToReleased(id: UUID) {
+        participantRepo.findAttendee(id)?.apply {
+            status = ParticipantDBStatus.RELEASED
         }
     }
 
