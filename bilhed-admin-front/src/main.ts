@@ -1,8 +1,7 @@
+import { getToken, vueKeycloak } from '@josempgon/vue-keycloak';
 import { createApp } from 'vue'
 import App from './App.vue'
-import router from './router'
-// @ts-ignore
-import { Vuecloak } from 'vuecloak'
+import { initRouter } from './router'
 
 import 'bootstrap/dist/css/bootstrap.min.css'
 import './assets/main.css'
@@ -12,21 +11,18 @@ const app = createApp(App)
 
 axios.defaults.baseURL = '/admin'
 axios.interceptors.request.use(async config => {
-  await app.config.globalProperties.$keycloak.updateToken()
-  config.headers.Authorization = `Bearer ${app.config.globalProperties.$keycloak.token}`
+  const token = await getToken()
+  config.headers.Authorization = `Bearer ${token}`
   return config
 })
 
-app.use(Vuecloak, {
-  init: {
-    onLoad: 'login-required',
-    checkLoginIframe: false
-  },
+await vueKeycloak.install(app, {
   config: {
     url: 'https://auth.breizhcamp.org/auth/',
     realm: 'BreizhCamp',
     clientId: 'bilhed-admin-front',
   }
 })
-app.use(router)
+
+app.use(initRouter())
 app.mount('#app')
