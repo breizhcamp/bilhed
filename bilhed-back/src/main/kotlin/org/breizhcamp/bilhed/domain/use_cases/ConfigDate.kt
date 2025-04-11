@@ -5,12 +5,17 @@ import org.springframework.stereotype.Service
 import java.time.ZonedDateTime
 
 @Service
-class RegistrationDateOpen(
+class ConfigDate (
     val config: BilhedBackConfig
 ) {
 
-    fun getCloseDate(): ZonedDateTime {
+    fun getRegistrationCloseDate(): ZonedDateTime {
         return config.registerCloseDate
+    }
+
+
+    fun getBreizhCampCloseDate(): ZonedDateTime {
+        return config.breizhCampCloseDate
     }
 
 }

@@ -4,8 +4,11 @@ import App from './App.vue'
 import { initRouter } from './router'
 
 import 'bootstrap/dist/css/bootstrap.min.css'
+import 'bootstrap-icons/font/bootstrap-icons.min.css'
 import './assets/main.css'
+import "vue-toastification/dist/index.css";
 import axios from 'axios'
+import Toast from "vue-toastification"
 
 const app = createApp(App)
 
@@ -25,4 +28,5 @@ await vueKeycloak.install(app, {
 })
 
 app.use(initRouter())
+app.use(Toast)
 app.mount('#app')

@@ -26,10 +26,12 @@ class SecurityConfig {
         http.oauth2ResourceServer().jwt()
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
+//        http.authorizeHttpRequests()
+//            .requestMatchers("/admin/**").hasRole("BILHED")
+//            .requestMatchers("/api/**").permitAll()
+//            .anyRequest().denyAll()
         http.authorizeHttpRequests()
-            .requestMatchers("/admin/**").hasRole("BILHED")
-            .requestMatchers("/api/**").permitAll()
-            .anyRequest().denyAll()
+            .anyRequest().permitAll()
 
         http.csrf().disable()
 
