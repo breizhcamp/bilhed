@@ -16,6 +16,8 @@ data class BilhedBackConfig(
 
     val bihan: BihanConfig,
     val billetWeb: BilletWeb,
+
+    val templates: Templates
 )
 
 data class BihanConfig(
@@ -32,4 +34,9 @@ data class BilletWeb(
 
     val passNames: Map<PassType, String>,
     val passPrices: Map<PassType, BigDecimal>,
+)
+
+data class Templates(
+    val mail: Map<String, Boolean>,
+    val sms: Map<String, Boolean>,
 )

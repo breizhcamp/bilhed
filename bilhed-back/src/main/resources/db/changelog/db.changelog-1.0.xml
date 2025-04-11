@@ -91,4 +91,29 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="10" author="nicolas">
+        <createTable tableName="bilhed_config">
+            <column name="key" type="text"><constraints primaryKey="true" nullable="false"/></column>
+            <column name="value" type="text"/>
+        </createTable>
+        <createTable tableName="reminder_config">
+            <column name="id" type="uuid"><constraints primaryKey="true" nullable="false"/></column>
+            <column name="type" type="text"><constraints nullable="false" /></column>
+            <column name="hours" type="int"><constraints nullable="false" /></column>
+            <column name="template_sms" type="text"/>
+            <column name="template_mail" type="text"/>
+        </createTable>
+        <createTable tableName="reminder">
+            <column name="id" type="uuid"><constraints primaryKey="true" nullable="false"/></column>
+            <column name="reminder_date" type="timestamp with time zone"><constraints nullable="false"/> </column>
+            <column name="template" type="text"><constraints nullable="false" /></column>
+            <column name="method" type="text"><constraints nullable="false" /></column>
+            <column name="participant_id" type="uuid"><constraints nullable="false"/></column>
+            <column name="model" type="text"><constraints nullable="false"/></column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="reminder" baseColumnNames="participant_id" constraintName="fk_reminder_participant" referencedTableName="participant"
+                                 referencedColumnNames="id" />
+    </changeSet>
+
 </databaseChangeLog>

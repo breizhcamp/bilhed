@@ -31,3 +31,19 @@ bilhed.back:
     passPrices:
       TWO_DAYS: 75.00
       THREE_DAYS: 90.00
+
+  templates:
+    mail:
+      draw_failed: true
+      draw_success: true
+      draw_success_reminder: true
+      draw_waiting: true
+      payed_reminder: true
+      register: true
+      registration_reminder: true
+
+    sms:
+      draw_success: true
+      payed_reminder: true
+      registered_token: true
+      registration_reminder: true
