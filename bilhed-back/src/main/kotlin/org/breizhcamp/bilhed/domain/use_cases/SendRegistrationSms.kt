@@ -1,22 +1,20 @@
 package org.breizhcamp.bilhed.domain.use_cases
 
 import mu.KotlinLogging
-import org.apache.commons.lang3.RandomStringUtils
-import org.breizhcamp.bilhed.domain.entities.Participant
 import org.breizhcamp.bilhed.domain.entities.Registered
+import org.breizhcamp.bilhed.domain.entities.ReminderOrigin
 import org.breizhcamp.bilhed.domain.entities.Sms
 import org.breizhcamp.bilhed.domain.entities.SmsStatus
 import org.breizhcamp.bilhed.domain.use_cases.ports.RegisteredPort
-import org.breizhcamp.bilhed.domain.use_cases.ports.SmsPort
 import org.springframework.stereotype.Service
 import java.time.ZonedDateTime
 
 private val logger = KotlinLogging.logger {}
 
 @Service
-class SendSms(
-    private val smsPort: SmsPort,
+class SendRegistrationSms(
     private val registeredPort: RegisteredPort,
+    private val sendNotification: SendNotification
 ) {
 
     fun sendSms(registered: Registered): Registered {
@@ -52,7 +50,7 @@ class SendSms(
             model = mapOf("token" to registered.token),
         )
 
-        smsPort.send(sms)
+        sendNotification.sendSms(sms, ReminderOrigin.MANUAL)
         registeredPort.save(res)
         return res
     }

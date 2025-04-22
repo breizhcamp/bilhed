@@ -2,13 +2,9 @@ package org.breizhcamp.bilhed.domain.use_cases
 
 import mu.KotlinLogging
 import org.breizhcamp.bilhed.domain.entities.*
-import org.breizhcamp.bilhed.domain.use_cases.ports.AttendeePort
-import org.breizhcamp.bilhed.domain.use_cases.ports.ParticipantPort
-import org.breizhcamp.bilhed.domain.use_cases.ports.PersonPort
-import org.breizhcamp.bilhed.domain.use_cases.ports.TicketPort
+import org.breizhcamp.bilhed.domain.use_cases.ports.*
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.lang.IllegalArgumentException
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -20,6 +16,7 @@ class ParticipantConfirm(
     private val ticketPort: TicketPort,
     private val attendeePort: AttendeePort,
     private val personPort: PersonPort,
+    private val configPort: ConfigPort
 ) {
 
     fun get(id: UUID): Person {
@@ -34,8 +31,10 @@ class ParticipantConfirm(
     }
 
     private fun checkLimitDate(p: Participant) {
-        val limitDate = requireNotNull(p.confirmationLimitDate) { "Vous n'avez pas été tiré au sort" }
-        if (limitDate.isBefore(ZonedDateTime.now())) {
+        val limitDate = requireNotNull(p.notificationConfirmDate) { "Vous n'avez pas été tiré au sort" }
+        val limitTime = configPort.get("reminderTimePar")
+
+        if (limitDate.plusHours(limitTime.value.toLong()).isBefore(ZonedDateTime.now())) {
             throw IllegalArgumentException("Vous avez dépassé la date limite de confirmation, votre place a été remise en jeu")
         }
     }

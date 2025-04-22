@@ -12,8 +12,8 @@ data class Attendee(
     override val pass: PassType,
     override val kids: String?,
 
-    val confirmationLimitDate: ZonedDateTime,
     val participantConfirmationDate: ZonedDateTime,
+    val participantNotificationConfirmDate: ZonedDateTime,
     val payed: Boolean,
 
 ): Person()

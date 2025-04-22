@@ -1,21 +1,17 @@
 package org.breizhcamp.bilhed.application.rest.admin
 
 import org.breizhcamp.bilhed.application.dto.admin.ParticipantDTO
-import org.breizhcamp.bilhed.domain.entities.ParticipantFilter
 import org.breizhcamp.bilhed.domain.entities.Participant
+import org.breizhcamp.bilhed.domain.entities.ParticipantFilter
 import org.breizhcamp.bilhed.domain.entities.PassType
+import org.breizhcamp.bilhed.domain.entities.ReminderOrigin
 import org.breizhcamp.bilhed.domain.use_cases.ParticipantConfirm
 import org.breizhcamp.bilhed.domain.use_cases.ParticipantDraw
 import org.breizhcamp.bilhed.domain.use_cases.ParticipantList
 import org.breizhcamp.bilhed.domain.use_cases.ParticipantNotif
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.ResponseStatus
-import org.springframework.web.bind.annotation.RestController
-import java.util.UUID
+import org.springframework.web.bind.annotation.*
+import java.util.*
 
 @RestController("adminParticipantCtrl")
 @RequestMapping("/admin/participants")
@@ -55,7 +51,7 @@ class ParticipantCtrl(
 
     @PostMapping("/notif/success/reminder") @ResponseStatus(HttpStatus.NO_CONTENT)
     fun successReminder(@RequestBody ids: List<UUID>) {
-        participantNotif.remindSuccess(ids)
+        participantNotif.remindSuccess(ids, ReminderOrigin.MANUAL)
     }
 
     @PostMapping("/notif/waiting") @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -83,9 +79,6 @@ private fun Participant.toDto() = ParticipantDTO(
     smsStatus = smsStatus,
     nbSmsSent = nbSmsSent,
     smsError = smsError,
-    smsConfirmSentDate = smsConfirmSentDate,
-    mailConfirmSentDate = mailConfirmSentDate,
-    confirmationLimitDate = confirmationLimitDate,
+    notificationConfirmSentDate = notificationConfirmDate,
     confirmationDate = confirmationDate,
-    confirmationType = confirmationType,
 )

@@ -3,9 +3,8 @@ package org.breizhcamp.bilhed.domain.use_cases
 import mu.KotlinLogging
 import org.breizhcamp.bilhed.config.BilhedBackConfig
 import org.breizhcamp.bilhed.domain.entities.*
-import org.breizhcamp.bilhed.domain.use_cases.ports.MailPort
+import org.breizhcamp.bilhed.domain.use_cases.ports.ConfigPort
 import org.breizhcamp.bilhed.domain.use_cases.ports.ParticipantPort
-import org.breizhcamp.bilhed.domain.use_cases.ports.SmsPort
 import org.breizhcamp.bilhed.domain.use_cases.ports.UrlShortenerPort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -20,9 +19,9 @@ private val logger = KotlinLogging.logger {}
 class ParticipantNotif(
     private val config: BilhedBackConfig,
     private val participantPort: ParticipantPort,
-    private val smsPort: SmsPort,
-    private val mailPort: MailPort,
     private val urlShortenerPort: UrlShortenerPort,
+    private val configPort: ConfigPort,
+    private val sendNotification: SendNotification
 ) {
 
     fun notify(overrideNbNotif: Map<PassType, Int>) {
@@ -69,22 +68,22 @@ class ParticipantNotif(
         )
 
         val resSms = sendDrawSuccessSms(p, model)
-        mailPort.send(Mail(p.getMailAddress(), "draw_success", model))
+        sendNotification.sendEmail(Mail(p.getMailAddress(), "draw_success", model, listOf(p.id)), ReminderOrigin.MANUAL)
 
-        participantPort.save(resSms.copy(mailConfirmSentDate = limitDate.now, confirmationLimitDate = limitDate.date))
+        participantPort.save(resSms.copy(notificationConfirmDate = limitDate.now))
     }
 
     fun notifyWaiting(ids: List<UUID>) = ids.forEach { notifyWaitingParticipant(it, "draw_waiting") }
 
     fun notifyFailed(ids: List<UUID>) = ids.forEach { notifyWaitingParticipant(it, "draw_failed") }
-    fun remindSuccess(ids: List<UUID>) = ids.forEach {
+    fun remindSuccess(ids: List<UUID>, origin: ReminderOrigin) = ids.forEach {
         val p = participantPort.get(it)
         try {
             logger.info { "Reminding success participant to confirm the ticket [${p.firstname} ${p.lastname}]" }
-            val limitDate = requireNotNull(p.confirmationLimitDate) { "Participant [${p.firstname} ${p.lastname}] has no confirmation limit date" }
+            val limitDate = requireNotNull(p.notificationConfirmDate) { "Participant [${p.firstname} ${p.lastname}] has no notification confirmation limit date" }
             val model = mapOf("firstname" to p.firstname, "lastname" to p.lastname, "year" to config.breizhCampYear.toString(),
                 "link" to getConfirmSuccessLink(p), "limit_date" to formatDate(limitDate))
-            mailPort.send(Mail(p.getMailAddress(), "draw_success_reminder", model))
+            sendNotification.sendEmail(Mail(p.getMailAddress(), "draw_success_reminder", model, ids), origin)
 
         } catch (e: Exception) {
             logger.warn(e) { "Unable to remind participant [${p.firstname} ${p.lastname}]" }
@@ -96,16 +95,17 @@ class ParticipantNotif(
         logger.info { "Notifying [$template] participant [${p.firstname} ${p.lastname}]" }
         val model = mapOf("firstname" to p.firstname, "lastname" to p.lastname, "year" to config.breizhCampYear.toString(),
             )
-        mailPort.send(Mail(p.getMailAddress(), template, model))
+        sendNotification.sendEmail(Mail(p.getMailAddress(), template, model, listOf(id)), ReminderOrigin.MANUAL)
     }
 
     private fun getConfirmSuccessLink(p: Participant) = "${config.participantFrontUrl}/#/${p.id}/success"
 
     private fun getLimitDate(): LimitDate {
+        val timeLimit = configPort.get("reminderTimePar")
         val now = ZonedDateTime.now(ZoneId.of("Europe/Paris"))
-        val limitDate = now.plusHours(72)
+        val limitDate = now.plusHours(timeLimit.value.toLong())
         val limitDateStr = formatDate(limitDate)
-        return LimitDate(now, limitDate, limitDateStr, "72h")
+        return LimitDate(now, limitDate, limitDateStr, "${timeLimit.value}h")
     }
 
     private fun formatDate(limitDate: ZonedDateTime): String {
@@ -117,15 +117,16 @@ class ParticipantNotif(
         val res = participant.copy(
             smsStatus = SmsStatus.SENDING,
             nbSmsSent = participant.nbSmsSent + 1,
-            smsConfirmSentDate = ZonedDateTime.now(),
+            notificationConfirmDate = ZonedDateTime.now(),
         )
 
-        smsPort.send(Sms(
+        sendNotification.sendSms(Sms(
             id = participant.id,
             phone = participant.telephone,
             template = "draw_success",
             model = model,
-        ))
+        ), ReminderOrigin.MANUAL)
+
         return res
     }
 

@@ -7,6 +7,8 @@ import java.util.*
 
 interface AttendeePort {
 
+    fun list(): List<Attendee>
+
     fun filter(filter: AttendeeFilter): List<Attendee>
 
     fun get(id: UUID): Attendee
