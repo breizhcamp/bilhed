@@ -49,34 +49,38 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, inject, type PropType, type Ref} from "vue";
-import type {ReminderConfig, ReminderUpdate} from "@/dto/ReminderConfig";
+import {defineComponent, type PropType} from "vue";
+import {type ReminderConfig, ReminderType, type ReminderUpdate} from "@/dto/ReminderConfig";
 import {getShorterType, isReminderConfigRes} from "@/utils/ReminderUtils";
-import {useToast} from "vue-toastification";
 
 export default defineComponent({
   name: "RemindersSection",
   props : {
     reminders: { type: Array as PropType<ReminderConfig[]>, required: true},
     reminderTime: { type: Number, required: true},
-    reminderType: { type: String as () => "REGISTERED" | "PARTICIPANT" | "ATTENDEE", required: true},
+    reminderType: { type: String as PropType<ReminderType>, required: true},
     reminderBgColor: { type: String, required: true }
   },
   emits: ['submit', 'delete'],
-
-  setup() {
-    const toast = useToast();
-    const templateMailList = inject<Ref<string[]>>("templateMailList")?.value
-    const templateSmsList = inject<Ref<string[]>>("templateSmsList")?.value
-
-    return { toast, templateMailList, templateSmsList }
-  },
+  inject: ["templateMailList", "templateSmsList"],
 
   data() {
     return {
       r: this.reminders.map(reminder => ({ ...reminder })) as ReminderConfig[],
       rTime: this.reminderTime,
       rType: getShorterType(this.reminderType),
+    }
+  },
+
+  watch: {
+    reminders(newVal: ReminderConfig[]) {
+      this.r = newVal.map(reminder => ({ ...reminder }))
+    },
+    reminderTime(newVal: number) {
+      this.rTime = newVal
+    },
+    reminderType(newVal: ReminderType) {
+      this.rType = getShorterType(newVal)
     }
   },
 

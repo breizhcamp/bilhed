@@ -15,25 +15,26 @@ class ReminderConfigCrud (
 ) {
     fun list(): List<ReminderConfig> = reminderConfigPort.list()
 
-    fun add(reminderConfig: ReminderConfig): ReminderConfig? {
+    fun add(reminderConfig: ReminderConfig): ReminderConfig {
         val nbReminders = reminderConfigPort.countByType(reminderConfig.type)
         val shortType = reminderConfig.type[0].plus(lowerCase(reminderConfig.type.substring(1, 3))) // REGISTERED -> Reg
         val type = configPort.get("reminderTime$shortType")
 
-        if (nbReminders < 10 && reminderConfig.hours >= 0 && reminderConfig.hours <= type.value.toInt()) {
-            reminderConfigPort.save(reminderConfig)
-            return getByID(reminderConfig.id)
+        if (nbReminders >= 10 || reminderConfig.hours < 0 || reminderConfig.hours > type.value.toInt()) {
+            throw IllegalArgumentException("Too many reminders or hours is not in range")
         }
-        return null
+        reminderConfigPort.save(reminderConfig)
+        return getByID(reminderConfig.id)
     }
 
     @Transactional
     fun update(reminderConfig: ReminderConfig): ReminderConfig {
         val shortType = reminderConfig.type[0].plus(lowerCase(reminderConfig.type.substring(1, 3))) // REGISTERED -> Reg
         val type = configPort.get("reminderTime$shortType")
-        if (reminderConfig.hours >= 0 && reminderConfig.hours <= type.value.toInt()) {
-            reminderConfigPort.update(reminderConfig)
-        }
+        if (reminderConfig.hours < 0 || reminderConfig.hours > type.value.toInt())
+            throw IllegalArgumentException("Hours is not in range")
+
+        reminderConfigPort.update(reminderConfig)
         return getByID(reminderConfig.id)
     }
 
