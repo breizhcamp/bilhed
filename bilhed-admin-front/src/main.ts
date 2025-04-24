@@ -4,8 +4,10 @@ import App from './App.vue'
 import { initRouter } from './router'
 
 import 'bootstrap/dist/css/bootstrap.min.css'
+import 'bootstrap-icons/font/bootstrap-icons.min.css'
 import './assets/main.css'
 import axios from 'axios'
+import Vue3Toastify, { type ToastContainerOptions } from 'vue3-toastify';
 
 const app = createApp(App)
 
@@ -25,4 +27,7 @@ await vueKeycloak.install(app, {
 })
 
 app.use(initRouter())
+app.use(Vue3Toastify, {
+  autoClose: 3000,
+} as ToastContainerOptions)
 app.mount('#app')

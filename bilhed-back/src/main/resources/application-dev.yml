@@ -14,9 +14,13 @@ server.port: 4006
 
 bilhed.back:
   participantFrontUrl: http://localhost:5000
-  breizhCampYear: 2024
+  breizhCampYear: 2025
 
-  registerCloseDate: 2024-06-15T23:59:59+02:00
-  breizhCampCloseDate: 2024-06-28T23:59:59+02:00
+  registerCloseDate: 2025-06-15T23:59:59+02:00
+  breizhCampCloseDate: 2025-06-28T23:59:59+02:00
 
   billetWeb.enabled: false
+
+  bihan:
+    url: http://localhost:4010
+    apiKey: 1234567890

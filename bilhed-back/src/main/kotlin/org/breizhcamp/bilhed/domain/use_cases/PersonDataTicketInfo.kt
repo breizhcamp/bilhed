@@ -1,14 +1,13 @@
 package org.breizhcamp.bilhed.domain.use_cases
 
 import jakarta.persistence.EntityNotFoundException
-import org.breizhcamp.bilhed.config.BilhedBackConfig
 import org.breizhcamp.bilhed.domain.entities.PersonDataTicket
 import org.breizhcamp.bilhed.domain.entities.Released
 import org.breizhcamp.bilhed.domain.use_cases.ports.AttendeePort
 import org.breizhcamp.bilhed.domain.use_cases.ports.PersonPort
 import org.breizhcamp.bilhed.domain.use_cases.ports.TicketPort
 import org.springframework.stereotype.Service
-import java.util.UUID
+import java.util.*
 
 @Service
 class PersonDataTicketInfo(

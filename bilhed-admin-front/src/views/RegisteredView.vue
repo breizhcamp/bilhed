@@ -28,7 +28,7 @@
           <td>{{ r.firstname }}</td>
           <td>{{ r.email }}</td>
           <td>{{ r.telephone }}</td>
-          <td>{{ r.pass }}</td>
+          <td><Pass :pass="r.pass"/></td>
           <td><DateView :date="r.registrationDate"/></td>
           <td>
             <button type="button" class="btn btn-link btn-sm" title="Send SMS reminder" @click="sendReminder(r.id, 'sms')" :disabled="loading"><BiChatText/></button>
@@ -65,10 +65,11 @@ import DateView from '@/components/DateView.vue'
 import ModalForm from '@/components/ModalForm.vue'
 import BiChatText from 'bootstrap-icons/icons/chat-text.svg?component'
 import BiEnvelope from 'bootstrap-icons/icons/envelope.svg?component'
+import Pass from "@/components/Pass.vue";
 
 export default defineComponent({
   name: "RegisteredView",
-  components: { ModalForm, DateView, BiChatText, BiEnvelope },
+  components: {Pass, ModalForm, DateView, BiChatText, BiEnvelope },
 
   data() {
     return {

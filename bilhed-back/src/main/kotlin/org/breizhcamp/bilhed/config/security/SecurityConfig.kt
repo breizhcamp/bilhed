@@ -31,6 +31,7 @@ class SecurityConfig {
             .requestMatchers("/api/**").permitAll()
             .anyRequest().denyAll()
 
+
         http.csrf().disable()
 
         return http.build()

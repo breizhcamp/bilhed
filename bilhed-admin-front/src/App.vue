@@ -23,6 +23,9 @@
             <li class="nav-item">
               <router-link to="/attendees" class="nav-link">Attendees</router-link>
             </li>
+            <li class="nav-item">
+              <router-link to="/configuration" class="nav-link">Configuration</router-link>
+            </li>
           </ul>
         </div>
 
