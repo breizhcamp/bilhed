@@ -71,7 +71,7 @@ private fun ParticipantDB.update(src: Participant) = this.apply {
     participantSmsStatus = src.smsStatus
     participantNbSmsSent = src.nbSmsSent
     participantSmsError = src.smsError
-    participantNotificationConfirmSentDate = src.participationDate
+    participantNotificationConfirmSentDate = src.notificationConfirmDate
 
     participantConfirmationDate = src.confirmationDate
 }

@@ -42,19 +42,18 @@ class ParticipantNotif(
             }
         }.values.flatten()
 
-        val limitDate = getLimitDate()
-
         participants.forEach {
+            val limitDate = getLimitDate(it)
             notifySuccessParticipant(it, limitDate)
         }
     }
 
     /** Notify the list of [ids] that they have been drawn */
     fun notifySuccess(ids: List<UUID>) {
-        val limitDate = getLimitDate()
 
         ids.forEach {
             val participant = participantPort.get(it)
+            val limitDate = getLimitDate(participant)
             notifySuccessParticipant(participant, limitDate)
         }
     }
@@ -100,12 +99,12 @@ class ParticipantNotif(
 
     private fun getConfirmSuccessLink(p: Participant) = "${config.participantFrontUrl}/#/${p.id}/success"
 
-    private fun getLimitDate(): LimitDate {
+    private fun getLimitDate(p: Participant): LimitDate {
+        val notifDate = p.notificationConfirmDate ?: ZonedDateTime.now(ZoneId.of("Europe/Paris"))
         val timeLimit = configPort.get("reminderTimePar")
-        val now = ZonedDateTime.now(ZoneId.of("Europe/Paris"))
-        val limitDate = now.plusHours(timeLimit.value.toLong())
+        val limitDate = notifDate.plusHours(timeLimit.value.toLong())
         val limitDateStr = formatDate(limitDate)
-        return LimitDate(now, limitDate, limitDateStr, "${timeLimit.value}h")
+        return LimitDate(notifDate, limitDate, limitDateStr, "${timeLimit.value}h")
     }
 
     private fun formatDate(limitDate: ZonedDateTime): String {
