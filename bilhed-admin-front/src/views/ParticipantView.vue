@@ -34,7 +34,7 @@
         <td>{{ p.telephone }}</td>
         <td><Pass :pass="p.pass"/></td>
         <td>{{ p.drawOrder }}</td>
-        <td><DateView :date="p.confirmationLimitDate" format="DD/MM HH:mm" sup=""/></td>
+        <td><DateView :date="getLimitDate(p.notificationConfirmSentDate)" format="DD/MM HH:mm" sup=""/></td>
         <td>
           <button type="button" class="btn btn-link btn-sm" title="Notify success" @click="notifyOne(p.id, 'success')" :disabled="loading"><BiSendCheck/></button>
           <button type="button" class="btn btn-link btn-sm" title="Notify waiting" @click="notifyOne(p.id, 'waiting')" :disabled="loading"><BiSendExclamation/></button>
@@ -77,6 +77,9 @@ import { defineComponent } from 'vue'
 import Pass from '@/components/Pass.vue'
 import ParticipantsFilter from '@/components/ParticipantsFilter.vue'
 import type { ParticipantFilter } from '@/dto/ParticipantFilter'
+import dayjs from "dayjs";
+import type {Config} from "@/dto/Config";
+import {toInt} from "@/utils/ReminderUtils";
 
 export default defineComponent({
   name: "ParticipantView",
@@ -88,6 +91,7 @@ export default defineComponent({
       allChecked: false,
       loading: false,
       filter: {} as ParticipantFilter,
+      reminderTimePar: {} as Config
     }
   },
 
@@ -128,6 +132,10 @@ export default defineComponent({
 
       axios.request({ method, url, data: filter }).then((response) => {
         this.participants = response.data
+      })
+
+      axios.get('/config/reminderTimePar').then(res => {
+        this.reminderTimePar = res.data
       })
     },
 
@@ -179,6 +187,15 @@ export default defineComponent({
     getSelected: function () {
       return this.participants.filter((p) => p.checked).map((p) => p.id)
     },
+
+    getLimitDate(confSentDate: string | undefined): string {
+      if (!confSentDate) {
+        return ''
+      }
+      let date = dayjs(confSentDate)
+      date = date.add(toInt(this.reminderTimePar.value), 'hour')
+      return date.toString()
+    }
   }
 })
 </script>

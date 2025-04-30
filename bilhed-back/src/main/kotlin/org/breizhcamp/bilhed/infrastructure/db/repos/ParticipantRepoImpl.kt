@@ -17,8 +17,8 @@ class ParticipantRepoImpl: QuerydslRepositorySupport(ParticipantDB::class.java),
 
         filterPerson(filter, query, p)
         filter.success?.let {
-//            if (it) query.where(p.participantConfirmationLimitDate.isNotNull)
-//            else query.where(p.participantConfirmationLimitDate.isNull)
+            if (it) query.where(p.participantNotificationConfirmSentDate.isNotNull)
+            else query.where(p.participantNotificationConfirmSentDate.isNull)
         }
 
         query.orderBy(p.pass.asc(), p.drawOrder.asc(), p.participationDate.asc())

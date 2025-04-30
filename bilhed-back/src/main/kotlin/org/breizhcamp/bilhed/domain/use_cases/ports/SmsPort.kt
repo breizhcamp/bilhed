@@ -1,9 +1,8 @@
 package org.breizhcamp.bilhed.domain.use_cases.ports
 
-import org.breizhcamp.bilhed.domain.entities.Registered
-import org.breizhcamp.bilhed.domain.entities.Sms
+import org.breizhcamp.bilhed.infrastructure.db.model.SmsMQ
 
 interface SmsPort {
 
-    fun send(sms: Sms)
+    fun send(sms: SmsMQ)
 }

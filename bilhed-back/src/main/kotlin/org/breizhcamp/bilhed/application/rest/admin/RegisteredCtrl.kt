@@ -3,17 +3,13 @@ package org.breizhcamp.bilhed.application.rest.admin
 import org.breizhcamp.bilhed.application.dto.admin.RegisteredDTO
 import org.breizhcamp.bilhed.application.dto.admin.ReminderReq
 import org.breizhcamp.bilhed.domain.entities.Registered
+import org.breizhcamp.bilhed.domain.entities.ReminderOrigin
 import org.breizhcamp.bilhed.domain.use_cases.RegisteredImport
 import org.breizhcamp.bilhed.domain.use_cases.RegisteredList
 import org.breizhcamp.bilhed.domain.use_cases.RegisteredReminder
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
-import java.util.UUID
+import java.util.*
 
 @RestController
 @RequestMapping("/admin/registered")
@@ -38,7 +34,9 @@ class RegisteredCtrl(
 
     @PostMapping("/{id}/reminder")
     fun sendReminder(@PathVariable id: UUID, @RequestBody req: ReminderReq) {
-        registeredReminder.send(id, req.sms ?: false, req.email ?: false)
+        val smsTemplate = if (req.sms != null && req.sms) "registration_reminder" else ""
+        val emailTemplate = if (req.email != null && req.email) "registration_reminder" else ""
+        registeredReminder.send(id, smsTemplate , emailTemplate, ReminderOrigin.MANUAL)
     }
 }
 

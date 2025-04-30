@@ -7,6 +7,7 @@
         <span class="input-group-text">heures</span>
       </div>
     </div>
+    <p class="m-0">Les rappels sont envoyés X heures avant la fin du temps maximal</p>
 
     <hr>
     <template v-for="(item, i) in r || []" :key="`reminder-${rType}-${i}`">
@@ -22,7 +23,7 @@
           </div>
           <div class="input-group input-group-sm">
             <input type="number" class="form-control " v-bind:id="`remind${rType}-${i+1}`" v-model="item.hours" min="0" :max="rTime" />
-            <span class="input-group-text">heures</span>
+            <span class="input-group-text">heures avant</span>
           </div>
         </div>
         <div class="d-flex flex-row justify-content-between">

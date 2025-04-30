@@ -4,7 +4,6 @@ import jakarta.persistence.EntityNotFoundException
 import org.breizhcamp.bilhed.domain.entities.Attendee
 import org.breizhcamp.bilhed.domain.entities.AttendeeData
 import org.breizhcamp.bilhed.domain.entities.AttendeeFilter
-import org.breizhcamp.bilhed.domain.entities.ConfirmationType
 import org.breizhcamp.bilhed.domain.use_cases.ports.AttendeePort
 import org.breizhcamp.bilhed.infrastructure.db.mappers.toAttendee
 import org.breizhcamp.bilhed.infrastructure.db.mappers.toAttendeeData
@@ -14,7 +13,6 @@ import org.breizhcamp.bilhed.infrastructure.db.repos.AttendeeDataRepo
 import org.breizhcamp.bilhed.infrastructure.db.repos.ParticipantRepo
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
-import java.time.ZonedDateTime
 import java.util.*
 
 @Component
@@ -22,6 +20,7 @@ class AttendeeAdapter(
     private val attendeeDataRepo: AttendeeDataRepo,
     private val participantRepo: ParticipantRepo,
 ): AttendeePort {
+    override fun list(): List<Attendee> = participantRepo.listAttendees().map { it.toAttendee() }
 
     override fun filter(filter: AttendeeFilter): List<Attendee> {
         return participantRepo.filterAttendee(filter).map { it.toAttendee() }

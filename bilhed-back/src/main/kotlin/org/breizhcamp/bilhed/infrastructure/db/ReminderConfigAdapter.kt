@@ -35,4 +35,8 @@ class ReminderConfigAdapter (
     override fun countByType(type: String): Int {
         return reminderConfigRepo.countByType(type)
     }
+
+    override fun listByType(type: String): List<ReminderConfig> {
+        return reminderConfigRepo.listByType(type).map { it.toReminderConfig() }
+    }
 }
