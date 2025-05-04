@@ -3,9 +3,9 @@
     <div class="row justify-content-center" v-if="isOpen">
       <div class="col-md-8 bg-light rounded-3 px-5 py-3 mb-5">
         <p class="lead text-center fw-bold mb-0">
-          Inscription à la loterie du BreizhCamp 2024
+          Inscription à la loterie du BreizhCamp 2025
         </p>
-        <p class="text-center small">Du 26 au 28 juin 2024</p>
+        <p class="text-center small">Du 25 au 27 juin 2025</p>
 
         <p>
           Victime de notre succès, et étant limité par la place disponible, l'équipe du BreizhCamp a décidé de mettre en place
@@ -76,14 +76,14 @@
               <div class="form-check">
                 <input class="form-check-input" type="radio" name="pass" id="pass2j" value="TWO_DAYS" required v-model="registered.pass">
                 <label class="form-check-label" for="pass2j">
-                  2 jours / 75 € <small>(jeudi 27 et vendredi 28 juin)</small>
+                  2 jours / 85 € <small>(jeudi 26 et vendredi 27 juin)</small>
                 </label>
               </div>
 
               <div class="form-check">
                 <input class="form-check-input" type="radio" name="pass" id="pass3j" value="THREE_DAYS" required v-model="registered.pass">
                 <label class="form-check-label" for="pass3j">
-                  3 jours / 90 € <small>(mercredi 26, jeudi 27 et vendredi 28 juin)</small>
+                  3 jours / 99 € <small>(mercredi 25, jeudi 26 et vendredi 27 juin)</small>
                 </label>
               </div>
 
