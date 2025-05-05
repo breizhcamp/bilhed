@@ -1,21 +1,8 @@
-export interface Participant {
-  id: string
-  lastname: string
-  firstname: string
-  email: string
-  telephone: string
-  pass: string
-  kids?: string
+import type {Person} from "@/dto/Person";
 
+export interface Participant extends Person{
   participationDate: string
   drawOrder?: number
-
-  company?: string
-  tShirtSize?: string
-  tShirtCut?: string
-  vegan?: boolean
-  meetAndGreet?: boolean
-  postalCode?: string
 
   notificationConfirmSentDate?: string
 

@@ -27,7 +27,7 @@
       <tbody>
       <tr v-for="p in participants" :key="p.id" @click.exact="p.checked = !p.checked" @click.shift="checkBetween(p)">
         <td><input type="checkbox" v-model="p.checked"></td>
-        <td>{{ p.lastname }}</td>
+        <td><router-link :to="`/person/${p.id}`" class="nav-link text-decoration-underline">{{ p.lastname }}</router-link></td>
         <td>{{ p.firstname }}</td>
         <td>{{ p.email }}</td>
         <td>{{ p.telephone }}</td>

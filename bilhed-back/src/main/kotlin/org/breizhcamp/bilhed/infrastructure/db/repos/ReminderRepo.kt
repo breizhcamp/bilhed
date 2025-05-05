@@ -8,6 +8,6 @@ import java.util.UUID
 @Repository
 interface ReminderRepo: JpaRepository<ReminderDB, UUID> {
 
-
+    fun findByPersonId(personId: UUID): List<ReminderDB>
 
 }

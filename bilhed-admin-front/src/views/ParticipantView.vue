@@ -28,7 +28,7 @@
       <tbody>
       <tr v-for="p in participants" :key="p.id" @click.exact="p.checked = !p.checked" @click.shift="checkBetween(p)">
         <td><input type="checkbox" v-model="p.checked"></td>
-        <td>{{ p.lastname }}</td>
+        <td><router-link :to="`/person/${p.id}`" class="nav-link text-decoration-underline">{{ p.lastname }}</router-link></td>
         <td>{{ p.firstname }}</td>
         <td>{{ p.email }}</td>
         <td>{{ p.telephone }}</td>
@@ -67,7 +67,7 @@
 /// <reference types="vite-svg-loader" />
 
 import DateView from '@/components/DateView.vue'
-import type { Participant } from '@/dto/Participant'
+import type {Participant} from '@/dto/Participant'
 import axios from 'axios'
 import BiSendCheck from 'bootstrap-icons/icons/send-check.svg?component'
 import BiSendExclamation from 'bootstrap-icons/icons/send-exclamation.svg?component'
@@ -76,14 +76,14 @@ import BiArrowUp from 'bootstrap-icons/icons/arrow-bar-up.svg?component'
 import { defineComponent } from 'vue'
 import Pass from '@/components/Pass.vue'
 import ParticipantsFilter from '@/components/ParticipantsFilter.vue'
-import type { ParticipantFilter } from '@/dto/ParticipantFilter'
+import type {ParticipantFilter} from '@/dto/ParticipantFilter'
 import dayjs from "dayjs";
 import type {Config} from "@/dto/Config";
 import {toInt} from "@/utils/ReminderUtils";
 
 export default defineComponent({
   name: "ParticipantView",
-  components: { ParticipantsFilter, Pass, DateView, BiSendCheck, BiSendExclamation, BiSendX, BiArrowUp },
+  components: {ParticipantsFilter, Pass, DateView, BiSendCheck, BiSendExclamation, BiSendX, BiArrowUp },
 
   data() {
     return {

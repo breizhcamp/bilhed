@@ -24,7 +24,7 @@
       <tbody>
         <tr v-for="r in registered" :key="r.id">
           <td><input type="checkbox" v-model="r.checked"></td>
-          <td>{{ r.lastname }}</td>
+          <td><router-link :to="`/person/${r.id}`" class="nav-link text-decoration-underline">{{ r.lastname }}</router-link></td>
           <td>{{ r.firstname }}</td>
           <td>{{ r.email }}</td>
           <td>{{ r.telephone }}</td>
@@ -143,7 +143,7 @@ export default defineComponent({
     levelUp() {
       const ids = this.registered.filter((r) => r.checked).map((r) => r.id)
       this.loading = true
-      axios.post('/registered/level-up', ids).then(() => {
+      axios.post('/registered/levelUp', ids).then(() => {
         this.load()
       }).finally(() => {
         this.loading = false
