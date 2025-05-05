@@ -76,14 +76,14 @@
               <div class="form-check">
                 <input class="form-check-input" type="radio" name="pass" id="pass2j" value="TWO_DAYS" required v-model="registered.pass">
                 <label class="form-check-label" for="pass2j">
-                  2 jours / 85 € <small>(jeudi 26 et vendredi 27 juin)</small>
+                  2 jours / 80 € <small>(jeudi 26 et vendredi 27 juin)</small>
                 </label>
               </div>
 
               <div class="form-check">
                 <input class="form-check-input" type="radio" name="pass" id="pass3j" value="THREE_DAYS" required v-model="registered.pass">
                 <label class="form-check-label" for="pass3j">
-                  3 jours / 99 € <small>(mercredi 25, jeudi 26 et vendredi 27 juin)</small>
+                  3 jours / 95 € <small>(mercredi 25, jeudi 26 et vendredi 27 juin)</small>
                 </label>
               </div>
 
