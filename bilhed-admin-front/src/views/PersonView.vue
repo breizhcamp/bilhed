@@ -7,7 +7,7 @@
   <section style="background-color: #bde4f3" class="rounded p-3 mb-3">
     <h2>Informations sur {{ person.firstname }} {{ person.lastname }}</h2>
     <!--    infos globales -->
-    <table class="table table-borderless m-0">
+    <table class="table table-borderless m-0 table-transparent">
       <thead>
       <tr>
         <th scope="col">Email</th>
@@ -32,7 +32,7 @@
   </section>
   <section :style="`background-color: ${bgColor}`" class="rounded p-3 mb-3" >
     <h2>Statut {{ person._status }}</h2>
-    <table v-if="person._status === PersonStatus.REGISTERED && registered" class="table table-borderless m-0">
+    <table v-if="person._status === PersonStatus.REGISTERED && registered" class="table table-borderless m-0 table-transparent">
       <thead>
         <tr>
           <th scope="col">Date d'inscription</th>
@@ -56,7 +56,7 @@
         </tr>
       </tbody>
     </table>
-    <table v-if="person._status === PersonStatus.PARTICIPANT" class="table table-borderless m-0">
+    <table v-if="person._status === PersonStatus.PARTICIPANT" class="table table-borderless m-0 table-transparent">
       <thead>
       <tr>
         <th scope="col">Date de participation</th>
@@ -72,7 +72,7 @@
       </tr>
       </tbody>
     </table>
-    <table v-if="person._status === PersonStatus.ATTENDEE || person._status === PersonStatus.ATTENDEE_FULL" class="table table-borderless m-0">
+    <table v-if="person._status === PersonStatus.ATTENDEE || person._status === PersonStatus.ATTENDEE_FULL" class="table table-borderless m-0 table-transparent">
       <thead>
       <tr>
         <th scope="col">Entreprise</th>
@@ -153,10 +153,17 @@
 
       </div>
     </div>
-    <div v-if="person._status === PersonStatus.ATTENDEE" class="container-fluid">
+    <div v-if="person._status === PersonStatus.ATTENDEE || person._status === PersonStatus.ATTENDEE_FULL" class="container-fluid">
       <div>
-        <button type="button" class="btn btn-primary me-1" v-on:click="notify('payed/reminder/mail')" :disabled="loading"><BiSendCheck/> Remind payed mail</button>
-        <button type="button" class="btn btn-outline-warning me-1" v-on:click="notify('payed/reminder/sms')" :disabled="loading"><BiSendCheck/> Remind payed SMS</button>
+        <button v-if="!attendeeFull?.payed || !attendee?.payed"
+                type="button"
+                class="btn btn-primary me-1"
+                v-on:click="notify('payed/reminder/mail')"
+                :disabled="loading"><BiSendCheck/> Remind payed mail</button>
+        <button v-if="!attendeeFull?.payed || !attendee?.payed"
+                type="button"
+                class="btn btn-outline-warning me-1"
+                v-on:click="notify('payed/reminder/sms')" :disabled="loading"><BiSendCheck/> Remind payed SMS</button>
         <button type="button" class="btn btn-outline-danger me-1" v-on:click="levelUp('release')" :disabled="loading"><BiArrowUp/> Level Up to release</button>
       </div>
     </div>
@@ -250,6 +257,9 @@ export default defineComponent({
         toastWarning("Aucune modification")
         return
       }
+      if (!confirm(`Voulez vous modifier les contacts de ${this.person.firstname} ${this.person.lastname} ?`))
+        return
+
       axios.put(`/person/${this.person.id}`, {
         email: this.person.email,
         telephone: this.person.telephone
@@ -269,16 +279,23 @@ export default defineComponent({
     },
 
     notify(type: string) {
+      if (!confirm(`Voulez vous envoyer une notification ${type} à ${this.person.firstname} ${this.person.lastname} ?`))
+        return
+
       this.loading = true
       const status = this.person._status === PersonStatus.PARTICIPANT ? 'participants' : 'attendees'
       axios.post(`${status}/notif/${type}`, [this.person.id]).then(() => {
         this.load()
+        toastSuccess("Notification envoyée.")
       }).finally(() => {
         this.loading = false
       })
     },
 
     levelUp(level?: string) {
+      if (!confirm(`Voulez vous changer le statut de ${this.person.firstname} ${this.person.lastname} en ${level} ?`))
+        return
+
       this.loading = true
       let url = ""
       switch (this.person._status) {
@@ -288,6 +305,7 @@ export default defineComponent({
         case PersonStatus.PARTICIPANT:
           url = `/participants/levelUp/${level}`
           break;
+        case PersonStatus.ATTENDEE_FULL:
         case PersonStatus.ATTENDEE:
           url = `/attendees/levelUp/${level}`
           break;
@@ -295,12 +313,17 @@ export default defineComponent({
 
       axios.post(url, [this.person.id]).then(() => {
         this.load()
+        toastSuccess("Changement de statut effectué.")
       }).finally(() => {
         this.loading = false
       })
     },
 
     sendRegisteredReminder(id: string, type: string) {
+      if (!confirm(`Voulez vous envoyer un rappel d'inscription à ${this.person.firstname} ${this.person.lastname}`))
+        return
+
+
       this.loading = true
       let data = {}
       // @ts-ignore
@@ -308,6 +331,7 @@ export default defineComponent({
 
       axios.post(`/registered/${id}/reminder`, data).then(() => {
         this.load()
+        toastSuccess("Rappel envoyé.")
       }).finally(() => {
         this.loading = false
       })
@@ -317,5 +341,7 @@ export default defineComponent({
 </script>
 
 <style scoped>
-
+.table-transparent, .table-transparent td, .table-transparent th {
+  background-color: transparent!important;
+}
 </style>

@@ -48,7 +48,7 @@
                  @submit="(up) => remindersManager(up, bloc.type)"
                  :reminderTime="toInt(getConfigByKey(`reminderTime${bloc.short}`).value)"
                  :reminderType="bloc.type"
-                 @delete="(id) =>deleteReminder(id, bloc.type)"
+                 @delete="(rem) =>deleteReminder(rem)"
                  :reminderBgColor="bloc.reminderBgColor"
                  :key="'section' + bloc.type"
       />
@@ -191,14 +191,18 @@ export default defineComponent({
         }).catch(() => toastError(`Erreur lors de ${(method === "post" ? "l'insertion" : "la modification")} d'un reminder.`))
     },
 
-    deleteReminder(id: string, reminderConfigType: ReminderType) {
-      axios.delete(`/reminders/config/${id}`)
+    deleteReminder(rem: ReminderConfigRes) {
+      const type = rem.type.toLowerCase()
+      if (!confirm(`Le rappel ${type} de ${rem.hours}h sera supprimer. Voulez vous continuer ?`))
+        return
+
+      axios.delete(`/reminders/config/${rem.id}`)
         .then(() => { // on supprime de la liste des reminders
-          const index = this.remindersConfigs.findIndex(re => isReminderConfigRes(re) && re.id === id)
+          const index = this.remindersConfigs.findIndex(re => re.id === rem.id)
           if (index > -1) this.remindersConfigs.splice(index, 1)
-          toastSuccess(`Suppression d'un rappel ${reminderConfigType.toLowerCase()}`)
+          toastSuccess(`Suppression d'un rappel ${type}`)
         }).catch(() => {
-          toastError(`Erreur lors de la suppression d'un rappel ${reminderConfigType.toLowerCase()}`)
+          toastError(`Erreur lors de la suppression d'un rappel ${type}`)
         })
     },
 
@@ -240,6 +244,15 @@ export default defineComponent({
           configsToUpdate.push(config)
         }
       })
+
+      if (configsToUpdate.length === 0) {
+        toastWarning("Aucune modification.")
+        return
+      }
+
+      if (!confirm("Voulez vous mettre à jour la configuration des billets ?"))
+        return
+
 
       axios.put('/config', configsToUpdate).then(() => {
         toastSuccess('Modification des configurations des billets')

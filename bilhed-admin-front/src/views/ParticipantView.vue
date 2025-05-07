@@ -79,7 +79,7 @@ import ParticipantsFilter from '@/components/ParticipantsFilter.vue'
 import type {ParticipantFilter} from '@/dto/ParticipantFilter'
 import dayjs from "dayjs";
 import type {Config} from "@/dto/Config";
-import {toInt} from "@/utils/ReminderUtils";
+import {toastError, toastSuccess, toastWarning, toInt} from "@/utils/ReminderUtils";
 
 export default defineComponent({
   name: "ParticipantView",
@@ -140,9 +140,15 @@ export default defineComponent({
     },
 
     draw() {
+      if (!confirm("Vous allez d'effectuer le tirage au sort, voulez vous continuer ?"))
+        return
+
       this.loading = true
       axios.post('/participants/draw').then(() => {
         this.load()
+        toastSuccess("Le tirage au sort a bien été effectué.")
+      }).catch(() => {
+        toastError("Une erreur s'est produite lors du tirage au sort.")
       }).finally(() => {
         this.loading = false
       })
@@ -157,9 +163,20 @@ export default defineComponent({
     },
 
     sendNotify(ids: string[], type: string) {
+      if (ids.length === 0) {
+        toastWarning("Aucun participant sélectionné")
+        return
+      }
+
+      if (!confirm(`Voulez allez envoyer une notification à ${ids.length} personnes, voulez vous continuer ?`))
+        return
+
       this.loading = true
       axios.post('/participants/notif/' + type, ids).then(() => {
         this.load()
+        toastSuccess(`La notification a bien été envoyé (${ids.length}} personnes).`)
+      }).catch(() => {
+        toastError("Une erreur s'est produite lors de l'envoi des notifications.")
       }).finally(() => {
         this.loading = false
       })
@@ -175,10 +192,21 @@ export default defineComponent({
     },
 
     levelUp(level: string) {
-      this.loading = true
       const ids = this.getSelected()
+      if (ids.length === 0) {
+        toastWarning("Aucun participant sélectionné")
+        return
+      }
+
+      if (!confirm(`Voulez allez changer le statut de ${ids.length} personnes en ${level}, voulez vous continuer ?`))
+        return
+
+      this.loading = true
       axios.post('/participants/levelUp/' + level, ids).then(() => {
         this.load()
+        toastSuccess(`Le statut a bien été modifié (${ids.length} personnes).`)
+      }).catch(() => {
+        toastError("Une erreur s'est produite lors du changement de statut.")
       }).finally(() => {
         this.loading = false
       })
