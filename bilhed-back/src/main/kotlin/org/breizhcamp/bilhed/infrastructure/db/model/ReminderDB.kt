@@ -19,9 +19,17 @@ data class ReminderDB (
     @Enumerated(EnumType.STRING)
     val method: ReminderDBMethod,
 
-    val participantId: UUID,
+    val personId: UUID,
+    val model: String,
+
+    @Enumerated(EnumType.STRING)
+    val origin: ReminderDBOrigin
 )
 
 enum class ReminderDBMethod {
     SMS, MAIL
+}
+
+enum class ReminderDBOrigin {
+    AUTOMATIC, MANUAL
 }

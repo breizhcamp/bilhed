@@ -6,8 +6,12 @@ import org.apache.commons.csv.CSVPrinter
 import org.breizhcamp.bilhed.application.dto.admin.AttendeeDTO
 import org.breizhcamp.bilhed.domain.entities.Attendee
 import org.breizhcamp.bilhed.domain.entities.AttendeeFilter
+import org.breizhcamp.bilhed.domain.entities.ReminderOrigin
 import org.breizhcamp.bilhed.domain.entities.TicketExportData
-import org.breizhcamp.bilhed.domain.use_cases.*
+import org.breizhcamp.bilhed.domain.use_cases.AttendeeList
+import org.breizhcamp.bilhed.domain.use_cases.AttendeeNotify
+import org.breizhcamp.bilhed.domain.use_cases.PersonRelease
+import org.breizhcamp.bilhed.domain.use_cases.TicketExport
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
@@ -19,7 +23,7 @@ import java.util.*
 class AttendeeCtrl(
     private val attendeeList: AttendeeList,
     private val attendeeNotify: AttendeeNotify,
-    private val attendeeRelease: AttendeeRelease,
+    private val personRelease: PersonRelease,
     private val ticketExport: TicketExport,
 ) {
 
@@ -31,17 +35,17 @@ class AttendeeCtrl(
 
     @PostMapping("/notif/payed/reminder/mail") @ResponseStatus(HttpStatus.NO_CONTENT)
     fun payedReminderMail(@RequestBody ids: List<UUID>) {
-        attendeeNotify.remindPayedMail(ids)
+        attendeeNotify.remindPayedMail(ids, ReminderOrigin.MANUAL)
     }
 
     @PostMapping("/notif/payed/reminder/sms") @ResponseStatus(HttpStatus.NO_CONTENT)
     fun payedReminderSms(@RequestBody ids: List<UUID>) {
-        attendeeNotify.remindPayedSms(ids)
+        attendeeNotify.remindPayedSms(ids, ReminderOrigin.MANUAL)
     }
 
     @PostMapping("/levelUp/release") @ResponseStatus(HttpStatus.NO_CONTENT)
     fun release(@RequestBody ids: List<UUID>) {
-        attendeeRelease.release(ids)
+        personRelease.attendeeRelease(ids)
     }
 
     @GetMapping("/export")

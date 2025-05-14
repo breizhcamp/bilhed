@@ -22,15 +22,8 @@ data class Participant(
     val smsStatus: SmsStatus = SmsStatus.NOT_SENT,
     val nbSmsSent: Int = 0,
     val smsError: String? = null,
-    val smsConfirmSentDate: ZonedDateTime? = null,
-    val mailConfirmSentDate: ZonedDateTime? = null,
+    val notificationConfirmDate: ZonedDateTime? = null,
 
-    val confirmationLimitDate: ZonedDateTime? = null,
     val confirmationDate: ZonedDateTime? = null,
-    val confirmationType: ConfirmationType? = null,
 
     ): Person()
-
-enum class ConfirmationType {
-    SMS, MAIL
-}

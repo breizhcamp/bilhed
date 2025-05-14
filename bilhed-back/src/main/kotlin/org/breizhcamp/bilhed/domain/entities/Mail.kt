@@ -1,9 +1,12 @@
 package org.breizhcamp.bilhed.domain.entities
 
+import java.util.UUID
+
 data class Mail(
     val to: List<MailAddress>,
     val template: String,
     val model: Map<String, String>,
+    val personId: UUID
 )
 
 data class MailAddress(

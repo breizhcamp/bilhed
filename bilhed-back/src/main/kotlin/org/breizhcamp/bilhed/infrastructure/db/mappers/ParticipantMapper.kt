@@ -20,10 +20,7 @@ fun ParticipantDB.toParticipant() = Participant(
     smsStatus = participantSmsStatus ?: SmsStatus.NOT_SENT,
     nbSmsSent = participantNbSmsSent,
     smsError = participantSmsError,
-    confirmationLimitDate = participantConfirmationLimitDate,
-    smsConfirmSentDate = participantSmsConfirmSentDate,
-    mailConfirmSentDate = participantMailConfirmSentDate,
+    notificationConfirmDate = participantNotificationConfirmSentDate,
 
     confirmationDate = participantConfirmationDate,
-    confirmationType = participantConfirmationType,
 )
