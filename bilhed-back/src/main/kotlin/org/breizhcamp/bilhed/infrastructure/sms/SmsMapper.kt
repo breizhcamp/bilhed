@@ -1,7 +1,6 @@
-package org.breizhcamp.bilhed.infrastructure.db.mappers
+package org.breizhcamp.bilhed.infrastructure.sms
 
 import org.breizhcamp.bilhed.domain.entities.Sms
-import org.breizhcamp.bilhed.infrastructure.db.model.SmsMQ
 
 fun Sms.toMQ() = SmsMQ(
     id = this.id,

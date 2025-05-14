@@ -6,7 +6,7 @@ data class Mail(
     val to: List<MailAddress>,
     val template: String,
     val model: Map<String, String>,
-    val personIds: List<UUID>
+    val personId: UUID
 )
 
 data class MailAddress(

@@ -11,6 +11,5 @@ interface ReminderConfigRepo: JpaRepository<ReminderConfigDB, UUID> {
     @Query("select count(bc) from ReminderConfigDB bc where bc.type = :type")
     fun countByType(type: String): Int
 
-    @Query("select bc from ReminderConfigDB bc where bc.type = :type")
-    fun listByType(type: String): List<ReminderConfigDB>
+    fun findByType(type: String): List<ReminderConfigDB>
 }

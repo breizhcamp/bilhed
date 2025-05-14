@@ -53,7 +53,7 @@ class RegisteredImport(
 
             val registered = registeredPort.get(it)
             val model = mapOf("firstname" to registered.firstname, "lastname" to registered.lastname, "year" to config.breizhCampYear.toString())
-            sendNotification.sendEmail(Mail(registered.getMailAddress(), "register", model, ids), ReminderOrigin.MANUAL)
+            sendNotification.sendEmail(Mail(registered.getMailAddress(), "register", model, it), ReminderOrigin.MANUAL)
         }
     }
 

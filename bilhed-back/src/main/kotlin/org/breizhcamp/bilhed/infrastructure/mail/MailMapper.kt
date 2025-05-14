@@ -1,9 +1,7 @@
-package org.breizhcamp.bilhed.infrastructure.db.mappers
+package org.breizhcamp.bilhed.infrastructure.mail
 
 import org.breizhcamp.bilhed.domain.entities.Mail
 import org.breizhcamp.bilhed.domain.entities.MailAddress
-import org.breizhcamp.bilhed.infrastructure.db.model.MailAddressMQ
-import org.breizhcamp.bilhed.infrastructure.db.model.MailMQ
 
 fun Mail.toMQ() = MailMQ(
     to = this.to.map { it.toMQ() },

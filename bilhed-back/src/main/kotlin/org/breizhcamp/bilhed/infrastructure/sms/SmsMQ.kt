@@ -1,4 +1,4 @@
-package org.breizhcamp.bilhed.infrastructure.db.model
+package org.breizhcamp.bilhed.infrastructure.sms
 
 import java.util.UUID
 

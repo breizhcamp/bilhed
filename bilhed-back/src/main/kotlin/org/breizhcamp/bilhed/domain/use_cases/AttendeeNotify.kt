@@ -36,7 +36,7 @@ class AttendeeNotify(
             val model = mapOf("firstname" to a.firstname, "lastname" to a.lastname, "year" to config.breizhCampYear.toString(),
                 "link" to getConfirmSuccessLink(a), "limit_date" to formatDate(getLimitDate(a.participantConfirmationDate)))
 
-            sendNotification.sendEmail(Mail(a.getMailAddress(), "payed_reminder", model, ids), origin)
+            sendNotification.sendEmail(Mail(a.getMailAddress(), "payed_reminder", model, it), origin)
 
         } catch (e: Exception) {
             logger.error(e) { "Unable to send remind payed mail to [${a.firstname} ${a.lastname}]" }

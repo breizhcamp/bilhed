@@ -1,4 +1,4 @@
-package org.breizhcamp.bilhed.infrastructure.db.model
+package org.breizhcamp.bilhed.infrastructure.mail
 
 data class MailMQ(
     val to: List<MailAddressMQ>,

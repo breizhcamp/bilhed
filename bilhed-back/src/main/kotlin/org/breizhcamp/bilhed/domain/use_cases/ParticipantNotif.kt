@@ -67,7 +67,7 @@ class ParticipantNotif(
         )
 
         val resSms = sendDrawSuccessSms(p, model)
-        sendNotification.sendEmail(Mail(p.getMailAddress(), "draw_success", model, listOf(p.id)), ReminderOrigin.MANUAL)
+        sendNotification.sendEmail(Mail(p.getMailAddress(), "draw_success", model, p.id), ReminderOrigin.MANUAL)
 
         participantPort.save(resSms.copy(notificationConfirmDate = limitDate.now))
     }
@@ -82,7 +82,7 @@ class ParticipantNotif(
             val limitDate = requireNotNull(p.notificationConfirmDate) { "Participant [${p.firstname} ${p.lastname}] has no notification confirmation limit date" }
             val model = mapOf("firstname" to p.firstname, "lastname" to p.lastname, "year" to config.breizhCampYear.toString(),
                 "link" to getConfirmSuccessLink(p), "limit_date" to formatDate(limitDate))
-            sendNotification.sendEmail(Mail(p.getMailAddress(), "draw_success_reminder", model, ids), origin)
+            sendNotification.sendEmail(Mail(p.getMailAddress(), "draw_success_reminder", model, it), origin)
 
         } catch (e: Exception) {
             logger.warn(e) { "Unable to remind participant [${p.firstname} ${p.lastname}]" }
@@ -94,7 +94,7 @@ class ParticipantNotif(
         logger.info { "Notifying [$template] participant [${p.firstname} ${p.lastname}]" }
         val model = mapOf("firstname" to p.firstname, "lastname" to p.lastname, "year" to config.breizhCampYear.toString(),
             )
-        sendNotification.sendEmail(Mail(p.getMailAddress(), template, model, listOf(id)), ReminderOrigin.MANUAL)
+        sendNotification.sendEmail(Mail(p.getMailAddress(), template, model, id), ReminderOrigin.MANUAL)
     }
 
     private fun getConfirmSuccessLink(p: Participant) = "${config.participantFrontUrl}/#/${p.id}/success"
