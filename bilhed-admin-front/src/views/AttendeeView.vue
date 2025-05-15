@@ -20,6 +20,7 @@
         <th scope="col">Telephone</th>
         <th scope="col">Pass</th>
         <th scope="col">Particip. date</th>
+        <th scope="col">Limit date</th>
         <th scope="col">Paid</th>
         <th scope="col"></th>
       </tr>
@@ -27,12 +28,13 @@
       <tbody>
       <tr v-for="p in participants" :key="p.id" @click.exact="p.checked = !p.checked" @click.shift="checkBetween(p)">
         <td><input type="checkbox" v-model="p.checked"></td>
-        <td>{{ p.lastname }}</td>
+        <td><router-link :to="`/person/${p.id}`" class="nav-link text-decoration-underline">{{ p.lastname }}</router-link></td>
         <td>{{ p.firstname }}</td>
         <td>{{ p.email }}</td>
         <td>{{ p.telephone }}</td>
         <td><Pass :pass="p.pass"/></td>
         <td><DateView :date="p.participantConfirmationDate" format="DD/MM HH:mm" sup=""/></td>
+        <td><DateView :date="getLimitDate(p.participantConfirmationDate)" format="DD/MM HH:mm" sup=""/></td>
         <td>{{ p.payed }}</td>
         <td>
           <button type="button" class="btn btn-link btn-sm" title="Remind payed mail" @click="notifyOne(p.id, 'payed/reminder/mail')" :disabled="loading"><BiSendCheck/></button>
@@ -68,6 +70,9 @@ import BiArrowUp from 'bootstrap-icons/icons/arrow-bar-up.svg?component'
 import BiSendCheck from 'bootstrap-icons/icons/send-check.svg?component'
 import { defineComponent } from 'vue'
 import FileSaver from 'file-saver'
+import {toastError, toastSuccess, toastWarning, toInt} from "@/utils/ReminderUtils";
+import type {Config} from "@/dto/Config";
+import dayjs from "dayjs";
 
 export default defineComponent({
   name: "ParticipantView",
@@ -79,6 +84,7 @@ export default defineComponent({
       allChecked: false,
       loading: false,
       filter: {} as AttendeeFilter,
+      nbHoursBeforeRelease: 0
     }
   },
 
@@ -120,6 +126,10 @@ export default defineComponent({
       axios.request({ method, url, data: filter }).then((response) => {
         this.participants = response.data
       })
+
+      axios.get('/config/reminderTimeAtt').then((response) => {
+        this.nbHoursBeforeRelease = toInt((response.data as Config).value)
+      })
     },
 
     notifyOne(id: string, type: string) {
@@ -131,19 +141,41 @@ export default defineComponent({
     },
 
     sendNotify(ids: string[], type: string) {
+      if (ids.length === 0) {
+        toastWarning("Aucun attendee sélectionné")
+        return
+      }
+
+      if (!confirm(`Voulez allez envoyer une notification à ${ids.length} personnes, voulez vous continuer ?`))
+        return
+
       this.loading = true
       axios.post('/attendees/notif/' + type, ids).then(() => {
         this.load()
+        toastSuccess(`La notification a bien été envoyé (${ids.length}} personnes).`)
+      }).catch(() => {
+        toastError("Une erreur s'est produite lors de l'envoi des notifications.")
       }).finally(() => {
         this.loading = false
       })
     },
 
     levelUp(level: string) {
-      this.loading = true
       const ids = this.getSelected()
+      if (ids.length === 0) {
+        toastWarning("Aucun attendee sélectionné")
+        return
+      }
+
+      if (!confirm(`Voulez allez changer le statut de ${ids.length} personnes en ${level}, voulez vous continuer ?`))
+        return
+
+      this.loading = true
       axios.post('/attendees/levelUp/' + level, ids).then(() => {
         this.load()
+        toastSuccess(`Le statut a bien été modifié (${ids.length} personnes).`)
+      }).catch(() => {
+        toastError("Une erreur s'est produite lors du changement de statut.")
       }).finally(() => {
         this.loading = false
       })
@@ -158,6 +190,14 @@ export default defineComponent({
     getSelected: function () {
       return this.participants.filter((p) => p.checked).map((p) => p.id)
     },
+
+    getLimitDate(date ?: string) {
+      if (!date) {
+        return ''
+      }
+      const dateJs = dayjs(date)
+      return dateJs.add(this.nbHoursBeforeRelease, 'hour').toString()
+    }
   }
 })
 </script>

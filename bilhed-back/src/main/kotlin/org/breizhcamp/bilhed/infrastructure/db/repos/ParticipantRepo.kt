@@ -50,4 +50,8 @@ interface ParticipantRepo: JpaRepository<ParticipantDB, UUID>, ParticipantRepoCu
     @Modifying
     @Query("UPDATE ParticipantDB p SET p.payed = true WHERE p.id IN (:ids)")
     fun setPayed(ids: List<UUID>)
+
+    @Modifying
+    @Query("UPDATE ParticipantDB p SET p.telephone = :telephone, p.email = :email WHERE p.id = :id")
+    fun updateContact(id: UUID, telephone: String, email: String)
 }

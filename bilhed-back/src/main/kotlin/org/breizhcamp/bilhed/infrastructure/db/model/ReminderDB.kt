@@ -1,5 +1,6 @@
 package org.breizhcamp.bilhed.infrastructure.db.model
 
+import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
@@ -19,6 +20,7 @@ data class ReminderDB (
     @Enumerated(EnumType.STRING)
     val method: ReminderDBMethod,
 
+    @Column(name="person_id")
     val personId: UUID,
     val model: String,
 

@@ -27,7 +27,7 @@ class RegisteredCtrl(
         registeredImport.importCsv(file.inputStream)
     }
 
-    @PostMapping("/level-up")
+    @PostMapping("/levelUp")
     fun levelUp(@RequestBody ids: List<UUID>) {
         registeredImport.levelUp(ids)
     }

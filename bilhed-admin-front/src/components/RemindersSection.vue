@@ -94,7 +94,7 @@ export default defineComponent({
 
     deleteReminder(reminder: ReminderConfig, index: number) {
       if (isReminderConfigRes(reminder)) {
-        this.$emit('delete', reminder.id)
+        this.$emit('delete', reminder)
       } else {
         this.r.splice(index, 1)
       }

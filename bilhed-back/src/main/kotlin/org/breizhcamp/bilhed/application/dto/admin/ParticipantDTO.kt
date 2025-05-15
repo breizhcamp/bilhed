@@ -6,13 +6,14 @@ import java.time.ZonedDateTime
 import java.util.UUID
 
 data class ParticipantDTO(
-    val id: UUID,
-    val lastname: String,
-    val firstname: String,
-    val email: String,
-    val telephone: String,
-    val pass: PassType,
-    val kids: String?,
+    override val id: UUID,
+
+    override val lastname: String,
+    override val firstname: String,
+    override val email: String,
+    override val telephone: String,
+    override val pass: PassType,
+    override val kids: String?,
 
     val participationDate: ZonedDateTime,
 
@@ -24,4 +25,4 @@ data class ParticipantDTO(
     val notificationConfirmSentDate: ZonedDateTime?,
 
     val confirmationDate: ZonedDateTime?,
-)
+): PersonDTO()
