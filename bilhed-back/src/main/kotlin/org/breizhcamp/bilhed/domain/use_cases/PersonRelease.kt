@@ -5,10 +5,9 @@ import org.breizhcamp.bilhed.domain.use_cases.ports.AttendeePort
 import org.breizhcamp.bilhed.domain.use_cases.ports.ConfigPort
 import org.breizhcamp.bilhed.domain.use_cases.ports.ParticipantPort
 import org.breizhcamp.bilhed.domain.use_cases.ports.TicketPort
+import org.breizhcamp.bilhed.infrastructure.TimeService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.ZonedDateTime
-import java.time.temporal.ChronoUnit
 import java.util.*
 
 private val logger = KotlinLogging.logger {}
@@ -19,6 +18,7 @@ class PersonRelease(
     private val participantPort: ParticipantPort,
     private val configPort: ConfigPort,
     private val ticketPort: TicketPort,
+    private val timeService: TimeService,
 ) {
 
     @Transactional
@@ -32,29 +32,27 @@ class PersonRelease(
 
     @Transactional
     fun participantReleaseAuto() {
-        val timeReminderPar = configPort.get("reminderTimePar")
+        val timeReminderPar = configPort.get("reminderTimePar").value.toLong()
+        val now = timeService.now()
         participantPort.list().forEach {
-            val participationDate = it.participationDate.truncatedTo(ChronoUnit.MINUTES)
-            val now = ZonedDateTime.now().truncatedTo(ChronoUnit.MINUTES)
-            if (participationDate.plusHours(timeReminderPar.value.toLong()).isEqual(now)) {
+            val deadline = it.participationDate.plusHours(timeReminderPar)
+            if (deadline.isBefore(now)) {
                 participantPort.levelUpToReleased(it.id)
+                logger.info { "Participant [${it.lastname} ${it.firstname}] released, limit was $deadline" }
             }
         }
     }
 
     @Transactional
     fun attendeeReleaseAuto() {
-        val ids = mutableListOf<UUID>()
-        val timeReminderAtt = configPort.get("reminderTimeAtt")
-        attendeePort.list().forEach {
-            val participantConfirmDate = it.participantConfirmationDate.truncatedTo(ChronoUnit.MINUTES)
-            val now = ZonedDateTime.now().truncatedTo(ChronoUnit.MINUTES)
-            if (participantConfirmDate.plusHours(timeReminderAtt.value.toLong()).isEqual(now) && !it.payed) {
-                ids.add(it.id)
-            }
+        val timeReminderAtt = configPort.get("reminderTimeAtt").value.toLong()
+        val now = timeService.now()
+
+        val ids: List<UUID> = attendeePort.list().mapNotNull {
+            val deadline = it.participantConfirmationDate.plusHours(timeReminderAtt)
+            if (!it.payed && deadline.isBefore(now)) it.id else null
         }
-        if (!ids.isEmpty()) {
-            attendeeRelease(ids)
-        }
+
+        attendeeRelease(ids)
     }
 }

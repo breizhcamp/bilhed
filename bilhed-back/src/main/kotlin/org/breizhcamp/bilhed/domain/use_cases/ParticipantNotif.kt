@@ -75,14 +75,14 @@ class ParticipantNotif(
     fun notifyWaiting(ids: List<UUID>) = ids.forEach { notifyWaitingParticipant(it, "draw_waiting") }
 
     fun notifyFailed(ids: List<UUID>) = ids.forEach { notifyWaitingParticipant(it, "draw_failed") }
-    fun remindSuccess(ids: List<UUID>, origin: ReminderOrigin) = ids.forEach {
+    fun remindSuccess(ids: List<UUID>, origin: ReminderOrigin, template: String = "draw_success_reminder") = ids.forEach {
         val p = participantPort.get(it)
         try {
             logger.info { "Reminding success participant to confirm the ticket [${p.firstname} ${p.lastname}]" }
             val limitDate = requireNotNull(p.notificationConfirmDate) { "Participant [${p.firstname} ${p.lastname}] has no notification confirmation limit date" }
             val model = mapOf("firstname" to p.firstname, "lastname" to p.lastname, "year" to config.breizhCampYear.toString(),
                 "link" to getConfirmSuccessLink(p), "limit_date" to formatDate(limitDate))
-            sendNotification.sendEmail(Mail(p.getMailAddress(), "draw_success_reminder", model, it), origin)
+            sendNotification.sendEmail(Mail(p.getMailAddress(), template, model, it), origin)
 
         } catch (e: Exception) {
             logger.warn(e) { "Unable to remind participant [${p.firstname} ${p.lastname}]" }

@@ -27,7 +27,7 @@ class AttendeeNotify(
     private val configPort: ConfigPort
 ) {
 
-    fun remindPayedMail(ids: List<UUID>, origin: ReminderOrigin) = ids.forEach {
+    fun remindPayedMail(ids: List<UUID>, origin: ReminderOrigin, template: String = "payed_reminder") = ids.forEach {
         val a = attendeePort.get(it)
 
         try {
@@ -36,14 +36,14 @@ class AttendeeNotify(
             val model = mapOf("firstname" to a.firstname, "lastname" to a.lastname, "year" to config.breizhCampYear.toString(),
                 "link" to getConfirmSuccessLink(a), "limit_date" to formatDate(getLimitDate(a.participantConfirmationDate)))
 
-            sendNotification.sendEmail(Mail(a.getMailAddress(), "payed_reminder", model, it), origin)
+            sendNotification.sendEmail(Mail(a.getMailAddress(), template, model, it), origin)
 
         } catch (e: Exception) {
             logger.error(e) { "Unable to send remind payed mail to [${a.firstname} ${a.lastname}]" }
         }
     }
 
-    fun remindPayedSms(ids: List<UUID>, origin: ReminderOrigin) = ids.forEach {
+    fun remindPayedSms(ids: List<UUID>, origin: ReminderOrigin, template: String = "payed_reminder") = ids.forEach {
         val a = attendeePort.get(it)
 
         try {
@@ -59,7 +59,7 @@ class AttendeeNotify(
                 "link" to shortLink, "limit_time" to formatLimitTime(getLimitDate(a.participantNotificationConfirmDate)),
                 "remaining_time" to remainingTime)
 
-            sendNotification.sendSms(Sms(a.telephone, "payed_reminder", model), origin)
+            sendNotification.sendSms(Sms(a.telephone, template, model), origin)
 
 
         } catch (e: Exception) {
