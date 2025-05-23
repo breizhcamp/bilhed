@@ -15,7 +15,7 @@ class ConfigAdapter (
 ): ConfigPort {
     override fun list(): List<Config> = configRepo.findAll().map { it.toConfig() }
 
-    override fun get(key: String): Config = configRepo.findByIdOrNull(key)?.toConfig() ?: throw EntityNotFoundException()
+    override fun get(key: String): Config = configRepo.findByIdOrNull(key)?.toConfig() ?: throw EntityNotFoundException("Unable to find config [$key].")
 
     override fun save(config: Config) {
         configRepo.save(config.toDB())

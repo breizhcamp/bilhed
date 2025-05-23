@@ -4,10 +4,10 @@ import mu.KotlinLogging
 import org.breizhcamp.bilhed.config.BilhedBackConfig
 import org.breizhcamp.bilhed.domain.entities.Mail
 import org.breizhcamp.bilhed.domain.entities.Person
+import org.breizhcamp.bilhed.domain.entities.ReminderOrigin
 import org.breizhcamp.bilhed.domain.entities.Sms
 import org.breizhcamp.bilhed.domain.use_cases.ports.AttendeePort
-import org.breizhcamp.bilhed.domain.use_cases.ports.MailPort
-import org.breizhcamp.bilhed.domain.use_cases.ports.SmsPort
+import org.breizhcamp.bilhed.domain.use_cases.ports.ConfigPort
 import org.breizhcamp.bilhed.domain.use_cases.ports.UrlShortenerPort
 import org.springframework.stereotype.Service
 import java.time.Duration
@@ -22,32 +22,33 @@ private val logger = KotlinLogging.logger {}
 class AttendeeNotify(
     private val config: BilhedBackConfig,
     private val attendeePort: AttendeePort,
-    private val mailPort: MailPort,
-    private val smsPort: SmsPort,
     private val urlShortenerPort: UrlShortenerPort,
+    private val sendNotification: SendNotification,
+    private val configPort: ConfigPort
 ) {
 
-    fun remindPayedMail(ids: List<UUID>) = ids.forEach {
+    fun remindPayedMail(ids: List<UUID>, origin: ReminderOrigin, template: String = "payed_reminder") = ids.forEach {
         val a = attendeePort.get(it)
 
         try {
             logger.info { "Sending remind payed mail to [${a.firstname} ${a.lastname}]" }
 
             val model = mapOf("firstname" to a.firstname, "lastname" to a.lastname, "year" to config.breizhCampYear.toString(),
-                "link" to getConfirmSuccessLink(a), "limit_date" to formatDate(a.confirmationLimitDate))
-            mailPort.send(Mail(a.getMailAddress(), "payed_reminder", model))
+                "link" to getConfirmSuccessLink(a), "limit_date" to formatDate(getLimitDate(a.participantConfirmationDate)))
+
+            sendNotification.sendEmail(Mail(a.getMailAddress(), template, model, it), origin)
 
         } catch (e: Exception) {
             logger.error(e) { "Unable to send remind payed mail to [${a.firstname} ${a.lastname}]" }
         }
     }
 
-    fun remindPayedSms(ids: List<UUID>) = ids.forEach {
+    fun remindPayedSms(ids: List<UUID>, origin: ReminderOrigin, template: String = "payed_reminder") = ids.forEach {
         val a = attendeePort.get(it)
 
         try {
             logger.info { "Sending remind payed SMS to [${a.firstname} ${a.lastname}]" }
-            val remainingTime = getRemainingTime(a.confirmationLimitDate) ?: run {
+            val remainingTime = getRemainingTime(getLimitDate(a.participantNotificationConfirmDate)) ?: run {
                 logger.warn { "Not sending reminder to [${a.firstname} ${a.lastname}] because confirm time is over" }
                 return@forEach
             }
@@ -55,10 +56,11 @@ class AttendeeNotify(
             val shortLink = urlShortenerPort.shorten(getConfirmSuccessLink(a), config.breizhCampCloseDate)
 
             val model = mapOf("firstname" to a.firstname, "lastname" to a.lastname, "year" to config.breizhCampYear.toString(),
-                "link" to shortLink, "limit_time" to formatLimitTime(a.confirmationLimitDate),
+                "link" to shortLink, "limit_time" to formatLimitTime(getLimitDate(a.participantNotificationConfirmDate)),
                 "remaining_time" to remainingTime)
 
-            smsPort.send(Sms(a.telephone, "payed_reminder", model))
+            sendNotification.sendSms(Sms(a.telephone, template, model), origin)
+
 
         } catch (e: Exception) {
             logger.error(e) { "Unable to send remind payed sms to [${a.firstname} ${a.lastname}]" }
@@ -69,6 +71,11 @@ class AttendeeNotify(
 
     private fun formatDate(limitDate: ZonedDateTime): String {
         return DateTimeFormatter.ofPattern("eeee d MMMM à HH:mm", Locale.FRENCH).format(limitDate)
+    }
+
+    private fun getLimitDate(notifConfirmDate: ZonedDateTime): ZonedDateTime {
+        val reminderTimeAtt = configPort.get("reminderTimeAtt").value.toLong()
+        return notifConfirmDate.plusHours(reminderTimeAtt)
     }
 
     private fun getRemainingTime(limitDate: ZonedDateTime): String? {

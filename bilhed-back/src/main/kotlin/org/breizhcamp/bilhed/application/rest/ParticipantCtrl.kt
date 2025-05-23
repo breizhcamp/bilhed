@@ -60,8 +60,8 @@ private fun Person.toDTO() = ParticipantConfirmInfo(
     email = email,
     pass = pass,
     confirmationLimitDate = when(this) {
-        is Participant -> requireNotNull(confirmationLimitDate)
-        is Attendee -> confirmationLimitDate
+        is Participant -> requireNotNull(notificationConfirmDate)
+        is Attendee -> participantNotificationConfirmDate
         else -> throw IllegalStateException("Not a participant")
     },
 )
