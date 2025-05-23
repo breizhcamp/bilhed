@@ -53,6 +53,6 @@ class PersonRelease(
             if (!it.payed && deadline.isBefore(now)) it.id else null
         }
 
-        attendeeRelease(ids)
+        if (ids.isNotEmpty()) attendeeRelease(ids)
     }
 }
