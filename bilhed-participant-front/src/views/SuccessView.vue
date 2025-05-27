@@ -3,7 +3,7 @@
     <div class="row justify-content-center">
       <div class="col-md-12 col-lg-8 bg-light rounded-3 px-5 py-3 mb-5 mt-3" v-if="participant.firstname">
         <p class="lead text-center fw-bold">
-          Bonne nouvelle {{participant.firstname}}, vous avez été sélectionné pour la billetterie du BreizhCamp !
+          Bonne nouvelle {{participant.firstname}}, votre place pour la billeterie du BreizhCamp a été tirée au sort !
         </p>
 
         <p class="mt-4 mb-4" v-if="!dataTicket.hasTicket">
