@@ -174,7 +174,7 @@ export default defineComponent({
       this.loading = true
       axios.post('/participants/notif/' + type, ids).then(() => {
         this.load()
-        toastSuccess(`La notification a bien été envoyé (${ids.length}} personnes).`)
+        toastSuccess(`La notification a bien été envoyée (${ids.length}} personnes).`)
       }).catch(() => {
         toastError("Une erreur s'est produite lors de l'envoi des notifications.")
       }).finally(() => {

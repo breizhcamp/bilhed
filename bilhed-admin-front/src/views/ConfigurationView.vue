@@ -193,7 +193,7 @@ export default defineComponent({
 
     deleteReminder(rem: ReminderConfigRes) {
       const type = rem.type.toLowerCase()
-      if (!confirm(`Le rappel ${type} de ${rem.hours}h sera supprimer. Voulez vous continuer ?`))
+      if (!confirm(`Le rappel ${type} de ${rem.hours}h sera supprimé. Voulez vous continuer ?`))
         return
 
       axios.delete(`/reminders/config/${rem.id}`)
