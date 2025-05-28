@@ -35,7 +35,7 @@ class RegisteredReminder(
             val model = mapOf("firstname" to registered.firstname, "lastname" to registered.lastname,
                 "year" to config.breizhCampYear.toString(), "link" to link, "closeDate" to closeDate)
 
-            sendNotification.sendEmail(Mail(registered.getMailAddress(), emailTemplate, model, listOf(id)), origin)
+            sendNotification.sendEmail(Mail(registered.getMailAddress(), emailTemplate, model, id), origin)
         }
 
         if (!smsTemplate.isBlank()) {

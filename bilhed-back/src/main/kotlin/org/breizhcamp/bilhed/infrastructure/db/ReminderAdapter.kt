@@ -7,9 +7,8 @@ import org.breizhcamp.bilhed.infrastructure.db.mappers.toDB
 import org.breizhcamp.bilhed.infrastructure.db.mappers.toReminder
 import org.breizhcamp.bilhed.infrastructure.db.repos.ReminderRepo
 import org.springframework.stereotype.Component
-import java.util.UUID
 
-private val logger = KotlinLogging.logger {}
+import java.util.*
 
 @Component
 class ReminderAdapter (
@@ -19,11 +18,8 @@ class ReminderAdapter (
         reminderRepo.save(reminder.toDB())
     }
 
-    override fun listByPersonId(personId: UUID): List<Reminder> {
-        val reminders = reminderRepo.findByPersonId(personId).map { it.toReminder() }
-        logger.info { reminders.toString() }
-        logger.info { reminders.size.toString() }
-        return reminders
+    override fun findLatestReminderPerPerson(personIds: List<UUID>): List<Reminder> {
+        return reminderRepo.findLatestReminderPerPerson(personIds).map { it.toReminder() }
     }
 
 

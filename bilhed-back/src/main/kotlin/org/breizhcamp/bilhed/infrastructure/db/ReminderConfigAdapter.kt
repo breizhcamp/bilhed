@@ -37,6 +37,6 @@ class ReminderConfigAdapter (
     }
 
     override fun listByType(type: String): List<ReminderConfig> {
-        return reminderConfigRepo.listByType(type).map { it.toReminderConfig() }
+        return reminderConfigRepo.findByType(type).map { it.toReminderConfig() }
     }
 }

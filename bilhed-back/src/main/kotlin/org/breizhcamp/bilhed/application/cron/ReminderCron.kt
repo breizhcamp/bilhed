@@ -12,13 +12,13 @@ class ReminderCron (
     private val personRelease: PersonRelease
 ) {
 
-    @Scheduled(fixedRate = 1, timeUnit = TimeUnit.MINUTES, initialDelay = 1)
+    @Scheduled(fixedDelay = 1, timeUnit = TimeUnit.MINUTES, initialDelay = 1)
     fun checkReminders() {
+        personRelease.participantReleaseAuto()
+        personRelease.attendeeReleaseAuto()
+
         sendReminder.sendRegisteredReminder()
         sendReminder.sendParticipantReminder()
         sendReminder.sendAttendeeReminder()
-
-        personRelease.participantReleaseAuto()
-        personRelease.attendeeReleaseAuto()
     }
 }

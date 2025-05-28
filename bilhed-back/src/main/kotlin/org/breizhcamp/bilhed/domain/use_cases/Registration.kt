@@ -83,7 +83,7 @@ class Registration(
 
         val model = mapOf("firstname" to registered.firstname, "lastname" to registered.lastname, "year" to config.breizhCampYear.toString())
 
-        sendNotification.sendEmail(Mail(registered.getMailAddress(), "register", model, listOf(id)), ReminderOrigin.AUTOMATIC)
+        sendNotification.sendEmail(Mail(registered.getMailAddress(), "register", model, id), ReminderOrigin.AUTOMATIC)
 
         logger.info { "Validated [${registered.lastname} ${registered.firstname}] as a participant" }
     }

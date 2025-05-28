@@ -1,9 +1,9 @@
 package org.breizhcamp.bilhed.domain.use_cases.ports
 
-import org.breizhcamp.bilhed.infrastructure.db.model.MailMQ
+import org.breizhcamp.bilhed.domain.entities.Mail
 
 interface MailPort {
 
-    fun send(mail: MailMQ)
+    fun send(mail: Mail)
 
 }
