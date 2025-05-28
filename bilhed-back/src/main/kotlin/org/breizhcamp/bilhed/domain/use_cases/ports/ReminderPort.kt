@@ -7,5 +7,7 @@ interface ReminderPort {
 
     fun save(reminder: Reminder)
 
+    fun listByPersonId(personId: UUID): List<Reminder>
+
     fun findLatestReminderPerPerson(personIds: List<UUID>): List<Reminder>
 }

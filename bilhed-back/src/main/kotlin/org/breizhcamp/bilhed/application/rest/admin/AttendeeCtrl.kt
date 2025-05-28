@@ -68,7 +68,7 @@ class AttendeeCtrl(
     }
 }
 
-private fun Attendee.toDto() = AttendeeDTO(
+fun Attendee.toDto() = AttendeeDTO(
     id = id,
     lastname = lastname,
     firstname = firstname,

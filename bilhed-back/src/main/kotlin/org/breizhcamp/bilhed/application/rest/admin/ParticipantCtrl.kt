@@ -65,7 +65,7 @@ class ParticipantCtrl(
     }
 }
 
-private fun Participant.toDto() = ParticipantDTO(
+fun Participant.toDto() = ParticipantDTO(
     id = id,
     lastname = lastname,
     firstname = firstname,

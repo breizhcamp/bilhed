@@ -24,7 +24,7 @@
       <tbody>
         <tr v-for="r in registered" :key="r.id">
           <td><input type="checkbox" v-model="r.checked"></td>
-          <td>{{ r.lastname }}</td>
+          <td><router-link :to="`/person/${r.id}`" class="nav-link text-decoration-underline">{{ r.lastname }}</router-link></td>
           <td>{{ r.firstname }}</td>
           <td>{{ r.email }}</td>
           <td>{{ r.telephone }}</td>
@@ -66,6 +66,7 @@ import ModalForm from '@/components/ModalForm.vue'
 import BiChatText from 'bootstrap-icons/icons/chat-text.svg?component'
 import BiEnvelope from 'bootstrap-icons/icons/envelope.svg?component'
 import Pass from "@/components/Pass.vue";
+import {toastError, toastSuccess, toastWarning} from "@/utils/ReminderUtils";
 
 export default defineComponent({
   name: "RegisteredView",
@@ -133,8 +134,10 @@ export default defineComponent({
       }).then(() => {
         this.importModal = false
         this.load()
+        toastSuccess("L'import a bien été effectué.")
       }).catch(() => {
         this.importModal = false
+        toastError()
       }).finally(() => {
         this.loading = false
       })
@@ -142,9 +145,20 @@ export default defineComponent({
 
     levelUp() {
       const ids = this.registered.filter((r) => r.checked).map((r) => r.id)
+      if (ids.length === 0) {
+        toastWarning("Aucun inscrit sélectionné")
+        return
+      }
+
+      if (!confirm(`Voulez allez changer le statut de ${ids.length} personnes en Participant, voulez vous continuer ?`))
+        return
+
       this.loading = true
-      axios.post('/registered/level-up', ids).then(() => {
+      axios.post('/registered/levelUp', ids).then(() => {
         this.load()
+        toastSuccess(`Le statut a bien été modifié (${ids.length} personnes).`)
+      }).catch(() => {
+        toastError("Une erreur s'est produite lors du changement de statut.")
       }).finally(() => {
         this.loading = false
       })
