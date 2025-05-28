@@ -1,11 +1,6 @@
 package org.breizhcamp.bilhed.infrastructure.db.model
 
-import jakarta.persistence.Entity
-import jakarta.persistence.EnumType
-import jakarta.persistence.Enumerated
-import jakarta.persistence.Id
-import jakarta.persistence.Table
-import org.breizhcamp.bilhed.domain.entities.ConfirmationType
+import jakarta.persistence.*
 import org.breizhcamp.bilhed.domain.entities.PassType
 import org.breizhcamp.bilhed.domain.entities.SmsStatus
 import java.time.ZonedDateTime
@@ -47,13 +42,9 @@ data class ParticipantDB(
     var participantSmsStatus: SmsStatus? = null,
     var participantNbSmsSent: Int = 0,
     var participantSmsError: String? = null,
-    var participantConfirmationLimitDate: ZonedDateTime? = null,
-    var participantSmsConfirmSentDate: ZonedDateTime? = null,
-    var participantMailConfirmSentDate: ZonedDateTime? = null,
+    var participantNotificationConfirmSentDate: ZonedDateTime? = null,
 
     var participantConfirmationDate: ZonedDateTime? = null,
-    @Enumerated(EnumType.STRING)
-    var participantConfirmationType: ConfirmationType? = null,
 
     val payed: Boolean = false,
 )

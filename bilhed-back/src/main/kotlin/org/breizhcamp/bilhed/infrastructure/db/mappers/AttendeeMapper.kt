@@ -34,7 +34,7 @@ fun ParticipantDB.toAttendee() = Attendee(
     pass = pass,
     kids = kids,
 
-    confirmationLimitDate = requireNotNull(participantConfirmationLimitDate) { "Attendee [$id] has no confirmation limit date" },
     participantConfirmationDate = requireNotNull(participantConfirmationDate) { "Attendee [$id] has no confirmation date" },
+    participantNotificationConfirmDate = requireNotNull(participantNotificationConfirmSentDate) { "Attendee [$id] has no notification confirmation date" },
     payed = payed,
 )

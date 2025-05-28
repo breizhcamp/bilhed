@@ -14,7 +14,8 @@ class MailAdapter(
 ): MailPort {
 
     override fun send(mail: Mail) {
-        logger.info { "Sending mail to [${mail.to}] with template [${mail.template}]" }
-        rabbitTemplate.convertAndSend("mail-send", "", mail)
+        val mailMq = mail.toMQ()
+        logger.info { "Sending mail to [${mailMq.to}] with template [${mailMq.template}]" }
+        rabbitTemplate.convertAndSend("mail-send", "", mailMq)
     }
 }

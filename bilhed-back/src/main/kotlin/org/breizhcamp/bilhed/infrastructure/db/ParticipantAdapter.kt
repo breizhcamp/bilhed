@@ -1,8 +1,6 @@
 package org.breizhcamp.bilhed.infrastructure.db
 
 import jakarta.persistence.EntityNotFoundException
-import org.breizhcamp.bilhed.config.BilhedBackConfig
-import org.breizhcamp.bilhed.domain.entities.ConfirmationType
 import org.breizhcamp.bilhed.domain.entities.Participant
 import org.breizhcamp.bilhed.domain.entities.ParticipantFilter
 import org.breizhcamp.bilhed.domain.entities.PassType
@@ -19,7 +17,6 @@ import java.util.*
 
 @Component
 class ParticipantAdapter(
-    private val config: BilhedBackConfig,
     private val participantRepo: ParticipantRepo,
 ): ParticipantPort {
     override fun list(): List<Participant> = participantRepo.filterParticipant(ParticipantFilter.empty()).map { it.toParticipant() }
@@ -58,9 +55,7 @@ class ParticipantAdapter(
     override fun levelUpToAttendee(id: UUID): Participant {
         return participantRepo.findParticipant(id)?.apply {
             status = ParticipantDBStatus.ATTENDEE
-            participantConfirmationLimitDate = participantConfirmationLimitDate ?: config.breizhCampCloseDate.minusDays(5)
             participantConfirmationDate = ZonedDateTime.now()
-            participantConfirmationType = ConfirmationType.MAIL
         }?.toParticipant() ?: throw EntityNotFoundException("Unable to find participant [$id]")
     }
 
@@ -68,7 +63,6 @@ class ParticipantAdapter(
         participantRepo.findParticipant(id)?.apply {
             status = ParticipantDBStatus.RELEASED
             participantConfirmationDate = ZonedDateTime.now()
-            participantConfirmationType = ConfirmationType.MAIL
         } ?: throw EntityNotFoundException("Unable to find participant [$id]")
     }
 }
@@ -77,10 +71,7 @@ private fun ParticipantDB.update(src: Participant) = this.apply {
     participantSmsStatus = src.smsStatus
     participantNbSmsSent = src.nbSmsSent
     participantSmsError = src.smsError
-    participantConfirmationLimitDate = src.confirmationLimitDate
-    participantSmsConfirmSentDate = src.smsConfirmSentDate
-    participantMailConfirmSentDate = src.mailConfirmSentDate
+    participantNotificationConfirmSentDate = src.notificationConfirmDate
 
     participantConfirmationDate = src.confirmationDate
-    participantConfirmationType = src.confirmationType
 }

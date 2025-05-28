@@ -16,4 +16,6 @@ interface ReminderConfigPort {
     fun delete(id: UUID)
 
     fun countByType(type: String): Int
+
+    fun listByType(type: String): List<ReminderConfig>
 }

@@ -6,7 +6,7 @@ import org.breizhcamp.bilhed.config.BilhedBackConfig
 import org.breizhcamp.bilhed.domain.entities.Mail
 import org.breizhcamp.bilhed.domain.entities.PassType
 import org.breizhcamp.bilhed.domain.entities.Registered
-import org.breizhcamp.bilhed.domain.use_cases.ports.MailPort
+import org.breizhcamp.bilhed.domain.entities.ReminderOrigin
 import org.breizhcamp.bilhed.domain.use_cases.ports.RegisteredPort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -18,8 +18,8 @@ private val logger = KotlinLogging.logger {}
 @Service
 class RegisteredImport(
     private val registeredPort: RegisteredPort,
-    private val mailPort: MailPort,
     private val config: BilhedBackConfig,
+    private val sendNotification: SendNotification
 ) {
 
     fun importCsv(file: InputStream) {
@@ -53,7 +53,7 @@ class RegisteredImport(
 
             val registered = registeredPort.get(it)
             val model = mapOf("firstname" to registered.firstname, "lastname" to registered.lastname, "year" to config.breizhCampYear.toString())
-            mailPort.send(Mail(registered.getMailAddress(), "register", model))
+            sendNotification.sendEmail(Mail(registered.getMailAddress(), "register", model, it), ReminderOrigin.MANUAL)
         }
     }
 

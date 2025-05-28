@@ -17,7 +17,7 @@ export interface Participant {
   meetAndGreet?: boolean
   postalCode?: string
 
-  confirmationLimitDate?: string
+  notificationConfirmSentDate?: string
 
   checked: boolean
 }

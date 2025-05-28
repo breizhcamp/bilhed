@@ -116,4 +116,15 @@
                                  referencedColumnNames="id" />
     </changeSet>
 
+    <changeSet id="11" author="nicolas">
+        <addColumn tableName="reminder">
+            <column name="origin" type="text" defaultValue="AUTOMATIC"><constraints nullable="false"/></column>
+        </addColumn>
+        <renameColumn tableName="reminder" oldColumnName="participant_id" newColumnName="person_id"/>
+        <dropColumn tableName="participant" columnName="participant_confirmation_limit_date"/>
+        <dropColumn tableName="participant" columnName="participant_confirmation_type"/>
+        <dropColumn tableName="participant" columnName="participant_sms_confirm_sent_date"/>
+        <renameColumn tableName="participant" oldColumnName="participant_mail_confirm_sent_date" newColumnName="participant_notification_confirm_sent_date"/>
+    </changeSet>
+
 </databaseChangeLog>
