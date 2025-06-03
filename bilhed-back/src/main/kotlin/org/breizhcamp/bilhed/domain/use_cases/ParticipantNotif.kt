@@ -103,9 +103,9 @@ class ParticipantNotif(
 
     private fun getLimitDate(): LimitDate {
         val now = ZonedDateTime.now(ZoneId.of("Europe/Paris"))
-        val limitDate = now.plusHours(72)
+        val limitDate = now.plusDays(6)
         val limitDateStr = formatDate(limitDate)
-        return LimitDate(now, limitDate, limitDateStr, "72h")
+        return LimitDate(now, limitDate, limitDateStr, "6j")
     }
 
     private fun formatDate(limitDate: ZonedDateTime): String {
