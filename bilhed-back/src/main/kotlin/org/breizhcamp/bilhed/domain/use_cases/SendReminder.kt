@@ -10,16 +10,16 @@ import java.util.*
 
 @Service
 class SendReminder (
-    private val registeredPort: RegisteredPort,
     private val reminderPort: ReminderPort,
     private val reminderConfigPort: ReminderConfigPort,
-    private val participantPort: ParticipantPort,
     private val registeredReminder: RegisteredReminder,
     private val participantNotif: ParticipantNotif,
     private val attendeeNotify: AttendeeNotify,
-    private val attendeePort: AttendeePort,
     private val configPort: ConfigPort,
     private val timeService: TimeService,
+    private val referentInfosPort: ReferentInfosPort,
+    private val participationInfosPort: ParticipationInfosPort,
+    private val personPort: PersonPort,
 ) {
 
     private fun areConditionsMet(deadline: ZonedDateTime, reminderConfigs: List<ReminderConfig>, now: ZonedDateTime, notif: Reminder?): ReminderConfig? {
@@ -48,8 +48,8 @@ class SendReminder (
         return prevRemConfig
     }
 
-    private fun getNotifications(persons: List<Person>):  Map<UUID, Reminder> {
-        val notificationsList = reminderPort.findLatestReminderPerPerson(persons.map { it.id })
+    private fun getNotifications(ids: List<UUID>):  Map<UUID, Reminder> {
+        val notificationsList = reminderPort.findLatestReminderPerPerson(ids)
         return notificationsList.associateBy { it.personId }
     }
 
@@ -58,18 +58,18 @@ class SendReminder (
         val maxTime = configPort.get("reminderTimeReg").value.toLong()
 
         val reminderConfigs = reminderConfigPort.listByType("REGISTERED")
-        var registers = registeredPort.list()
+        var registers = referentInfosPort.list()
         // On filtre ceux dont la deadline est dépassée (car ils ne sont pas RELEASED).
         registers = registers.filter { it.registrationDate.plusHours(maxTime).isAfter(now) }
 
-        val notifications = getNotifications(registers)
+        val notifications = getNotifications(registers.map { it.personId })
 
         for (reg in registers) {
             val deadline = reg.registrationDate.plusHours(maxTime)
-            val prevRemConfig = areConditionsMet(deadline, reminderConfigs, now, notifications[reg.id]) ?: break
+            val prevRemConfig = areConditionsMet(deadline, reminderConfigs, now, notifications[reg.personId]) ?: continue
 
             registeredReminder.send(
-                reg.id,
+                reg.personId,
                 prevRemConfig.templateSms,
                 prevRemConfig.templateMail,
                 ReminderOrigin.AUTOMATIC
@@ -82,15 +82,15 @@ class SendReminder (
         val maxTime = configPort.get("reminderTimePar").value.toLong()
 
         val reminderConfigs = reminderConfigPort.listByType("PARTICIPANT")
-        val participants = participantPort.list()
-        val notifications = getNotifications(participants)
+        val participants = participationInfosPort.list()
+        val notifications = getNotifications(participants.map { it.personId })
 
         for (par in participants) {
-            val deadline = par.notificationConfirmDate?.plusHours(maxTime)
-            if (deadline == null) break // tirage au sort pas encore effectué
-            val prevRemConfig = areConditionsMet(deadline, reminderConfigs, now, notifications[par.id]) ?: break
+            val deadline = par.notificationConfirmSentDate?.plusHours(maxTime)
+            if (deadline == null) continue // tirage au sort pas encore effectué
+            val prevRemConfig = areConditionsMet(deadline, reminderConfigs, now, notifications[par.personId]) ?: break
 
-            participantNotif.remindSuccess(listOf(par.id), ReminderOrigin.AUTOMATIC, prevRemConfig.templateMail)
+            participantNotif.remindSuccess(listOf(par.personId), ReminderOrigin.AUTOMATIC, prevRemConfig.templateMail)
         }
     }
 
@@ -99,16 +99,22 @@ class SendReminder (
         val maxTime = configPort.get("reminderTimeAtt").value.toLong()
 
         val reminderConfigs = reminderConfigPort.listByType("ATTENDEE")
-        val attendees = attendeePort.filter(AttendeeFilter(null, null, null, null, false))
-        val notifications = getNotifications(attendees)
+        val attendees = personPort.filter(PersonFilter(status = PersonStatus.ATTENDEE, payed = false))
+        val partInfos = participationInfosPort.get(attendees.map { it.id })
+
+        val notifications = getNotifications(attendees.map { it.id })
 
         for (att in attendees) {
-            val deadline = att.participantConfirmationDate.plusHours(maxTime)
-            val prevRemConfig = areConditionsMet(deadline, reminderConfigs, now, notifications[att.id]) ?: break
+            val infos = partInfos.firstOrNull { it.personId == att.id } ?: continue
+            if (infos.confirmationDate == null) continue
+
+            val deadline = infos.confirmationDate.plusHours(maxTime)
+            val prevRemConfig = areConditionsMet(deadline, reminderConfigs, now, notifications[att.id]) ?: continue
 
             if (prevRemConfig.templateMail.isNotBlank())
                 attendeeNotify.remindPayedMail(listOf(att.id), ReminderOrigin.AUTOMATIC, prevRemConfig.templateMail)
 
+            // TODO : /!\ attendee SMS ?
             if (prevRemConfig.templateSms.isNotBlank())
                 attendeeNotify.remindPayedSms(listOf(att.id), ReminderOrigin.AUTOMATIC, prevRemConfig.templateSms)
         }

@@ -1,6 +1,9 @@
 package org.breizhcamp.bilhed.application.dto
 
+import java.util.UUID
+
 data class ParticipantConfirmReq(
+    val id: UUID,
     val company: String?,
     val tShirtSize: String,
     val tShirtCut: String?,

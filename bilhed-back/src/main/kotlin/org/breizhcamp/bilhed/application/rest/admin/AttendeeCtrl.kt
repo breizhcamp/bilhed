@@ -3,13 +3,13 @@ package org.breizhcamp.bilhed.application.rest.admin
 import jakarta.servlet.http.HttpServletResponse
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVPrinter
-import org.breizhcamp.bilhed.application.dto.admin.AttendeeDTO
-import org.breizhcamp.bilhed.domain.entities.Attendee
-import org.breizhcamp.bilhed.domain.entities.AttendeeFilter
+import org.breizhcamp.bilhed.application.dto.PersonDTO
+import org.breizhcamp.bilhed.domain.entities.PersonFilter
+import org.breizhcamp.bilhed.domain.entities.PersonStatus
 import org.breizhcamp.bilhed.domain.entities.ReminderOrigin
 import org.breizhcamp.bilhed.domain.entities.TicketExportData
-import org.breizhcamp.bilhed.domain.use_cases.AttendeeList
 import org.breizhcamp.bilhed.domain.use_cases.AttendeeNotify
+import org.breizhcamp.bilhed.domain.use_cases.PersonCrud
 import org.breizhcamp.bilhed.domain.use_cases.PersonRelease
 import org.breizhcamp.bilhed.domain.use_cases.TicketExport
 import org.springframework.http.HttpHeaders
@@ -21,17 +21,17 @@ import java.util.*
 @RestController("adminAttendeeCtrl")
 @RequestMapping("/admin/attendees")
 class AttendeeCtrl(
-    private val attendeeList: AttendeeList,
     private val attendeeNotify: AttendeeNotify,
     private val personRelease: PersonRelease,
     private val ticketExport: TicketExport,
+    private val personCrud: PersonCrud,
 ) {
 
     @GetMapping
-    fun list(): List<AttendeeDTO> = attendeeList.filter(AttendeeFilter.empty()).map { it.toDto() }
+    fun list(): List<PersonDTO> = personCrud.filter(PersonFilter(status = PersonStatus.ATTENDEE)).map { it.toDto() }
 
     @PostMapping("/filter")
-    fun filter(@RequestBody filter: AttendeeFilter): List<AttendeeDTO> = attendeeList.filter(filter).map { it.toDto() }
+    fun filter(@RequestBody filter: PersonFilter): List<PersonDTO> = personCrud.filter(filter).map { it.toDto() }
 
     @PostMapping("/notif/payed/reminder/mail") @ResponseStatus(HttpStatus.NO_CONTENT)
     fun payedReminderMail(@RequestBody ids: List<UUID>) {
@@ -67,17 +67,4 @@ class AttendeeCtrl(
         out.close()
     }
 }
-
-fun Attendee.toDto() = AttendeeDTO(
-    id = id,
-    lastname = lastname,
-    firstname = firstname,
-    email = email,
-    telephone = telephone,
-    pass = pass,
-    kids = kids,
-
-    participantConfirmationDate = participantConfirmationDate,
-    payed = payed,
-)
 

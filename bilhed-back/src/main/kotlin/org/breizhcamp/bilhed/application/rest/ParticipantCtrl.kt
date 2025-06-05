@@ -2,11 +2,11 @@ package org.breizhcamp.bilhed.application.rest
 
 import jakarta.persistence.EntityNotFoundException
 import mu.KotlinLogging
-import org.breizhcamp.bilhed.application.dto.ErrorRes
-import org.breizhcamp.bilhed.application.dto.ParticipantConfirmReq
-import org.breizhcamp.bilhed.application.dto.ParticipantConfirmInfo
-import org.breizhcamp.bilhed.application.dto.ConfirmRes
-import org.breizhcamp.bilhed.domain.entities.*
+import org.breizhcamp.bilhed.application.dto.*
+import org.breizhcamp.bilhed.domain.entities.AttendeeData
+import org.breizhcamp.bilhed.domain.entities.Person
+import org.breizhcamp.bilhed.domain.entities.ParticipantConfirmInfo
+import org.breizhcamp.bilhed.domain.entities.Ticket
 import org.breizhcamp.bilhed.domain.use_cases.ParticipantConfirm
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
@@ -21,15 +21,15 @@ class ParticipantCtrl(
 ) {
 
     @GetMapping("/{id}")
-    fun get(@PathVariable id: UUID): ParticipantConfirmInfo {
+    fun get(@PathVariable id: UUID): ParticipantConfirmInfoRes {
         return participantConfirm.get(id).toDTO()
     }
 
-    @PostMapping("/{id}/confirm")
-    fun confirm(@PathVariable id: UUID, @RequestBody req: ParticipantConfirmReq): ConfirmRes {
-        req.validate()
-        logger.info { "Confirm participant [$id] with req: $req" }
-        return participantConfirm.confirm(id, req.toData()).toConfirmRes()
+    @PostMapping("/group/confirm")
+    fun confirm(@RequestBody req: List<ParticipantConfirmReq>): ConfirmRes {
+        req.forEach { it.validate() }
+//        logger.info { "Confirm participant [$id] with req: $req" }
+        return participantConfirm.confirm(req.map { it.id to it.toData() }).toConfirmRes()
     }
 
     @PostMapping("/{id}/cancel")
@@ -54,16 +54,24 @@ private fun ParticipantConfirmReq.toData() = AttendeeData(
     postalCode = postalCode,
 )
 
-private fun Person.toDTO() = ParticipantConfirmInfo(
+private fun ParticipantConfirmInfo.toDTO() = ParticipantConfirmInfoRes(
+    groupPayment = groupPayment,
+    referent = referent.toDTO(),
+    companions = companions.map { it.toDTO() },
+    confirmationLimitDate = confirmationLimitDate
+)
+
+private fun Person.toDTO() = PersonDTO(
+    id = id,
     lastname = lastname,
     firstname = firstname,
+    status = status,
+    telephone = telephone,
     email = email,
     pass = pass,
-    confirmationLimitDate = when(this) {
-        is Participant -> requireNotNull(notificationConfirmDate)
-        is Attendee -> participantNotificationConfirmDate
-        else -> throw IllegalStateException("Not a participant")
-    },
+    kids = kids,
+    groupId = groupId,
+    payed = payed
 )
 
 private fun Ticket.toConfirmRes() = ConfirmRes(payUrl, payed)

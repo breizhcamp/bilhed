@@ -1,12 +1,16 @@
 package org.breizhcamp.bilhed.infrastructure.db
 
 import jakarta.persistence.EntityNotFoundException
-import org.breizhcamp.bilhed.application.dto.admin.UpdateContactReq
+import org.breizhcamp.bilhed.application.dto.admin.UpdateEmailReq
+import org.breizhcamp.bilhed.domain.entities.PassType
 import org.breizhcamp.bilhed.domain.entities.Person
+import org.breizhcamp.bilhed.domain.entities.PersonFilter
+import org.breizhcamp.bilhed.domain.entities.PersonStatus
 import org.breizhcamp.bilhed.domain.use_cases.ports.PersonPort
-import org.breizhcamp.bilhed.infrastructure.db.mappers.*
-import org.breizhcamp.bilhed.infrastructure.db.model.ParticipantDBStatus
-import org.breizhcamp.bilhed.infrastructure.db.repos.ParticipantRepo
+import org.breizhcamp.bilhed.infrastructure.db.mappers.toDB
+import org.breizhcamp.bilhed.infrastructure.db.mappers.toPerson
+import org.breizhcamp.bilhed.infrastructure.db.model.PersonDBStatus
+import org.breizhcamp.bilhed.infrastructure.db.repos.PersonRepo
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -14,24 +18,97 @@ import java.util.*
 
 @Component
 class PersonAdapter(
-    private val participantRepo: ParticipantRepo,
+    private val personRepo: PersonRepo,
 ): PersonPort {
+    override fun list(): List<Person> {
+        TODO("Not yet implemented")
+    }
 
-    override fun get(id: UUID): Person {
-        val p = participantRepo.findByIdOrNull(id) ?: throw EntityNotFoundException("Unable to find person [$id]")
-        return when (p.status) {
-            ParticipantDBStatus.REGISTERED -> p.toRegistered()
-            ParticipantDBStatus.PARTICIPANT -> p.toParticipant()
-            ParticipantDBStatus.ATTENDEE -> p.toAttendee()
-            ParticipantDBStatus.RELEASED -> p.toReleased()
-            ParticipantDBStatus.BLOCKED -> p.toBlocked()
+    override fun filter(filter: PersonFilter): List<Person> {
+        TODO("Not yet implemented")
+    }
+
+    override fun save(person: Person) {
+        personRepo.save(person.toDB())
+    }
+
+    override fun listTopDrawByPassWithLimit(
+        pass: PassType,
+        limit: Int
+    ): List<Person> {
+        TODO("Not yet implemented")
+    }
+
+    override fun listIdsWithNoDraw(): Map<PassType, List<UUID>> {
+        TODO("Not yet implemented")
+    }
+
+    override fun updateDrawOrder(id: UUID, drawOrder: Int) {
+        TODO("Not yet implemented")
+    }
+
+    override fun getAlreadyNotifCount(): Map<PassType, Int> {
+        val res = personRepo.countAlreadyNotif().toMap()
+        return PassType.values().associateWith {
+            res[it] ?: 0
         }
     }
 
     @Transactional
-    override fun updateContact(id: UUID, updateContactReq: UpdateContactReq) {
-        participantRepo.findByIdOrNull(id) ?: throw EntityNotFoundException("Unable to find person [$id]")
-        participantRepo.updateContact(id, updateContactReq.telephone, updateContactReq.email)
+    override fun updateEmail(id: UUID, updateEmailReq: UpdateEmailReq) {
+        personRepo.findByIdOrNull(id) ?: throw EntityNotFoundException("Unable to find person [$id]")
+        personRepo.updateEmail(id, updateEmailReq.email)
+    }
+
+    override fun levelUpToAttendee(id: UUID): Person {
+        TODO("Not yet implemented")
+    }
+
+    override fun levelUpToReleased(id: UUID) {
+        personRepo.findParticipant(id)?.apply {
+            status = PersonDBStatus.RELEASED
+        } ?: throw EntityNotFoundException("Unable to find participant [$id]")
+    }
+
+    override fun levelUpToParticipant(id: UUID) {
+        personRepo.levelUpToParticipant(id)
+    }
+
+    override fun existsEmailOrPhone(email: String, telephone: String?): Boolean {
+        if (telephone != null) return personRepo.countByEmailOrTelephone(email, telephone) > 0
+        return personRepo.countByEmail(email) > 0
+    }
+
+    override fun get(id: UUID): Person {
+        return personRepo.findByIdOrNull(id)?.toPerson() ?: throw EntityNotFoundException()
+    }
+
+    override fun get(ids: List<UUID>): List<Person> {
+        return personRepo.findAllById(ids).map { it.toPerson() }
+    }
+
+    override fun getParticipant(id: UUID): Person {
+        return personRepo.findParticipant(id)?.toPerson() ?: throw EntityNotFoundException("Unable to find participant [$id]")
+    }
+
+    override fun setPayed(ids: List<UUID>) {
+        return personRepo.setPayed(ids)
+    }
+
+    override fun getCompanions(groupId: UUID, referentId: UUID): List<Person> {
+        return personRepo.getCompanions(groupId, referentId).map { it.toPerson() }
+    }
+
+    override fun getMembers(id: UUID): List<Person> {
+        return personRepo.findByGroupId(id).map { it.toPerson() }
+    }
+
+    override fun getReferentOfGroup(groupId: UUID): Person {
+        return personRepo.findReferentOfGroup(groupId).toPerson()
+    }
+
+    override fun listReferents(status: PersonStatus): List<Person> {
+        return personRepo.listReferents(status.toDB()).map { it.toPerson() }
     }
 
 }

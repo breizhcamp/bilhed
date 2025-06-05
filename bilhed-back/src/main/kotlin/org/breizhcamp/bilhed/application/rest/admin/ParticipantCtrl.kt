@@ -1,14 +1,14 @@
 package org.breizhcamp.bilhed.application.rest.admin
 
-import org.breizhcamp.bilhed.application.dto.admin.ParticipantDTO
-import org.breizhcamp.bilhed.domain.entities.Participant
-import org.breizhcamp.bilhed.domain.entities.ParticipantFilter
+import org.breizhcamp.bilhed.application.dto.PersonDTO
 import org.breizhcamp.bilhed.domain.entities.PassType
+import org.breizhcamp.bilhed.domain.entities.PersonFilter
+import org.breizhcamp.bilhed.domain.entities.PersonStatus
 import org.breizhcamp.bilhed.domain.entities.ReminderOrigin
 import org.breizhcamp.bilhed.domain.use_cases.ParticipantConfirm
 import org.breizhcamp.bilhed.domain.use_cases.ParticipantDraw
-import org.breizhcamp.bilhed.domain.use_cases.ParticipantList
 import org.breizhcamp.bilhed.domain.use_cases.ParticipantNotif
+import org.breizhcamp.bilhed.domain.use_cases.PersonCrud
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import java.util.*
@@ -16,14 +16,14 @@ import java.util.*
 @RestController("adminParticipantCtrl")
 @RequestMapping("/admin/participants")
 class ParticipantCtrl(
-    private val participantList: ParticipantList,
     private val participantDraw: ParticipantDraw,
     private val participantNotif: ParticipantNotif,
     private val participantConfirm: ParticipantConfirm,
+    private val personCrud: PersonCrud
 ) {
 
     @GetMapping
-    fun listParticipants(): List<ParticipantDTO> = participantList.list().map { it.toDto() }
+    fun listParticipants(): List<PersonDTO> = personCrud.filter(PersonFilter(status = PersonStatus.PARTICIPANT)).map { it.toDto() }
 
     @PostMapping("/levelUp/attendee")
     fun levelUpToAttendee(@RequestBody ids: List<UUID>): Int = participantConfirm.confirmList(ids).size
@@ -32,7 +32,7 @@ class ParticipantCtrl(
     fun levelUpToRelease(@RequestBody ids: List<UUID>) = participantConfirm.release(ids)
 
     @PostMapping("/filter")
-    fun filter(@RequestBody filter: ParticipantFilter): List<ParticipantDTO> = participantList.filter(filter).map { it.toDto() }
+    fun filter(@RequestBody filter: PersonFilter): List<PersonDTO> = personCrud.filter(filter).map { it.toDto() }
 
     @PostMapping("/draw") @ResponseStatus(HttpStatus.NO_CONTENT)
     fun draw() {
@@ -64,21 +64,3 @@ class ParticipantCtrl(
         participantNotif.notifyFailed(ids)
     }
 }
-
-fun Participant.toDto() = ParticipantDTO(
-    id = id,
-    lastname = lastname,
-    firstname = firstname,
-    email = email,
-    telephone = telephone,
-    pass = pass,
-    kids = kids,
-    participationDate = participationDate,
-
-    drawOrder = drawOrder,
-    smsStatus = smsStatus,
-    nbSmsSent = nbSmsSent,
-    smsError = smsError,
-    notificationConfirmSentDate = notificationConfirmDate,
-    confirmationDate = confirmationDate,
-)
