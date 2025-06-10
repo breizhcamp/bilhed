@@ -26,7 +26,7 @@ class Registration(
     private val referentInfosPort: ReferentInfosPort
 ) {
 
-    fun registerGroup(group: Group): Group {
+    fun registerGroup(group: Group) {
         if (config.registerCloseDate.isBefore(ZonedDateTime.now())) {
             throw IllegalArgumentException("Les inscriptions sont closes.")
         }
@@ -37,7 +37,6 @@ class Registration(
         logger.info { "Creating new group with referent ID [${group.referentId}]" }
         groupPort.save(group)
         logger.info { "New group created" }
-        return group
     }
 
     fun registerMembers(persons: List<Person>): Person {
@@ -112,6 +111,6 @@ class Registration(
 
         sendNotification.sendEmail(Mail(referent.person.getMailAddress(), "register", model, id), ReminderOrigin.AUTOMATIC)
 
-        logger.info { "Validated [${referent.person.lastname} ${referent.person.firstname}] as a participant" }
+        logger.info { "Validated group of [${referent.person.lastname} ${referent.person.firstname}] as a participant" }
     }
 }

@@ -1,12 +1,11 @@
 package org.breizhcamp.bilhed.domain.use_cases
 
-import org.breizhcamp.bilhed.domain.entities.Group
 import org.breizhcamp.bilhed.domain.entities.Person
 import org.breizhcamp.bilhed.domain.entities.PersonFilter
 import org.breizhcamp.bilhed.domain.entities.PersonStatus
 import org.breizhcamp.bilhed.domain.use_cases.ports.PersonPort
 import org.springframework.stereotype.Service
-import java.util.UUID
+import java.util.*
 
 @Service
 class PersonCrud(

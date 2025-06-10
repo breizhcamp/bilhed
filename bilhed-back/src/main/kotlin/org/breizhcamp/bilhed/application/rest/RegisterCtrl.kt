@@ -24,8 +24,8 @@ class RegisterCtrl(
         members.addAll(req.companions.map { it.toPerson(groupId, members.first().pass) })
         val referent = registration.registerMembers(members)
 
-        val group = registration.registerGroup(req.toGroup(referent.id, groupId))
-        return RegisterRes(group.id)
+        registration.registerGroup(req.toGroup(referent.id, groupId))
+        return RegisterRes(referent.id)
     }
 
     @GetMapping("/{id}")

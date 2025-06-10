@@ -1,17 +1,12 @@
 package org.breizhcamp.bilhed.domain.use_cases
 
 import mu.KotlinLogging
-import org.apache.commons.csv.CSVFormat
 import org.breizhcamp.bilhed.config.BilhedBackConfig
 import org.breizhcamp.bilhed.domain.entities.Mail
-import org.breizhcamp.bilhed.domain.entities.PassType
-import org.breizhcamp.bilhed.domain.entities.Person
-import org.breizhcamp.bilhed.domain.entities.PersonStatus
 import org.breizhcamp.bilhed.domain.entities.ReminderOrigin
 import org.breizhcamp.bilhed.domain.use_cases.ports.PersonPort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.io.InputStream
 import java.util.*
 
 private val logger = KotlinLogging.logger {}
