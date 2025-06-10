@@ -12,7 +12,6 @@ data class Person (
     val telephone: String?,
     val email: String,
     val pass: PassType,
-    val kids: String?,
     val groupId: UUID,
     val payed: Boolean = false
 ) {
@@ -31,7 +30,6 @@ data class Person (
         telephone = telephone,
         email = email,
         pass = pass,
-        kids = kids,
         groupId = groupId,
         payed = payed
     )

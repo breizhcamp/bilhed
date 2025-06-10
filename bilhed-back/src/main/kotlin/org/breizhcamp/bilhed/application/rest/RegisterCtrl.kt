@@ -62,7 +62,6 @@ class RegisterCtrl(
         telephone,
         email,
         pass,
-        kids,
         groupId
     )
 
@@ -74,7 +73,6 @@ class RegisterCtrl(
         internationalPhone(),
         email,
         pass,
-        kids,
         groupId
     )
 

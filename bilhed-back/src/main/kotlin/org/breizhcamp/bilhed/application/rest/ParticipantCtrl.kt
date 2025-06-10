@@ -69,7 +69,6 @@ private fun Person.toDTO() = PersonDTO(
     telephone = telephone,
     email = email,
     pass = pass,
-    kids = kids,
     groupId = groupId,
     payed = payed
 )

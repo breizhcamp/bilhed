@@ -13,7 +13,6 @@ data class PersonDTO(
     val email: String,
     val telephone: String?,
     val pass: PassType,
-    val kids: String?,
     val groupId: UUID,
     val payed: Boolean = false
 )

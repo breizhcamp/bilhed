@@ -5,7 +5,6 @@ export interface Person {
     email: string
     telephone: string
     pass: string
-    kids?: string
     _status: PersonStatus
 }
 

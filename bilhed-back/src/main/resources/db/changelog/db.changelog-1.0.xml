@@ -138,7 +138,6 @@
             <column name="email" type="text"><constraints nullable="false"/></column>
             <column name="telephone" type="text"/>
             <column name="pass" type="text"><constraints nullable="false"/></column>
-            <column name="kids" type="text" />
             <column name="payed" type="boolean" defaultValueBoolean="false"><constraints nullable="false"/></column>
             <column name="group_id" type="uuid"/>
         </createTable>
@@ -193,7 +192,6 @@
         <addForeignKeyConstraint baseTableName="billetweb" baseColumnNames="participant_id" constraintName="fk_billetweb_participant"
                                  referencedTableName="participation_infos"
                                  referencedColumnNames="person_id" />
-
     </changeSet>
 
 </databaseChangeLog>

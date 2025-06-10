@@ -5,7 +5,6 @@ open class CompanionRegisterReq(
     val firstname: String,
     val telephone: String?,
     val email: String,
-    val kids: String?,
 ) {
     open fun validate(groupPayment: Boolean, ref: Boolean = false) {
         if (lastname.isBlank()) throw IllegalArgumentException("Le nom ne peut pas être vide")

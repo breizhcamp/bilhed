@@ -24,7 +24,6 @@ data class PersonDB(
     @Enumerated(EnumType.STRING)
     val pass: PassType,
 
-    val kids: String?,
     val payed: Boolean = false,
     val groupId: UUID
 )

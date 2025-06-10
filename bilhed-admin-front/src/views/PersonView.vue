@@ -22,7 +22,6 @@
         <td><input class="form-control form-control-sm" type="text" id="mail" v-model="person.email" /></td>
         <td><input class="form-control form-control-sm" type="text" id="phone" v-model="person.telephone" /></td>
         <td><Pass :pass="person.pass"/></td>
-        <td>{{ person.kids ?? 0 }}</td>
         <td>
           <button type="button" class="btn btn-primary btn-sm" title="Modify Person" @click="updatePerson()">Modifier</button>
         </td>

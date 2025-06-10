@@ -13,7 +13,6 @@ fun Person.toDB() = PersonDB(
     telephone = this.telephone,
     email = this.email,
     pass = this.pass,
-    kids = this.kids,
     payed = this.payed,
     groupId = this.groupId
 )
@@ -26,7 +25,6 @@ fun PersonDB.toPerson() = Person(
     telephone = this.telephone,
     email = this.email,
     pass = this.pass,
-    kids = this.kids,
     payed = this.payed,
     groupId = this.groupId
 )
