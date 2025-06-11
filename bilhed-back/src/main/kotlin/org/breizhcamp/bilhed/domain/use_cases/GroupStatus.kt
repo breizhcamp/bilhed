@@ -12,21 +12,25 @@ import java.util.*
 private val logger = KotlinLogging.logger {}
 
 @Service
-class RegisteredImport(
+class GroupStatus(
     private val personPort: PersonPort,
     private val config: BilhedBackConfig,
-    private val sendNotification: SendNotification
+    private val sendNotification: SendNotification,
 ) {
 
     @Transactional
     fun levelUp(ids: List<UUID>) {
-        logger.info { "Level up [${ids.size}] registered" }
+        logger.info { "Level up [${ids.size}] registered groups" }
         ids.forEach {
-            personPort.levelUpToParticipant(it)
+            val members = personPort.getMembersByGroup(it)
+            members.forEach { member ->
+                personPort.levelUpToParticipant(member.id)
+            }
 
-            val registered = personPort.get(it)
-            val model = mapOf("firstname" to registered.firstname, "lastname" to registered.lastname, "year" to config.breizhCampYear.toString())
-            sendNotification.sendEmail(Mail(registered.getMailAddress(), "register", model, it), ReminderOrigin.MANUAL)
+            val ref = personPort.getReferentOfGroup(it)
+
+            val model = mapOf("firstname" to ref.firstname, "lastname" to ref.lastname, "year" to config.breizhCampYear.toString())
+            sendNotification.sendEmail(Mail(ref.getMailAddress(), "register", model, ref.id), ReminderOrigin.MANUAL)
         }
     }
 

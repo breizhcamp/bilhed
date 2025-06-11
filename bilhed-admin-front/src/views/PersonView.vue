@@ -183,7 +183,7 @@ import Pass from "@/components/Pass.vue";
 import DateView from "@/components/DateView.vue";
 import type {Registered} from "@/dto/Registered";
 import type {Participant} from "@/dto/Participant";
-import type {Attendee, AttendeeFull} from "@/dto/Attendee";
+import type {Attendee, AttendeeData} from "@/dto/Attendee";
 import {toastSuccess, toastWarning} from "@/utils/ReminderUtils";
 import type {Reminder} from "@/dto/Reminder";
 
@@ -202,8 +202,8 @@ export default defineComponent({
     attendee(): Attendee {
       return this.person as Attendee
     },
-    attendeeFull(): AttendeeFull | undefined {
-      return this.person._status === PersonStatus.ATTENDEE_FULL ? this.person as AttendeeFull : undefined
+    attendeeFull(): AttendeeData | undefined {
+      return this.person._status === PersonStatus.ATTENDEE_FULL ? this.person as AttendeeData : undefined
     }
   },
   components: {DateView, Pass, BiChatText, BiSendCheck, BiSendX, BiArrowUp, BiSendExclamation, BiEnvelope},

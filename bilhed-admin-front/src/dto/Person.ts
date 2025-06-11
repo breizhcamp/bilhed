@@ -5,7 +5,25 @@ export interface Person {
     email: string
     telephone: string
     pass: string
-    _status: PersonStatus
+    status: PersonStatus
+    groupId: string
+    payed: boolean
+}
+
+export interface ReferentInfos {
+    personId: string,
+    registrationDate: string,
+    smsStatus: string,
+    nbSmsSent: number,
+    lastSmsSentDate: string,
+    smsError: string,
+    token: string,
+    nbTokenTries: number
+}
+
+export interface Referent {
+    person: Person,
+    referentInfos: ReferentInfos
 }
 
 export enum PersonStatus {

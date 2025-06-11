@@ -6,7 +6,6 @@ import org.breizhcamp.bilhed.domain.entities.PersonFilter
 import org.breizhcamp.bilhed.domain.entities.PersonStatus
 import org.breizhcamp.bilhed.domain.entities.ReminderOrigin
 import org.breizhcamp.bilhed.domain.use_cases.PersonCrud
-import org.breizhcamp.bilhed.domain.use_cases.RegisteredImport
 import org.breizhcamp.bilhed.domain.use_cases.RegisteredReminder
 import org.springframework.web.bind.annotation.*
 import java.util.*
@@ -15,17 +14,11 @@ import java.util.*
 @RequestMapping("/admin/registered")
 class RegisteredCtrl(
     private val personCrud: PersonCrud,
-    private val registeredImport: RegisteredImport,
     private val registeredReminder: RegisteredReminder,
 ) {
 
     @GetMapping
     fun listRegistered(): List<PersonDTO> = personCrud.filter(PersonFilter(status = PersonStatus.REGISTERED)).map { it.toDto() }
-
-    @PostMapping("/levelUp")
-    fun levelUp(@RequestBody ids: List<UUID>) {
-        registeredImport.levelUp(ids)
-    }
 
     @PostMapping("/{id}/reminder")
     fun sendReminder(@PathVariable id: UUID, @RequestBody req: ReminderReq) {

@@ -99,7 +99,7 @@ class PersonAdapter(
         return personRepo.getCompanions(groupId, referentId).map { it.toPerson() }
     }
 
-    override fun getMembers(id: UUID): List<Person> {
+    override fun getMembersByGroup(id: UUID): List<Person> {
         return personRepo.findByGroupId(id).map { it.toPerson() }
     }
 

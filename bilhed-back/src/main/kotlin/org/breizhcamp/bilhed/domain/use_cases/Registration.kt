@@ -105,7 +105,10 @@ class Registration(
             throw IllegalArgumentException("Le code saisi est invalide")
         }
 
-        personPort.levelUpToParticipant(referent.person.groupId)
+        personPort.levelUpToParticipant(referent.person.id)
+        personPort.getCompanions(referent.person.groupId, referent.person.id).forEach {
+            personPort.levelUpToParticipant(it.id)
+        }
 
         val model = mapOf("firstname" to referent.person.firstname, "lastname" to referent.person.lastname, "year" to config.breizhCampYear.toString())
 

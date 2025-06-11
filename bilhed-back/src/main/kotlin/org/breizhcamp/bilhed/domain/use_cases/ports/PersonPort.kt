@@ -43,7 +43,7 @@ interface PersonPort {
 
     fun getCompanions(groupId: UUID, referentId: UUID): List<Person>
 
-    fun getMembers(id: UUID): List<Person>
+    fun getMembersByGroup(id: UUID): List<Person>
 
     fun getReferentOfGroup(groupId: UUID): Person
 

@@ -9,6 +9,7 @@ import org.breizhcamp.bilhed.domain.entities.Group
 import org.breizhcamp.bilhed.domain.entities.PersonStatus
 import org.breizhcamp.bilhed.domain.entities.ReferentInfos
 import org.breizhcamp.bilhed.domain.use_cases.GroupCrud
+import org.breizhcamp.bilhed.domain.use_cases.GroupStatus
 import org.breizhcamp.bilhed.domain.use_cases.PersonCrud
 import org.breizhcamp.bilhed.domain.use_cases.ReferentInfosCrud
 import org.springframework.web.bind.annotation.*
@@ -20,7 +21,8 @@ import java.util.Locale.getDefault
 class GroupCtrl(
     val groupCrud: GroupCrud,
     val personCrud: PersonCrud,
-    val referentInfosCrud: ReferentInfosCrud
+    val referentInfosCrud: ReferentInfosCrud,
+    val groupStatus: GroupStatus,
 ) {
 
     @GetMapping
@@ -74,6 +76,11 @@ class GroupCtrl(
             personCrud.getCompanions(gr.id, gr.referentId).map { pers -> pers.toDto() },
         ) }
 
+    }
+
+    @PostMapping("/levelUp")
+    fun levelUp(@RequestBody ids: List<UUID>) {
+        groupStatus.levelUp(ids)
     }
 }
 

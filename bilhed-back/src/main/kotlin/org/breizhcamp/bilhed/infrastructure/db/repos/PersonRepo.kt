@@ -49,8 +49,8 @@ interface PersonRepo: JpaRepository<PersonDB, UUID>, PersonRepoCustom {
     fun countAlreadyNotif(): List<Pair<PassType, Int>>
 
     @Modifying
-    @Query("UPDATE PersonDB p SET p.status = org.breizhcamp.bilhed.infrastructure.db.model.PersonDBStatus.PARTICIPANT WHERE p.groupId = :groupId")
-    fun levelUpToParticipant(groupId: UUID)
+    @Query("UPDATE PersonDB p SET p.status = org.breizhcamp.bilhed.infrastructure.db.model.PersonDBStatus.PARTICIPANT WHERE p.id = :id")
+    fun levelUpToParticipant(id: UUID)
 
     @Modifying
     @Query("UPDATE PersonDB p SET p.email = :email WHERE p.id = :id")

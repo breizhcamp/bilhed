@@ -5,6 +5,7 @@ import { initRouter } from './router'
 
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap-icons/font/bootstrap-icons.min.css'
+import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import './assets/main.css'
 import axios from 'axios'
 import Vue3Toastify, { type ToastContainerOptions } from 'vue3-toastify';

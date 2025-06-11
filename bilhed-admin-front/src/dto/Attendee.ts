@@ -7,7 +7,7 @@ export interface Attendee extends Person {
   checked: boolean
 }
 
-export interface AttendeeFull extends Attendee {
+export interface AttendeeData extends Attendee {
   company?: string
   tshirtSize?: string
   tshirtCut?: string
