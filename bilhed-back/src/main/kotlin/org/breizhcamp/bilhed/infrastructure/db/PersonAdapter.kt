@@ -5,11 +5,11 @@ import org.breizhcamp.bilhed.application.dto.admin.UpdateEmailReq
 import org.breizhcamp.bilhed.domain.entities.PassType
 import org.breizhcamp.bilhed.domain.entities.Person
 import org.breizhcamp.bilhed.domain.entities.PersonFilter
-import org.breizhcamp.bilhed.domain.entities.PersonStatus
 import org.breizhcamp.bilhed.domain.use_cases.ports.PersonPort
 import org.breizhcamp.bilhed.infrastructure.db.mappers.toDB
 import org.breizhcamp.bilhed.infrastructure.db.mappers.toPerson
 import org.breizhcamp.bilhed.infrastructure.db.model.PersonDBStatus
+import org.breizhcamp.bilhed.infrastructure.db.repos.GroupRepo
 import org.breizhcamp.bilhed.infrastructure.db.repos.PersonRepo
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
@@ -19,17 +19,18 @@ import java.util.*
 @Component
 class PersonAdapter(
     private val personRepo: PersonRepo,
+    private val groupRepo: GroupRepo,
 ): PersonPort {
     override fun list(): List<Person> {
         TODO("Not yet implemented")
     }
 
     override fun filter(filter: PersonFilter): List<Person> {
-        TODO("Not yet implemented")
+        return personRepo.filterPerson(filter).map{ it.toPerson() }
     }
 
     override fun save(person: Person) {
-        personRepo.save(person.toDB())
+        personRepo.save(person.toDB(groupRepo.getReferenceById(person.groupId)))
     }
 
     override fun listTopDrawByPassWithLimit(
@@ -49,9 +50,7 @@ class PersonAdapter(
 
     override fun getAlreadyNotifCount(): Map<PassType, Int> {
         val res = personRepo.countAlreadyNotif().toMap()
-        return PassType.values().associateWith {
-            res[it] ?: 0
-        }
+        return PassType.values().associateWith { res[it] ?: 0 }
     }
 
     @Transactional
@@ -105,10 +104,6 @@ class PersonAdapter(
 
     override fun getReferentOfGroup(groupId: UUID): Person {
         return personRepo.findReferentOfGroup(groupId).toPerson()
-    }
-
-    override fun listReferents(status: PersonStatus): List<Person> {
-        return personRepo.listReferents(status.toDB()).map { it.toPerson() }
     }
 
 }

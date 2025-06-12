@@ -1,10 +1,6 @@
 package org.breizhcamp.bilhed.infrastructure.db.model
 
-import jakarta.persistence.Entity
-import jakarta.persistence.EnumType
-import jakarta.persistence.Enumerated
-import jakarta.persistence.Id
-import jakarta.persistence.Table
+import jakarta.persistence.*
 import org.breizhcamp.bilhed.domain.entities.SmsStatus
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -14,6 +10,11 @@ data class ParticipationInfosDB(
 
     @Id
     val personId: UUID,
+
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "person_id")
+    val person: PersonDB,
 
     @Enumerated(EnumType.STRING)
     var participantSmsStatus: SmsStatus? = null,

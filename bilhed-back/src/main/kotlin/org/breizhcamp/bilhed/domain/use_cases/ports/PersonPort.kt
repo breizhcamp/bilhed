@@ -1,6 +1,7 @@
 package org.breizhcamp.bilhed.domain.use_cases.ports
 
 import org.breizhcamp.bilhed.application.dto.admin.UpdateEmailReq
+import org.breizhcamp.bilhed.domain.entities.Group
 import org.breizhcamp.bilhed.domain.entities.PassType
 import org.breizhcamp.bilhed.domain.entities.Person
 import org.breizhcamp.bilhed.domain.entities.PersonFilter
@@ -46,6 +47,4 @@ interface PersonPort {
     fun getMembersByGroup(id: UUID): List<Person>
 
     fun getReferentOfGroup(groupId: UUID): Person
-
-    fun listReferents(status: PersonStatus): List<Person>
 }

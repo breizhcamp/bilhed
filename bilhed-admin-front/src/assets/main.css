@@ -1,3 +1,6 @@
 #app {
   margin-top: 65px;
 }
+.table-transparent, .table-transparent td, .table-transparent th {
+  background-color: transparent!important;
+}

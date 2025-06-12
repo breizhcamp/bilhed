@@ -11,4 +11,6 @@ interface ParticipationInfosPort {
     fun save(partInfos: ParticipationInfos)
 
     fun list(): List<ParticipationInfos>
+
+    fun getByGroup(id: UUID): List<ParticipationInfos>
 }

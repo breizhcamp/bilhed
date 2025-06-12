@@ -4,6 +4,7 @@ import com.querydsl.jpa.JPQLQuery
 import org.breizhcamp.bilhed.domain.entities.PersonFilter
 import org.breizhcamp.bilhed.infrastructure.db.mappers.toDB
 import org.breizhcamp.bilhed.infrastructure.db.model.PersonDB
+import org.breizhcamp.bilhed.infrastructure.db.model.QGroupDB
 import org.breizhcamp.bilhed.infrastructure.db.model.QPersonDB
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 
@@ -11,15 +12,10 @@ class PersonRepoImpl: QuerydslRepositorySupport(PersonDB::class.java), PersonRep
 
     override fun filterPerson(filter: PersonFilter): List<PersonDB> {
         val p = QPersonDB.personDB
-        val query = from(p).where(p.status.eq(filter.status?.toDB()))
+        val g = QGroupDB.groupDB
+        val query = from(p).leftJoin(p.group, g).fetchJoin().where(p.status.eq(filter.status?.toDB()))
 
         filterPersonInfos(filter, query, p)
-//        filter.success?.let {
-//            if (it) query.where(p.participantNotificationConfirmSentDate.isNotNull)
-//            else query.where(p.participantNotificationConfirmSentDate.isNull)
-//        }
-//
-//        query.orderBy(p.pass.asc(), p.drawOrder.asc(), p.participationDate.asc())
 
         return query.fetch()
     }
@@ -29,6 +25,8 @@ class PersonRepoImpl: QuerydslRepositorySupport(PersonDB::class.java), PersonRep
         filter.firstname?.let { query.where(p.firstname.likeIgnoreCase("%$it%")) }
         filter.email?.let { query.where(p.email.likeIgnoreCase("%$it%")) }
         filter.pass?.let { query.where(p.pass.eq(it)) }
+        filter.payed?.let { query.where(p.payed.eq(it)) }
+        filter.groupId?.let { query.where(p.group.id.eq(it)) }
     }
 
 }

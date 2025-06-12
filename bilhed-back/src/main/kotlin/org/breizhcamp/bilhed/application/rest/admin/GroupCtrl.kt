@@ -10,7 +10,6 @@ import org.breizhcamp.bilhed.domain.entities.PersonStatus
 import org.breizhcamp.bilhed.domain.entities.ReferentInfos
 import org.breizhcamp.bilhed.domain.use_cases.GroupCrud
 import org.breizhcamp.bilhed.domain.use_cases.GroupStatus
-import org.breizhcamp.bilhed.domain.use_cases.PersonCrud
 import org.breizhcamp.bilhed.domain.use_cases.ReferentInfosCrud
 import org.springframework.web.bind.annotation.*
 import java.util.*
@@ -20,7 +19,6 @@ import java.util.Locale.getDefault
 @RequestMapping("/admin/groups")
 class GroupCtrl(
     val groupCrud: GroupCrud,
-    val personCrud: PersonCrud,
     val referentInfosCrud: ReferentInfosCrud,
     val groupStatus: GroupStatus,
 ) {
@@ -35,47 +33,46 @@ class GroupCtrl(
         return groupCrud.get(id).toDto()
     }
 
-    @GetMapping("/complete")
-    fun listGroupComplete(): List<GroupComplete> {
-        return groupCrud.list().map { GroupComplete(
-            it.toDto(),
-            ReferentDTO(
-                personCrud.get(it.referentId).toDto(),
-                referentInfosCrud.get(it.referentId).toDto(),
-
-                ),
-            personCrud.getCompanions(it.id, it.referentId).map { pers -> pers.toDto() },
-        ) }
-    }
-
     @GetMapping("/{id}/complete")
     fun getCompleteGroup(@PathVariable id: UUID): GroupComplete {
-        return groupCrud.get(id).let { GroupComplete(
-            it.toDto(),
-            ReferentDTO (
-                personCrud.get(it.referentId).toDto(),
-                referentInfosCrud.get(it.referentId).toDto(),
-            ),
-            personCrud.getCompanions(it.id, it.referentId).map { pers -> pers.toDto() },
-        )}
+        val groupEntry = groupCrud.extendedGroupById(id)
+        val ref = groupEntry.second.find { it.id == groupEntry.first.referentId } ?: throw IllegalStateException("Group [$id] has no referent.")
+
+        return GroupComplete(
+            group = groupEntry.first.toDto(),
+            referent = ReferentDTO(ref.toDto(), referentInfosCrud.get(ref.id).toDto()),
+            companions = groupEntry.second.filter { it.id != groupEntry.first.referentId }.map { it.toDto() }
+        )
     }
 
     @PostMapping("/complete/status")
     fun getCompleteGroupByStatus(@RequestBody req: StatusReq): List<GroupComplete> {
         val status = PersonStatus.valueOf(req.status.trim().uppercase(getDefault()))
 
-        val referents = personCrud.listReferents(status)
-        val groups = groupCrud.getGroups(referents.map { it.groupId })
+        val groupEntries = groupCrud.extendedGroupListByStatus(status)
 
-        return groups.map { gr -> GroupComplete(
-            gr.toDto(),
-            ReferentDTO(
-                referents.first { it.id == gr.referentId }.toDto(),
-                referentInfosCrud.get(gr.referentId).toDto(),
-            ),
-            personCrud.getCompanions(gr.id, gr.referentId).map { pers -> pers.toDto() },
-        ) }
+        val referentMap = groupEntries.mapNotNull { (group, people) ->
+            people.find { it.id == group.referentId }?.let { group.referentId to it }
+        }.toMap()
 
+        val refInfosMap = referentInfosCrud.get(referentMap.keys.toList())
+            .associateBy { it.personId }
+
+        return groupEntries.map { (group, members) ->
+            val referent = referentMap[group.referentId]
+                ?: error("Referent not found for group ${group.id}")
+            val referentInfos = refInfosMap[referent.id]
+                ?: error("Referent infos not found for person ${referent.id}")
+
+            GroupComplete(
+                group = group.toDto(),
+                referent = ReferentDTO(
+                    referent.toDto(),
+                    referentInfos.toDto()
+                ),
+                companions = members.filter { it.id != group.referentId }.map { it.toDto() }
+            )
+        }
     }
 
     @PostMapping("/levelUp")

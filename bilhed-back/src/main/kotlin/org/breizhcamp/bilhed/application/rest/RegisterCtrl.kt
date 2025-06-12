@@ -16,16 +16,15 @@ class RegisterCtrl(
 
     @PostMapping
     fun register(@RequestBody req: GroupRegisterReq): RegisterRes {
-        // TODO : quoi retourner ? av : id de l'inscrit
         req.validate(req.groupPayment)
-        val groupId = UUID.randomUUID()
+        val referentId = UUID.randomUUID()
+        val group = registration.registerGroup(req.toGroup(referentId))
 
-        val members = mutableListOf(req.referent.toPerson(groupId))
-        members.addAll(req.companions.map { it.toPerson(groupId, members.first().pass) })
-        val referent = registration.registerMembers(members)
+        val members = mutableListOf(req.referent.toPerson(group.id, referentId))
+        members.addAll(req.companions.map { it.toPerson(group.id, members.first().pass) })
+        registration.registerMembers(members)
 
-        registration.registerGroup(req.toGroup(referent.id, groupId))
-        return RegisterRes(referent.id)
+        return RegisterRes(referentId)
     }
 
     @GetMapping("/{id}")
@@ -49,7 +48,7 @@ class RegisterCtrl(
     }
 
     @ExceptionHandler(EntityNotFoundException::class) @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    fun handleENFE(e: EntityNotFoundException) = ErrorRes("Une erreur est survenue")
+    fun handleENFE() = ErrorRes("Une erreur est survenue")
 
     @ExceptionHandler(IllegalArgumentException::class) @ResponseStatus(HttpStatus.BAD_REQUEST)
     fun handleIAE(e: IllegalArgumentException) = ErrorRes(e.message ?: "Une erreur est survenue")
@@ -65,7 +64,7 @@ class RegisterCtrl(
         groupId
     )
 
-    private fun ReferentRegisterReq.toPerson(groupId: UUID, id: UUID = UUID.randomUUID()) = Person(
+    private fun ReferentRegisterReq.toPerson(groupId: UUID, id: UUID) = Person(
         id,
         lastname.trim(),
         firstname.trim(),
@@ -79,5 +78,5 @@ class RegisterCtrl(
 
     private fun Referent.toStateRes() = RegisterStateRes(person.localPhone(), referentInfos.nbSmsSent)
 
-    private fun GroupRegisterReq.toGroup(referentId: UUID, groupId: UUID) = Group(groupId, referentId, groupPayment)
+    private fun GroupRegisterReq.toGroup(referentId: UUID, groupId: UUID = UUID.randomUUID()) = Group(groupId, referentId, groupPayment)
 }

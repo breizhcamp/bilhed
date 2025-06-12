@@ -34,7 +34,7 @@
         <!-- Bouton accordéon custom -->
         <button
             type="button"
-            class="btn flex-grow-1 text-start"
+            class="btn flex-grow-1 text-start me-2"
             :class="{ 'no-pointer-events': g.companions.length === 0 }"
             :data-bs-toggle="g.companions.length > 0 ? 'collapse' : null"
             :data-bs-target="`#collapseG${g.group.id}`"
@@ -42,9 +42,8 @@
             :aria-controls="`collapseG${g.group.id}`"
             @click="g.companions.length > 0 ? animateChevron(`chevron-${g.group.id}`) : null"
         >
-<!--          d-flex justify-content-between-->
-          <span class=" row">
-            <i :class="['bi', 'transition-icon', 'col-md-auto', g.companions.length > 0 ? 'bi-chevron-down' : 'bi-dash']" :id="`chevron-${g.group.id}`"></i>
+          <span class="row">
+            <i :class="g.companions.length > 0 ? 'bi-chevron-down' : 'bi-dash'" class="bi transition-icon col-md-auto" :id="`chevron-${g.group.id}`"></i>
             <span class="col-md-1">{{ g.referent.person.lastname }}</span>
             <span class="col-md-1">{{ g.referent.person.firstname }}</span>
             <span class="col-md-3">{{ g.referent.person.email }}</span>
@@ -53,9 +52,10 @@
             <span class="col-md-3"><DateView :date="g.referent.referentInfos.registrationDate"/></span>
           </span>
         </button>
-        <div>
+        <div class="d-flex">
           <button type="button" class="btn btn-link btn-sm" title="Send SMS reminder" @click="sendReminder(g.referent.person.id, 'sms')" :disabled="loading"><BiChatText/></button>
           <button type="button" class="btn btn-link btn-sm ms-1" title="Send email reminder" @click="sendReminder(g.referent.person.id, 'email')" :disabled="loading"><BiEnvelope/></button>
+          <router-link :to="`/group/${g.group.id}`" class="nav-link ms-1 d-flex align-items-center"><BiPencil/></router-link>
         </div>
       </div>
 
@@ -63,25 +63,24 @@
           :id="`collapseG${g.group.id}`"
           class="accordion-collapse collapse"
           :aria-labelledby="`headingG${g.group.id}`"
-          data-bs-parent="#groupAccordion"
       >
         <div class="accordion-body py-1">
 
-          <table class="table table-sm bg-transparent">
+          <table class="table table-sm table-transparent">
             <thead>
             <tr>
-              <th>Nom</th>
-              <th>Prénom</th>
-              <th>Email</th>
-              <th v-if="!g.group.groupPayment">Téléphone</th>
+              <th scope="col">Nom</th>
+              <th scope="col">Prénom</th>
+              <th scope="col">Email</th>
+              <th scope="col" v-if="!g.group.groupPayment">Téléphone</th>
             </tr>
             </thead>
             <tbody>
             <tr v-for="comp in g.companions" :key="comp.id">
-              <td>{{ comp.lastname }}</td>
-              <td>{{ comp.firstname }}</td>
-              <td>{{ comp.email }}</td>
-              <td v-if="!g.group.groupPayment">{{ comp.telephone }}</td>
+              <td class="w-25">{{ comp.lastname }}</td>
+              <td class="w-25">{{ comp.firstname }}</td>
+              <td class="w-25">{{ comp.email }}</td>
+              <td class="w-25" v-if="!g.group.groupPayment">{{ comp.telephone }}</td>
             </tr>
             </tbody>
           </table>
@@ -105,13 +104,14 @@ import axios from 'axios'
 import DateView from '@/components/DateView.vue'
 import BiChatText from 'bootstrap-icons/icons/chat-text.svg?component'
 import BiEnvelope from 'bootstrap-icons/icons/envelope.svg?component'
+import BiPencil from 'bootstrap-icons/icons/pencil.svg?component'
 import Pass from "@/components/Pass.vue";
 import {toastError, toastSuccess, toastWarning} from "@/utils/ReminderUtils";
 import type {GroupComplete} from "@/dto/Group";
 
 export default defineComponent({
   name: "RegisteredView",
-  components: {Pass, DateView, BiChatText, BiEnvelope },
+  components: {Pass, DateView, BiChatText, BiEnvelope, BiPencil},
 
   data() {
     return {
@@ -193,13 +193,6 @@ button.btn-sm {
 }
 .rotate-180 {
   transform: rotate(180deg);
-}
-table.bg-transparent thead,
-table.bg-transparent tbody,
-table.bg-transparent tr,
-table.bg-transparent th,
-table.bg-transparent td {
-  background-color: transparent !important;
 }
 .btn.no-pointer-events {
   pointer-events: none;

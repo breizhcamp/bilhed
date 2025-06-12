@@ -11,5 +11,7 @@ interface ReferentInfosPort {
 
     fun get(id: UUID): ReferentInfos
 
+    fun get(ids: List<UUID>): List<ReferentInfos>
+
     fun resetSmsCount(id: UUID)
 }

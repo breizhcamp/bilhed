@@ -3,7 +3,9 @@ package org.breizhcamp.bilhed.infrastructure.db.model
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
+import jakarta.persistence.FetchType
 import jakarta.persistence.Id
+import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
 import org.breizhcamp.bilhed.domain.entities.PassType
 import java.util.UUID
@@ -25,7 +27,9 @@ data class PersonDB(
     val pass: PassType,
 
     val payed: Boolean = false,
-    val groupId: UUID
+
+    @OneToOne(fetch = FetchType.LAZY)
+    val group: GroupDB
 )
 
 enum class PersonDBStatus {

@@ -30,5 +30,8 @@ class ReferentInfosAdapter(
         referentInfosRepo.resetSmsCount(id)
     }
 
+    override fun get(ids: List<UUID>): List<ReferentInfos> {
+        return referentInfosRepo.findAllById(ids).map { it.toReferentInfos() }
+    }
 
 }

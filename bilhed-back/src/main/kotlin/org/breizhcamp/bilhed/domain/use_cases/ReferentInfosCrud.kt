@@ -10,4 +10,6 @@ class ReferentInfosCrud(
     val referentInfosPort: ReferentInfosPort
 ) {
     fun get(id: UUID): ReferentInfos = referentInfosPort.get(id)
+
+    fun get(ids: List<UUID>): List<ReferentInfos> = referentInfosPort.get(ids)
 }

@@ -11,8 +11,6 @@ interface GroupRepo: JpaRepository<GroupDB, UUID> {
 
     fun countByReferentId(referentId: UUID): Int
 
-    fun findByReferentId(referentId: UUID): GroupDB?
-
     @Query("SELECT g FROM GroupDB g WHERE g.id in (:ids)")
     fun findGroups(ids: List<UUID>): List<GroupDB>
 }

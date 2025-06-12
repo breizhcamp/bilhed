@@ -30,8 +30,8 @@
     </table>
   </section>
   <section :style="`background-color: ${bgColor}`" class="rounded p-3 mb-3" >
-    <h2>Statut {{ person._status }}</h2>
-    <table v-if="person._status === PersonStatus.REGISTERED && registered" class="table table-borderless m-0 table-transparent">
+    <h2>Statut {{ person.status }}</h2>
+    <table v-if="person.status === PersonStatus.REGISTERED && registered" class="table table-borderless m-0 table-transparent">
       <thead>
         <tr>
           <th scope="col">Date d'inscription</th>
@@ -55,7 +55,7 @@
         </tr>
       </tbody>
     </table>
-    <table v-if="person._status === PersonStatus.PARTICIPANT" class="table table-borderless m-0 table-transparent">
+    <table v-if="person.status === PersonStatus.PARTICIPANT" class="table table-borderless m-0 table-transparent">
       <thead>
       <tr>
         <th scope="col">Date de participation</th>
@@ -71,7 +71,7 @@
       </tr>
       </tbody>
     </table>
-    <table v-if="person._status === PersonStatus.ATTENDEE || person._status === PersonStatus.ATTENDEE_FULL" class="table table-borderless m-0 table-transparent">
+    <table v-if="person.status === PersonStatus.ATTENDEE || person.status === PersonStatus.ATTENDEE_FULL" class="table table-borderless m-0 table-transparent">
       <thead>
       <tr>
         <th scope="col">Entreprise</th>
@@ -134,12 +134,12 @@
     </table>
   </section>
   <nav v-if="person" class="navbar sticky-bottom bg-light">
-    <div v-if="person._status === PersonStatus.REGISTERED">
+    <div v-if="person.status === PersonStatus.REGISTERED">
       <button type="button" class="btn btn-outline-primary me-1" @click="sendRegisteredReminder(person.id, 'sms')" :disabled="loading"><BiChatText/> Remind SMS success</button>
       <button type="button" class="btn btn-outline-primary me-4" @click="sendRegisteredReminder(person.id, 'email')" :disabled="loading"><BiEnvelope/> Remind  Email success</button>
       <button type="button" class="btn btn-primary" v-on:click="levelUp()" :disabled="loading">Level up to participant</button>
     </div>
-    <div v-if="person._status === PersonStatus.PARTICIPANT" class="container-fluid">
+    <div v-if="person.status === PersonStatus.PARTICIPANT" class="container-fluid">
       <div>
         <button type="button" class="btn btn-primary me-1" @click="notify('success')" :disabled="loading"><BiSendCheck/> Notify success</button>
         <button type="button" class="btn btn-warning me-1" @click="notify('waiting')" :disabled="loading"><BiSendExclamation/> Notify waiting</button>
@@ -152,7 +152,7 @@
 
       </div>
     </div>
-    <div v-if="person._status === PersonStatus.ATTENDEE || person._status === PersonStatus.ATTENDEE_FULL" class="container-fluid">
+    <div v-if="person.status === PersonStatus.ATTENDEE || person.status === PersonStatus.ATTENDEE_FULL" class="container-fluid">
       <div>
         <button v-if="!attendeeFull?.payed || !attendee?.payed"
                 type="button"
@@ -186,6 +186,7 @@ import type {Participant} from "@/dto/Participant";
 import type {Attendee, AttendeeData} from "@/dto/Attendee";
 import {toastSuccess, toastWarning} from "@/utils/ReminderUtils";
 import type {Reminder} from "@/dto/Reminder";
+import {getBoolStr} from "@/utils/Global";
 
 export default defineComponent({
   name: "PersonView",
@@ -203,7 +204,7 @@ export default defineComponent({
       return this.person as Attendee
     },
     attendeeFull(): AttendeeData | undefined {
-      return this.person._status === PersonStatus.ATTENDEE_FULL ? this.person as AttendeeData : undefined
+      return this.person.status === PersonStatus.ATTENDEE_FULL ? this.person as AttendeeData : undefined
     }
   },
   components: {DateView, Pass, BiChatText, BiSendCheck, BiSendX, BiArrowUp, BiSendExclamation, BiEnvelope},
@@ -224,10 +225,11 @@ export default defineComponent({
   },
 
   methods: {
+    getBoolStr,
     load() {
       axios.get(`/person/${this.$route.params.id}`).then(personRes => {
         this.person = personRes.data
-        switch (this.person._status) {
+        switch (this.person.status) {
           case PersonStatus.REGISTERED:
             this.bgColor = "#EACBEA"
             break;
@@ -244,10 +246,6 @@ export default defineComponent({
       axios.get(`/person/${this.$route.params.id}/reminders`).then(rem => {
         this.reminders = rem.data
       })
-    },
-
-    getBoolStr(state: boolean | undefined): string {
-      return state ? 'oui' : 'non'
     },
 
     updatePerson() {
@@ -282,7 +280,7 @@ export default defineComponent({
         return
 
       this.loading = true
-      const status = this.person._status === PersonStatus.PARTICIPANT ? 'participants' : 'attendees'
+      const status = this.person.status === PersonStatus.PARTICIPANT ? 'participants' : 'attendees'
       axios.post(`${status}/notif/${type}`, [this.person.id]).then(() => {
         this.load()
         toastSuccess("Notification envoyée.")
@@ -297,7 +295,7 @@ export default defineComponent({
 
       this.loading = true
       let url = ""
-      switch (this.person._status) {
+      switch (this.person.status) {
         case PersonStatus.REGISTERED:
           url = "/registered/levelUp"
           break;
@@ -340,7 +338,5 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.table-transparent, .table-transparent td, .table-transparent th {
-  background-color: transparent!important;
-}
+
 </style>

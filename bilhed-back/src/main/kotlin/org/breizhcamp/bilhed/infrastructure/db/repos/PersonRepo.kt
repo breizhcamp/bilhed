@@ -39,10 +39,8 @@ interface PersonRepo: JpaRepository<PersonDB, UUID>, PersonRepoCustom {
     fun countByEmailOrTelephone(email: String, telephone: String?): Int
     fun countByEmail(email: String): Int
 
-//    @Query("select new kotlin.Pair(p.pass, COUNT(p)) from PersonDB p WHERE org.breizhcamp.bilhed.infrastructure.db.model.PersonDBStatus.PARTICIPANT  " +
-//            "AND p.participantConfirmationDate is not null GROUP BY p.pass")
     @Query("select p.pass, count(p) from PersonDB p where p.id in ( " +
-            "    select pi.personId " +
+            "    select pi.person " +
             "    from ParticipationInfosDB pi " +
             "    where pi.participantConfirmationDate is not null ) " +
             "group by p.pass")
@@ -56,14 +54,14 @@ interface PersonRepo: JpaRepository<PersonDB, UUID>, PersonRepoCustom {
     @Query("UPDATE PersonDB p SET p.email = :email WHERE p.id = :id")
     fun updateEmail(id: UUID, email: String)
 
-    @Query("SELECT p FROM PersonDB p WHERE p.groupId = :groupId AND p.id <> :referentId")
+    @Query("SELECT p FROM PersonDB p JOIN FETCH p.group WHERE p.group.id = :groupId AND p.id <> :referentId")
     fun getCompanions(groupId: UUID, referentId: UUID): List<PersonDB>
 
     fun findByGroupId(id: UUID): List<PersonDB>
 
-    @Query("SELECT p FROM PersonDB p WHERE p.id = ( SELECT g.referentId FROM GroupDB g WHERE g.id = :groupId )")
+    @Query("SELECT p FROM PersonDB p JOIN FETCH p.group WHERE p.id = p.group.referentId")
     fun findReferentOfGroup(groupId: UUID): PersonDB
 
-    @Query("SELECT p FROM PersonDB p WHERE p.status = :status AND p.id in ( SELECT g.referentId FROM GroupDB g)")
+    @Query("SELECT p FROM PersonDB p JOIN FETCH p.group WHERE p.status = :status AND p.id = p.group.referentId")
     fun listReferents(status: PersonDBStatus): List<PersonDB>
 }
