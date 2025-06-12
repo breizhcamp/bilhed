@@ -1,11 +1,9 @@
 package org.breizhcamp.bilhed.domain.use_cases.ports
 
 import org.breizhcamp.bilhed.application.dto.admin.UpdateEmailReq
-import org.breizhcamp.bilhed.domain.entities.Group
 import org.breizhcamp.bilhed.domain.entities.PassType
 import org.breizhcamp.bilhed.domain.entities.Person
 import org.breizhcamp.bilhed.domain.entities.PersonFilter
-import org.breizhcamp.bilhed.domain.entities.PersonStatus
 import java.util.*
 
 interface PersonPort {

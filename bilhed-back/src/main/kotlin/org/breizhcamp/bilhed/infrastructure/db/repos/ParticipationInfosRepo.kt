@@ -1,6 +1,5 @@
 package org.breizhcamp.bilhed.infrastructure.db.repos
 
-import org.breizhcamp.bilhed.domain.entities.PassType
 import org.breizhcamp.bilhed.infrastructure.db.model.ParticipationInfosDB
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query

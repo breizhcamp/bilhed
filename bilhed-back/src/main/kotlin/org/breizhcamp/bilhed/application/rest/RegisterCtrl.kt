@@ -58,7 +58,7 @@ class RegisterCtrl(
         lastname.trim(),
         firstname.trim(),
         PersonStatus.REGISTERED,
-        telephone,
+        internationalPhone() ,
         email,
         pass,
         groupId
