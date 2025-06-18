@@ -10,8 +10,5 @@ class PersonFilter (
     val pass: PassType? = null,
     val payed: Boolean? = null,
     val groupId: UUID? = null,
-) {
-    companion object {
-        fun empty() = PersonFilter(null, null, null, null, null, null, null)
-    }
-}
+    val drawn: Boolean? = null,
+)

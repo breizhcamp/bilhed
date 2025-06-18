@@ -1,28 +1,28 @@
 package org.breizhcamp.bilhed.domain.use_cases
 
 import mu.KotlinLogging
-import org.breizhcamp.bilhed.domain.use_cases.ports.PersonPort
+import org.breizhcamp.bilhed.domain.use_cases.ports.GroupPort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 private val logger = KotlinLogging.logger {}
 
 @Service
-class ParticipantDraw(
-    private val personPort: PersonPort,
+class GroupDraw(
+    private val groupPort: GroupPort,
 ) {
 
     @Transactional
     fun draw() {
-        personPort.listIdsWithNoDraw().forEach {
+        groupPort.listIdsWithNoDraw().forEach {
             val ids = it.value.shuffled()
-            logger.info { "Drawing [${ids.size}] participants for [${it.key}]" }
+            logger.info { "Drawing [${ids.size}] groups for [${it.key}]" }
 
             ids.forEachIndexed { index, id ->
-                personPort.updateDrawOrder(id, index)
+                groupPort.updateDrawOrder(id, index)
             }
 
-            logger.info { "[${ids.size}] participants drawn" }
+            logger.info { "[${ids.size}] groups drawn" }
         }
     }
 }

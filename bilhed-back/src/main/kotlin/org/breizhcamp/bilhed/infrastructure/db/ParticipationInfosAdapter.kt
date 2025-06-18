@@ -36,4 +36,12 @@ class ParticipationInfosAdapter(
         return partInfosRepo.findByGroupId(id).map { it.toParticipationInfos() }
     }
 
+    override fun getByGroups(ids: List<UUID>): List<ParticipationInfos> {
+        return partInfosRepo.findAllByGroupIds(ids).map { it.toParticipationInfos() }
+    }
+
+    override fun existsByPersonId(id: UUID): Boolean {
+        return partInfosRepo.existsById(id)
+    }
+
 }

@@ -14,7 +14,7 @@ const routes = [
     component: RegisteredView
   },{
     path: '/participants',
-    name: 'persons',
+    name: 'participants',
     component: ParticipantView
   },{
     path: '/attendees',

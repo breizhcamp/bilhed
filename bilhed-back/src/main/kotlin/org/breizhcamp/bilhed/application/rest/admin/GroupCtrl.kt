@@ -1,19 +1,18 @@
 package org.breizhcamp.bilhed.application.rest.admin
 
-import org.breizhcamp.bilhed.application.dto.ReferentDTO
 import org.breizhcamp.bilhed.application.dto.ReferentInfosDTO
 import org.breizhcamp.bilhed.application.dto.admin.GroupComplete
 import org.breizhcamp.bilhed.application.dto.admin.GroupDTO
-import org.breizhcamp.bilhed.application.dto.admin.StatusReq
 import org.breizhcamp.bilhed.domain.entities.Group
-import org.breizhcamp.bilhed.domain.entities.PersonStatus
+import org.breizhcamp.bilhed.domain.entities.PersonFilter
 import org.breizhcamp.bilhed.domain.entities.ReferentInfos
 import org.breizhcamp.bilhed.domain.use_cases.GroupCrud
+import org.breizhcamp.bilhed.domain.use_cases.GroupDraw
 import org.breizhcamp.bilhed.domain.use_cases.GroupStatus
 import org.breizhcamp.bilhed.domain.use_cases.ReferentInfosCrud
+import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import java.util.*
-import java.util.Locale.getDefault
 
 @RestController
 @RequestMapping("/admin/groups")
@@ -21,6 +20,7 @@ class GroupCtrl(
     val groupCrud: GroupCrud,
     val referentInfosCrud: ReferentInfosCrud,
     val groupStatus: GroupStatus,
+    val groupDraw: GroupDraw
 ) {
 
     @GetMapping
@@ -40,16 +40,14 @@ class GroupCtrl(
 
         return GroupComplete(
             group = groupEntry.first.toDto(),
-            referent = ReferentDTO(ref.toDto(), referentInfosCrud.get(ref.id).toDto()),
-            companions = groupEntry.second.filter { it.id != groupEntry.first.referentId }.map { it.toDto() }
+            referentInfos = referentInfosCrud.get(ref.id).toDto(),
+            members = groupEntry.second.map { it.toDto() }
         )
     }
 
-    @PostMapping("/complete/status")
-    fun getCompleteGroupByStatus(@RequestBody req: StatusReq): List<GroupComplete> {
-        val status = PersonStatus.valueOf(req.status.trim().uppercase(getDefault()))
-
-        val groupEntries = groupCrud.extendedGroupListByStatus(status)
+    @PostMapping("/complete")
+    fun getCompleteGroupList(@RequestBody filter: PersonFilter): List<GroupComplete> {
+        val groupEntries = groupCrud.extendedGroupList(filter)
 
         val referentMap = groupEntries.mapNotNull { (group, people) ->
             people.find { it.id == group.referentId }?.let { group.referentId to it }
@@ -66,18 +64,21 @@ class GroupCtrl(
 
             GroupComplete(
                 group = group.toDto(),
-                referent = ReferentDTO(
-                    referent.toDto(),
-                    referentInfos.toDto()
-                ),
-                companions = members.filter { it.id != group.referentId }.map { it.toDto() }
+                referentInfos = referentInfos.toDto(),
+                members = members.map { it.toDto() }
             )
         }
     }
 
     @PostMapping("/levelUp")
     fun levelUp(@RequestBody ids: List<UUID>) {
+        // TODO a remplacer par le level up sur les persons
         groupStatus.levelUp(ids)
+    }
+
+    @PostMapping("/draw") @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun draw() {
+        groupDraw.draw()
     }
 }
 

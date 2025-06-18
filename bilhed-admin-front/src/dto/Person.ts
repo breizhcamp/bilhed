@@ -7,7 +7,8 @@ export interface Person {
     pass: string
     status: PersonStatus
     groupId: string
-    payed: boolean
+    payed: boolean,
+    checked: boolean
 }
 
 export interface ReferentInfos {
@@ -19,11 +20,6 @@ export interface ReferentInfos {
     smsError: string,
     token: string,
     nbTokenTries: number
-}
-
-export interface Referent {
-    person: Person,
-    referentInfos: ReferentInfos
 }
 
 export enum PersonStatus {

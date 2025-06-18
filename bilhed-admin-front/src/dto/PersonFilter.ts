@@ -1,8 +1,9 @@
-export interface ParticipantFilter {
+export interface PersonFilter {
+  status?: string
   lastname?: string
   firstname?: string
   email?: string
   pass?: string
-  success?: boolean
+  drawn?: boolean
   payed?: boolean
 }

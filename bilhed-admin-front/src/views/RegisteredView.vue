@@ -28,33 +28,33 @@
       <div class="d-flex align-items-center p-2">
         <!-- Checkbox -->
         <div class="form-check">
-          <input class="form-check-input" type="checkbox" :id="`checkbox${g.group.id}`" v-model="g.checked"/>
+          <input class="form-check-input" type="checkbox" :id="`checkbox${g.group.id}`" v-model="g.members[0].checked" @change="checkGroup(g.group.id, g.members[0].checked)" />
         </div>
 
         <!-- Bouton accordéon custom -->
         <button
             type="button"
             class="btn flex-grow-1 text-start me-2"
-            :class="{ 'no-pointer-events': g.companions.length === 0 }"
-            :data-bs-toggle="g.companions.length > 0 ? 'collapse' : null"
+            :class="{ 'no-pointer-events': g.members.length === 1 }"
+            :data-bs-toggle="g.members.length > 1 ? 'collapse' : null"
             :data-bs-target="`#collapseG${g.group.id}`"
             aria-expanded="false"
             :aria-controls="`collapseG${g.group.id}`"
-            @click="g.companions.length > 0 ? animateChevron(`chevron-${g.group.id}`) : null"
+            @click="g.members.length > 1 ? animateChevron(`chevron-${g.group.id}`) : null"
         >
           <span class="row">
-            <i :class="g.companions.length > 0 ? 'bi-chevron-down' : 'bi-dash'" class="bi transition-icon col-md-auto" :id="`chevron-${g.group.id}`"></i>
-            <span class="col-md-1">{{ g.referent.person.lastname }}</span>
-            <span class="col-md-1">{{ g.referent.person.firstname }}</span>
-            <span class="col-md-3">{{ g.referent.person.email }}</span>
-            <span class="col-md-2">{{ g.referent.person.telephone }}</span>
-            <span class="col-md-auto"><Pass :pass="g.referent.person.pass"/></span>
-            <span class="col-md-3"><DateView :date="g.referent.referentInfos.registrationDate"/></span>
+            <i :class="g.members.length > 1 ? 'bi-chevron-down' : 'bi-dash'" class="bi transition-icon col-md-auto" :id="`chevron-${g.group.id}`"></i>
+            <span class="col-md-1">{{ g.members[0].lastname }}</span>
+            <span class="col-md-1">{{ g.members[0].firstname }}</span>
+            <span class="col-md-3">{{ g.members[0].email }}</span>
+            <span class="col-md-2">{{ g.members[0].telephone }}</span>
+            <span class="col-md-auto"><Pass :pass="g.members[0].pass"/></span>
+            <span class="col-md-3"><DateView :date="g.referentInfos.registrationDate"/></span>
           </span>
         </button>
         <div class="d-flex">
-          <button type="button" class="btn btn-link btn-sm" title="Send SMS reminder" @click="sendReminder(g.referent.person.id, 'sms')" :disabled="loading"><BiChatText/></button>
-          <button type="button" class="btn btn-link btn-sm ms-1" title="Send email reminder" @click="sendReminder(g.referent.person.id, 'email')" :disabled="loading"><BiEnvelope/></button>
+          <button type="button" class="btn btn-link btn-sm" title="Send SMS reminder" @click="sendReminder(g.members[0].id, 'sms')" :disabled="loading"><BiChatText/></button>
+          <button type="button" class="btn btn-link btn-sm ms-1" title="Send email reminder" @click="sendReminder(g.members[0].id, 'email')" :disabled="loading"><BiEnvelope/></button>
           <router-link :to="`/group/${g.group.id}`" class="nav-link ms-1 d-flex align-items-center"><BiPencil/></router-link>
         </div>
       </div>
@@ -76,7 +76,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr v-for="comp in g.companions" :key="comp.id">
+            <tr v-for="comp in g.members.slice(1)" :key="comp.id">
               <td class="w-25">{{ comp.lastname }}</td>
               <td class="w-25">{{ comp.firstname }}</td>
               <td class="w-25">{{ comp.email }}</td>
@@ -108,6 +108,7 @@ import BiPencil from 'bootstrap-icons/icons/pencil.svg?component'
 import Pass from "@/components/Pass.vue";
 import {toastError, toastSuccess, toastWarning} from "@/utils/ReminderUtils";
 import type {GroupComplete} from "@/dto/Group";
+import {PersonStatus} from "@/dto/Person";
 
 export default defineComponent({
   name: "RegisteredView",
@@ -127,13 +128,13 @@ export default defineComponent({
 
   watch: {
     allChecked() {
-      this.groups.forEach((g) => g.checked = this.allChecked)
+      this.groups.forEach((g) => g.members.forEach(m => m.checked = this.allChecked))
     }
   },
 
   methods: {
     load() {
-      axios.post('/groups/complete/status', {status: "registered"}).then( response => {
+      axios.post('/groups/complete', {status: PersonStatus.REGISTERED}).then( response => {
         this.groups = response.data
       })
     },
@@ -150,7 +151,7 @@ export default defineComponent({
       // @ts-ignore
       data[type] = true
 
-      axios.post(`/registered/${id}/reminder`, data).then(() => {
+      axios.post(`/notifs/registered/${id}/reminder`, data).then(() => {
         this.load()
       }).finally(() => {
         this.loading = false
@@ -158,7 +159,9 @@ export default defineComponent({
     },
 
     levelUp() {
-      const ids = this.groups.filter((g) => g.checked).map((g) => g.group.id)
+      const ids = this.groups.flatMap(g => g.members.filter(m => m.checked)).map(m => m.id);
+
+      // const ids = this.groups.filter((g) => g.members.filter(m => m.checked)).map((g) => g.group.id)
       if (ids.length === 0) {
         toastWarning("Aucun groupe sélectionné")
         return
@@ -176,6 +179,11 @@ export default defineComponent({
       }).finally(() => {
         this.loading = false
       })
+    },
+
+    checkGroup(groupId: string, checked: boolean) {
+      const group = this.groups.find(g => g.group.id === groupId)
+      if (group) group.members.forEach(m => m.checked = checked)
     }
   }
 })

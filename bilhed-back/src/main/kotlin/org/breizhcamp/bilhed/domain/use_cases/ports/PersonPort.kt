@@ -4,11 +4,10 @@ import org.breizhcamp.bilhed.application.dto.admin.UpdateEmailReq
 import org.breizhcamp.bilhed.domain.entities.PassType
 import org.breizhcamp.bilhed.domain.entities.Person
 import org.breizhcamp.bilhed.domain.entities.PersonFilter
+import org.breizhcamp.bilhed.domain.entities.PersonStatus
 import java.util.*
 
 interface PersonPort {
-
-    fun list(): List<Person>
 
     fun filter(filter: PersonFilter): List<Person>
 
@@ -16,17 +15,11 @@ interface PersonPort {
 
     fun listTopDrawByPassWithLimit(pass: PassType, limit: Int): List<Person>
 
-    fun listIdsWithNoDraw(): Map<PassType, List<UUID>>
-
-    fun updateDrawOrder(id: UUID, drawOrder: Int)
-
     fun getAlreadyNotifCount(): Map<PassType, Int>
 
     fun updateEmail(id: UUID, updateEmailReq: UpdateEmailReq)
 
-    fun levelUpToAttendee(id: UUID): Person
-
-    fun levelUpToReleased(id: UUID)
+    fun levelUpTo(id: UUID, newStatus: PersonStatus): Person
 
     fun levelUpToParticipant(id: UUID)
 

@@ -2,9 +2,9 @@ package org.breizhcamp.bilhed.infrastructure.db
 
 import jakarta.persistence.EntityNotFoundException
 import org.breizhcamp.bilhed.domain.entities.Group
+import org.breizhcamp.bilhed.domain.entities.PassType
 import org.breizhcamp.bilhed.domain.entities.Person
 import org.breizhcamp.bilhed.domain.entities.PersonFilter
-import org.breizhcamp.bilhed.domain.entities.PersonStatus
 import org.breizhcamp.bilhed.domain.use_cases.ports.GroupPort
 import org.breizhcamp.bilhed.infrastructure.db.mappers.toDB
 import org.breizhcamp.bilhed.infrastructure.db.mappers.toGroup
@@ -40,23 +40,41 @@ class GroupAdapter (
         return groupRepo.findAll().map { it.toGroup() }
     }
 
-    override fun findGroups(ids: List<UUID>): List<Group> {
-        return groupRepo.findGroups(ids).map { it.toGroup() }
-    }
+    override fun extendedGroupList(filter: PersonFilter): Map<Group, List<Person>> {
+        // even if one person is filtered, we want all of their member with the same status
+        val persons = personRepo.filterPerson(filter)
+        val allPeople = persons.toMutableSet()
+        persons.forEach { allPeople.addAll(personRepo.findByGroupIdAndStatus(it.group.id, it.status)) }
 
-    override fun extendedGroupListByStatus(status: PersonStatus): Map<Group, List<Person>> {
-        val persons = personRepo.filterPerson(PersonFilter(status = status))
-
-        return persons
+        return allPeople
             .groupBy { it.group.toGroup() }
-            .mapValues { (_, people) -> people.map { it.toPerson() } }
+            .mapValues { (group, people) ->
+                val personList = people.map { it.toPerson() }
+                val referent = personList.firstOrNull { it.id == group.referentId }
+                    ?: error("Referent with id ${group.referentId} not found in group $group")
+                listOf(referent) + personList.filter { it.id != referent.id }
+            }
     }
 
-    override fun extendedGroupByStatus(groupId: UUID): Pair<Group, List<Person>> {
+    override fun extendedGroupById(groupId: UUID): Pair<Group, List<Person>> {
         val persons = personRepo.filterPerson(PersonFilter(groupId = groupId))
         val group = persons.firstOrNull()?.group?.toGroup()
             ?: throw EntityNotFoundException("Unable to find group [$groupId]")
 
-        return group to persons.map { it.toPerson() }
+        val referent = persons.firstOrNull { it.id == group.referentId }
+            ?: error("Referent with id ${group.referentId} not found among group members")
+
+        val orderedPersons= listOf(referent) + persons.filter { it.id != referent.id }
+        return group to orderedPersons.map { it.toPerson() }
+    }
+
+    override fun listIdsWithNoDraw(): Map<PassType, List<UUID>> {
+        return groupRepo.listGroupWithNoDraw()
+            .distinctBy { it.group.id to it.pass }
+            .groupBy({ it.pass }, { it.group.id })
+    }
+
+    override fun updateDrawOrder(id: UUID, drawOrder: Int) {
+        groupRepo.updateDrawOrder(id, drawOrder)
     }
 }

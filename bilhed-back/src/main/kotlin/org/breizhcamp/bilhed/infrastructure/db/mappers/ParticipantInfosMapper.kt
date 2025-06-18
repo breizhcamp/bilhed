@@ -6,7 +6,6 @@ import org.breizhcamp.bilhed.infrastructure.db.model.PersonDB
 
 fun ParticipationInfos.toDB(person: PersonDB) = ParticipationInfosDB(
     person = person,
-    personId = person.id,
     participantSmsStatus = smsStatus,
     participantNbSmsSent = nbSmsSent,
     participantSmsError = smsError,

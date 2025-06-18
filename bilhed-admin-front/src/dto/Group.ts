@@ -1,4 +1,4 @@
-import type {Person, Referent} from "@/dto/Person";
+import type {Person, ReferentInfos} from "@/dto/Person";
 
 export interface Group {
     id: string,
@@ -9,7 +9,7 @@ export interface Group {
 
 export interface GroupComplete {
     group: Group,
-    referent: Referent,
-    companions: Person[]
-    checked: boolean
+    referentInfos: ReferentInfos,
+    members: Person[]
+    // checked: boolean
 }

@@ -8,7 +8,6 @@ import org.breizhcamp.bilhed.domain.use_cases.ports.*
 import org.breizhcamp.bilhed.infrastructure.TimeService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.ZonedDateTime
 import java.util.*
 
 private val logger = KotlinLogging.logger {}
@@ -28,7 +27,7 @@ class PersonRelease(
         val attendees = personPort.get(ids)
         logger.info { "Release [${attendees.size}] attendees: " + attendees.joinToString { "${it.lastname} ${it.firstname}" } }
         ticketPort.delete(attendees)
-        attendees.forEach { releaseParticipant(it.id) }
+        attendees.forEach { release(it.id) }
         logger.info { "[${attendees.size}] Attendees released"}
     }
 
@@ -42,7 +41,7 @@ class PersonRelease(
 
             val deadline = it.notificationConfirmSentDate.plusHours(timeReminderPar)
             if (deadline.isBefore(now)) {
-                releaseParticipant(it.personId)
+                release(it.personId)
                 logger.info { "Participant [${it.personId}] released, limit was $deadline" }
             }
         }
@@ -86,9 +85,7 @@ class PersonRelease(
         return personPort.getCompanions(group.id, group.referentId).filter { it.status == PersonStatus.ATTENDEE }
     }
 
-    fun releaseParticipant(id: UUID) {
-        personPort.levelUpToReleased(id)
-        val copy = partInfosPort.get(id).copy(confirmationDate = ZonedDateTime.now())
-        partInfosPort.save(copy)
+    fun release(id: UUID) {
+        personPort.levelUpTo(id, PersonStatus.RELEASED)
     }
 }

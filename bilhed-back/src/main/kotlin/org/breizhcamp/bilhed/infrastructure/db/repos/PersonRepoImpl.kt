@@ -1,6 +1,7 @@
 package org.breizhcamp.bilhed.infrastructure.db.repos
 
 import com.querydsl.jpa.JPQLQuery
+import mu.KotlinLogging
 import org.breizhcamp.bilhed.domain.entities.PersonFilter
 import org.breizhcamp.bilhed.infrastructure.db.mappers.toDB
 import org.breizhcamp.bilhed.infrastructure.db.model.PersonDB
@@ -8,12 +9,17 @@ import org.breizhcamp.bilhed.infrastructure.db.model.QGroupDB
 import org.breizhcamp.bilhed.infrastructure.db.model.QPersonDB
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 
+private val logger = KotlinLogging.logger {}
+
 class PersonRepoImpl: QuerydslRepositorySupport(PersonDB::class.java), PersonRepoCustom {
 
     override fun filterPerson(filter: PersonFilter): List<PersonDB> {
         val p = QPersonDB.personDB
         val g = QGroupDB.groupDB
-        val query = from(p).leftJoin(p.group, g).fetchJoin().where(p.status.eq(filter.status?.toDB()))
+
+        logger.info("filterPerson: {}", filter.drawn)
+
+        val query = from(p).leftJoin(p.group, g).fetchJoin()
 
         filterPersonInfos(filter, query, p)
 
@@ -27,6 +33,12 @@ class PersonRepoImpl: QuerydslRepositorySupport(PersonDB::class.java), PersonRep
         filter.pass?.let { query.where(p.pass.eq(it)) }
         filter.payed?.let { query.where(p.payed.eq(it)) }
         filter.groupId?.let { query.where(p.group.id.eq(it)) }
+        filter.status?.let { query.where(p.status.eq(it.toDB()))}
+        filter.drawn?.let { if (it) {
+            query.where(p.group.drawOrder.isNotNull)
+        } else {
+            query.where(p.group.drawOrder.isNull)
+        } }
     }
 
 }

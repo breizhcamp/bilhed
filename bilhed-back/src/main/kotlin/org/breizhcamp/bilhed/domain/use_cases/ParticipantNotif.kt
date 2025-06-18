@@ -23,88 +23,68 @@ class ParticipantNotif(
     private val urlShortenerPort: UrlShortenerPort,
     private val configPort: ConfigPort,
     private val sendNotification: SendNotification,
-    private val participationInfosPort: ParticipationInfosPort
+    private val participationInfosPort: ParticipationInfosPort,
 ) {
-
-    fun notify(overrideNbNotif: Map<PassType, Int>) {
-        val count = personPort.getAlreadyNotifCount()
-        val nbToNotif = count.mapValues { (type, count) ->
-            val nbPass = requireNotNull(config.passNumber[type]) { "Unable to notify without [$type] configuration" }
-            val remaining = maxOf(nbPass - count, 0)
-            overrideNbNotif[type]?.let { minOf(it, remaining) } ?: remaining
-        }
-
-        logger.info { "Notifying participants: $nbToNotif" }
-
-        val participants = nbToNotif.mapValues { (type, count) ->
-            personPort.listTopDrawByPassWithLimit(type, count).also {
-                if (it.size != count) {
-                    logger.warn { "Asked to notify [$count] participants for [$type] but only [${it.size}] found in database" }
-                }
-            }
-        }.values.flatten()
-
-        participants.forEach {
-            val participationInfos = participationInfosPort.get(it.id)
-            val limitDate = getLimitDate(participationInfos)
-            notifySuccessParticipant(Participation(it, participationInfos), limitDate)
-        }
-    }
 
     /** Notify the list of [ids] that they have been drawn */
     fun notifySuccess(ids: List<UUID>) {
-
-        ids.forEach {
-            val participant = personPort.get(it)
-            val participationInfos = participationInfosPort.get(it)
-            val limitDate = getLimitDate(participationInfos)
-            notifySuccessParticipant(Participation(participant, participationInfos), limitDate)
+        // the list contains ids of member if !groupPayment and id of referent else
+        for (id in ids) {
+            val participant = personPort.get(id)
+            if (participationInfosPort.existsByPersonId(id)) continue // TODO que faire ? (quand c'est pas la première notif de succès)
+            notifySuccessParticipant(participant)
         }
     }
 
-    private fun notifySuccessParticipant(p: Participation, limitDate: LimitDate) {
-        logger.info { "Notifying success participant to confirm the ticket [${p.person.firstname} ${p.person.lastname}]" }
+    private fun notifySuccessParticipant(p: Person) {
+        logger.info { "Notifying success participant to confirm the ticket [${p.firstname} ${p.lastname}]" }
+        val partInfos = ParticipationInfos(p.id)
+        val limitDate = getLimitDate(partInfos)
+
         val shortLink = urlShortenerPort.shorten(getConfirmSuccessLink(p), config.breizhCampCloseDate)
         val model = mapOf(
-            "firstname" to p.person.firstname, "lastname" to p.person.lastname, "year" to config.breizhCampYear.toString(),
+            "firstname" to p.firstname, "lastname" to p.lastname, "year" to config.breizhCampYear.toString(),
             "link" to shortLink, "limit_date" to limitDate.str, "delay" to limitDate.delayStr
         )
 
-        val resSms = sendDrawSuccessSms(p, model)
-        sendNotification.sendEmail(Mail(p.person.getMailAddress(), "draw_success", model, p.person.id), ReminderOrigin.MANUAL)
+
+        val resSms = sendDrawSuccessSms(p, partInfos, model)
+        sendNotification.sendEmail(Mail(p.getMailAddress(), "draw_success", model, p.id), ReminderOrigin.MANUAL)
 
         participationInfosPort.save(resSms.copy(notificationConfirmSentDate = limitDate.now))
     }
 
-    fun notifyWaiting(ids: List<UUID>) = ids.forEach { notifyWaitingParticipant(it, "draw_waiting") }
+    fun notifyWaiting(ids: List<UUID>) = notifyWaitingParticipant(ids, "draw_waiting")
 
-    fun notifyFailed(ids: List<UUID>) = ids.forEach { notifyWaitingParticipant(it, "draw_failed") }
+    fun notifyFailed(ids: List<UUID>) = notifyWaitingParticipant(ids, "draw_failed")
+
     fun remindSuccess(ids: List<UUID>, origin: ReminderOrigin, template: String = "draw_success_reminder") = ids.forEach {
-        val p = Participation(
-            personPort.get(it),
-            participationInfosPort.get(it)
-        )
+        val p = personPort.get(it)
+        val partInfos = participationInfosPort.get(it)
+
         try {
-            logger.info { "Reminding success participant to confirm the ticket [${p.person.firstname} ${p.person.lastname}]" }
-            val limitDate = requireNotNull(p.participationInfos.notificationConfirmSentDate) { "Participant [${p.person.firstname} ${p.person.lastname}] has no notification confirmation limit date" }
-            val model = mapOf("firstname" to p.person.firstname, "lastname" to p.person.lastname, "year" to config.breizhCampYear.toString(),
+            logger.info { "Reminding success participant to confirm the ticket [${p.firstname} ${p.lastname}]" }
+            val limitDate = requireNotNull(partInfos.notificationConfirmSentDate) { "Participant [${p.firstname} ${p.lastname}] has no notification confirmation limit date" }
+            val model = mapOf("firstname" to p.firstname, "lastname" to p.lastname, "year" to config.breizhCampYear.toString(),
                 "link" to getConfirmSuccessLink(p), "limit_date" to formatDate(limitDate))
-            sendNotification.sendEmail(Mail(p.person.getMailAddress(), template, model, it), origin)
+            sendNotification.sendEmail(Mail(p.getMailAddress(), template, model, it), origin)
 
         } catch (e: Exception) {
-            logger.warn(e) { "Unable to remind participant [${p.person.firstname} ${p.person.lastname}]" }
+            logger.warn(e) { "Unable to remind participant [${p.firstname} ${p.lastname}]" }
         }
     }
 
-    private fun notifyWaitingParticipant(id: UUID, template: String) {
-        val p = personPort.get(id)
-        logger.info { "Notifying [$template] participant [${p.firstname} ${p.lastname}]" }
-        val model = mapOf("firstname" to p.firstname, "lastname" to p.lastname, "year" to config.breizhCampYear.toString(),
+    private fun notifyWaitingParticipant(ids: List<UUID>, template: String) {
+        val persons = personPort.get(ids)
+        persons.forEach {
+            logger.info { "Notifying [$template] participant [${it.firstname} ${it.lastname}]" }
+            val model = mapOf("firstname" to it.firstname, "lastname" to it.lastname, "year" to config.breizhCampYear.toString(),
             )
-        sendNotification.sendEmail(Mail(p.getMailAddress(), template, model, id), ReminderOrigin.MANUAL)
+            sendNotification.sendEmail(Mail(it.getMailAddress(), template, model, it.id), ReminderOrigin.MANUAL)
+        }
     }
 
-    private fun getConfirmSuccessLink(p: Participation) = "${config.participantFrontUrl}/#/${p.person.id}/success"
+    private fun getConfirmSuccessLink(p: Person) = "${config.participantFrontUrl}/#/${p.id}/success"
 
     private fun getLimitDate(p: ParticipationInfos): LimitDate {
         val notifDate = p.notificationConfirmSentDate ?: ZonedDateTime.now(ZoneId.of("Europe/Paris"))
@@ -119,16 +99,16 @@ class ParticipantNotif(
         return dateFormatter.format(limitDate)
     }
 
-    private fun sendDrawSuccessSms(participation: Participation, model: Map<String, String>): ParticipationInfos {
-        val res = participation.participationInfos.copy(
+    private fun sendDrawSuccessSms(p: Person, partInfos: ParticipationInfos, model: Map<String, String>): ParticipationInfos {
+        val res = partInfos.copy(
             smsStatus = SmsStatus.SENDING,
-            nbSmsSent = participation.participationInfos.nbSmsSent + 1,
+            nbSmsSent = partInfos.nbSmsSent + 1,
             notificationConfirmSentDate = ZonedDateTime.now(),
         )
 
         sendNotification.sendSms(Sms(
-            id = participation.person.id,
-            phone = participation.person.telephone!!,
+            id = p.id,
+            phone = p.telephone!!,
             template = "draw_success",
             model = model,
         ), ReminderOrigin.MANUAL)
@@ -138,12 +118,9 @@ class ParticipantNotif(
 
     @Transactional
     fun saveSmsStatus(id: UUID, error: String?) {
-        val participant = Participation(
-            personPort.get(id),
-            participationInfosPort.get(id)
-        )
+        val partInfos = participationInfosPort.get(id)
         val smsStatus = if (error == null) SmsStatus.SENT else SmsStatus.ERROR
-        participationInfosPort.save(participant.participationInfos.copy(smsStatus = smsStatus, smsError = error))
+        participationInfosPort.save(partInfos.copy(smsStatus = smsStatus, smsError = error))
     }
 
     private data class LimitDate(val now: ZonedDateTime, val date: ZonedDateTime, val str: String, val delayStr: String)

@@ -16,8 +16,8 @@ bilhed.back:
   participantFrontUrl: http://localhost:5000
   breizhCampYear: 2025
 
-  registerCloseDate: 2025-06-15T23:59:59+02:00
-  breizhCampCloseDate: 2025-06-28T23:59:59+02:00
+  registerCloseDate: 2025-09-01T23:59:59+02:00
+  breizhCampCloseDate: 2025-09-14T23:59:59+02:00
 
   billetWeb.enabled: false
 

@@ -18,17 +18,17 @@
       </thead>
       <tbody>
       <tr>
-        <td><DateView :date="group.referent.referentInfos.registrationDate" /></td>
+        <td><DateView :date="group.referentInfos.registrationDate" /></td>
         <td> TODO</td>
         <td>{{ group.group.drawOrder ?? 'Non tiré' }}</td>
         <td>{{ getBoolStr(group.group.groupPayment) }}</td>
-        <td><Pass :pass="group.referent.person.pass"/></td>
+        <td><Pass :pass="group.members[0].pass"/></td>
       </tr>
       </tbody>
     </table>
   </section>
   <section style="background-color: #EACBEA" class="rounded p-3 mb-3" v-if="!loading">
-    <h2>Informations du référent {{ group.referent.person.firstname }} {{ group.referent.person.lastname }}</h2>
+    <h2>Informations du référent {{ group.members[0].firstname }} {{ group.members[0].lastname }}</h2>
     <!--    infos globales -->
     <table class="table table-borderless m-0 table-transparent">
       <thead>
@@ -46,14 +46,14 @@
       </thead>
       <tbody>
       <tr>
-        <td>{{ group.referent.referentInfos.smsStatus }}</td>
-        <td>{{ group.referent.referentInfos.nbSmsSent }}</td>
-        <td><DateView :date="group.referent.referentInfos.lastSmsSentDate" /></td>
-        <td>{{ group.referent.referentInfos.smsError }}</td>
-        <td>{{ group.referent.referentInfos.token }}</td>
-        <td>{{ group.referent.referentInfos.nbTokenTries }}</td>
-        <td><input class="form-control form-control-sm" type="text" id="mail" v-model="group.referent.person.email" /></td>
-        <td><input class="form-control form-control-sm" type="text" id="phone" v-model="group.referent.person.telephone" /></td>
+        <td>{{ group.referentInfos.smsStatus }}</td>
+        <td>{{ group.referentInfos.nbSmsSent }}</td>
+        <td><DateView :date="group.referentInfos.lastSmsSentDate" /></td>
+        <td>{{ group.referentInfos.smsError }}</td>
+        <td>{{ group.referentInfos.token }}</td>
+        <td>{{ group.referentInfos.nbTokenTries }}</td>
+        <td><input class="form-control form-control-sm" type="text" id="mail" v-model="group.members[0].email" /></td>
+        <td><input class="form-control form-control-sm" type="text" id="phone" v-model="group.members[0].telephone" /></td>
         <td>
           <button type="button" class="btn btn-primary btn-sm" title="Modify Person" @click="updateRef()">Modifier</button>
         </td>
@@ -62,7 +62,7 @@
     </table>
   </section>
   <section style="background-color: #EACBEA" class="rounded p-3 mb-3" v-if="!loading && group.group.drawOrder">
-    <h2>Informations du référent {{ group.referent.person.firstname }} {{ group.referent.person.lastname }}</h2>
+    <h2>Informations du référent {{ group.members[0].firstname }} {{ group.members[0].lastname }}</h2>
     <!--    infos globales -->
     <table class="table table-borderless m-0 table-transparent">
       <thead>
@@ -80,14 +80,14 @@
       </thead>
       <tbody>
       <tr>
-        <td>{{ group.referent.referentInfos.smsStatus }}</td>
-        <td>{{ group.referent.referentInfos.nbSmsSent }}</td>
-        <td><DateView :date="group.referent.referentInfos.lastSmsSentDate" /></td>
-        <td>{{ group.referent.referentInfos.smsError }}</td>
-        <td>{{ group.referent.referentInfos.token }}</td>
-        <td>{{ group.referent.referentInfos.nbTokenTries }}</td>
-        <td><input class="form-control form-control-sm" type="text" id="mail" v-model="group.referent.person.email" /></td>
-        <td><input class="form-control form-control-sm" type="text" id="phone" v-model="group.referent.person.telephone" /></td>
+        <td>{{ group.referentInfos.smsStatus }}</td>
+        <td>{{ group.referentInfos.nbSmsSent }}</td>
+        <td><DateView :date="group.referentInfos.lastSmsSentDate" /></td>
+        <td>{{ group.referentInfos.smsError }}</td>
+        <td>{{ group.referentInfos.token }}</td>
+        <td>{{ group.referentInfos.nbTokenTries }}</td>
+        <td><input class="form-control form-control-sm" type="text" id="mail" v-model="group.members[0].email" /></td>
+        <td><input class="form-control form-control-sm" type="text" id="phone" v-model="group.members[0].telephone" /></td>
         <td>
           <button type="button" class="btn btn-primary btn-sm" title="Modify Person" @click="updateRef()">Modifier</button>
         </td>
@@ -126,7 +126,6 @@ export default defineComponent({
     load() {
       axios.get(`/groups/${this.$route.params.id}/complete`).then(groupRes => {
         this.group = groupRes.data
-        console.log(groupRes.data)
       }).finally(() => this.loading = false)
       // TODO : recup les reminders pour chaque pers ?
       // axios.get(`/person/${this.$route.params.id}/reminders`).then(rem => {

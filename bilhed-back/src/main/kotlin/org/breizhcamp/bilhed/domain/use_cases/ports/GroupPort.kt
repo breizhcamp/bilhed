@@ -1,8 +1,9 @@
 package org.breizhcamp.bilhed.domain.use_cases.ports
 
 import org.breizhcamp.bilhed.domain.entities.Group
+import org.breizhcamp.bilhed.domain.entities.PassType
 import org.breizhcamp.bilhed.domain.entities.Person
-import org.breizhcamp.bilhed.domain.entities.PersonStatus
+import org.breizhcamp.bilhed.domain.entities.PersonFilter
 import java.util.*
 
 interface GroupPort {
@@ -17,9 +18,11 @@ interface GroupPort {
 
     fun list(): List<Group>
 
-    fun findGroups(ids: List<UUID>): List<Group>
+    fun extendedGroupList(filter: PersonFilter): Map<Group, List<Person>>
 
-    fun extendedGroupListByStatus(status: PersonStatus): Map<Group, List<Person>>
+    fun extendedGroupById(groupId: UUID): Pair<Group, List<Person>>
 
-    fun extendedGroupByStatus(groupId: UUID): Pair<Group, List<Person>>
+    fun listIdsWithNoDraw(): Map<PassType, List<UUID>>
+
+    fun updateDrawOrder(id: UUID, drawOrder: Int)
 }

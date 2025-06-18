@@ -9,9 +9,9 @@ import java.util.UUID
 data class ParticipationInfosDB(
 
     @Id
-    val personId: UUID,
+    val personId: UUID? = null,
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @MapsId
     @JoinColumn(name = "person_id")
     val person: PersonDB,

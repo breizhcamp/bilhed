@@ -94,7 +94,7 @@ class ParticipantConfirm(
     fun confirmList(ids: List<UUID>): List<Ticket> {
         val participants = ids.map {
             logger.info { "Level up participant to attendee [$it]" }
-            personPort.levelUpToAttendee(it).also { p ->
+            personPort.levelUpTo(it, PersonStatus.ATTENDEE).also { p ->
                 logger.info { "Participant [$it] / [${p.lastname}] [${p.firstname}] leveled up to attendee" }
             }
         }
@@ -112,12 +112,12 @@ class ParticipantConfirm(
     fun cancel(id: UUID) {
         val p = personPort.get(id)
         logger.info { "Level up participant to release [$id] / [${p.lastname}] [${p.firstname}]" }
-        personRelease.releaseParticipant(id)
+        personRelease.release(id)
     }
 
     @Transactional
     fun release(ids: List<UUID>) = ids.forEach {
         logger.info { "Level up participant to release [$it]" }
-        personRelease.releaseParticipant(it)
+        personRelease.release(it)
     }
 }

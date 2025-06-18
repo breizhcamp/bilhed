@@ -1,13 +1,18 @@
 package org.breizhcamp.bilhed.application.rest.admin
 
+import mu.KotlinLogging
 import org.breizhcamp.bilhed.application.dto.admin.ParticipationInfosDTO
 import org.breizhcamp.bilhed.domain.entities.ParticipationInfos
 import org.breizhcamp.bilhed.domain.use_cases.ports.ParticipationInfosPort
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.util.*
+
+private val logger = KotlinLogging.logger {}
 
 @RestController("adminParticipationCtrl")
 @RequestMapping("/admin/participations")
@@ -17,6 +22,11 @@ class ParticipationsCtrl (
     @GetMapping("/group/{id}")
     fun getParticipationsOfGroup(@PathVariable id: UUID): List<ParticipationInfosDTO> {
         return participationInfosPort.getByGroup(id).map { it.toDto() }
+    }
+
+    @PostMapping("/groups")
+    fun getParticipationsInfos(@RequestBody ids: List<UUID>): List<ParticipationInfosDTO> {
+        return participationInfosPort.getByGroups(ids).map { it.toDto() }
     }
 }
 

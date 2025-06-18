@@ -5,26 +5,26 @@ import org.breizhcamp.bilhed.application.dto.admin.UpdateEmailReq
 import org.breizhcamp.bilhed.domain.entities.PassType
 import org.breizhcamp.bilhed.domain.entities.Person
 import org.breizhcamp.bilhed.domain.entities.PersonFilter
+import org.breizhcamp.bilhed.domain.entities.PersonStatus
 import org.breizhcamp.bilhed.domain.use_cases.ports.PersonPort
 import org.breizhcamp.bilhed.infrastructure.db.mappers.toDB
 import org.breizhcamp.bilhed.infrastructure.db.mappers.toPerson
-import org.breizhcamp.bilhed.infrastructure.db.model.PersonDBStatus
+import org.breizhcamp.bilhed.infrastructure.db.model.ParticipationInfosDB
 import org.breizhcamp.bilhed.infrastructure.db.repos.GroupRepo
+import org.breizhcamp.bilhed.infrastructure.db.repos.ParticipationInfosRepo
 import org.breizhcamp.bilhed.infrastructure.db.repos.PersonRepo
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
+import java.time.ZonedDateTime
 import java.util.*
 
 @Component
 class PersonAdapter(
     private val personRepo: PersonRepo,
     private val groupRepo: GroupRepo,
+    private val participationInfosRepo: ParticipationInfosRepo,
 ): PersonPort {
-    override fun list(): List<Person> {
-        TODO("Not yet implemented")
-    }
-
     override fun filter(filter: PersonFilter): List<Person> {
         return personRepo.filterPerson(filter).map{ it.toPerson() }
     }
@@ -40,14 +40,6 @@ class PersonAdapter(
         TODO("Not yet implemented")
     }
 
-    override fun listIdsWithNoDraw(): Map<PassType, List<UUID>> {
-        TODO("Not yet implemented")
-    }
-
-    override fun updateDrawOrder(id: UUID, drawOrder: Int) {
-        TODO("Not yet implemented")
-    }
-
     override fun getAlreadyNotifCount(): Map<PassType, Int> {
         val res = personRepo.countAlreadyNotif().toMap()
         return PassType.values().associateWith { res[it] ?: 0 }
@@ -59,14 +51,17 @@ class PersonAdapter(
         personRepo.updateEmail(id, updateEmailReq.email)
     }
 
-    override fun levelUpToAttendee(id: UUID): Person {
-        TODO("Not yet implemented")
-    }
+    override fun levelUpTo(id: UUID, newStatus: PersonStatus): Person {
+        return personRepo.findParticipant(id)?.apply {
+            status = newStatus.toDB()
+            if (group.referentId == id && group.groupPayment) {
+                personRepo.getCompanions(group.id, group.referentId).forEach { it.apply { status =
+                    newStatus.toDB() } }
+            }
+            val partInfos = participationInfosRepo.findByPersonId(id) ?: ParticipationInfosDB(person = this)
+            participationInfosRepo.save(partInfos.copy(participantConfirmationDate = ZonedDateTime.now()))
 
-    override fun levelUpToReleased(id: UUID) {
-        personRepo.findParticipant(id)?.apply {
-            status = PersonDBStatus.RELEASED
-        } ?: throw EntityNotFoundException("Unable to find participant [$id]")
+        }?.toPerson() ?: throw EntityNotFoundException("Unable to find participant [$id]")
     }
 
     override fun levelUpToParticipant(id: UUID) {
@@ -79,7 +74,7 @@ class PersonAdapter(
     }
 
     override fun get(id: UUID): Person {
-        return personRepo.findByIdOrNull(id)?.toPerson() ?: throw EntityNotFoundException()
+        return personRepo.findByIdOrNull(id)?.toPerson() ?: throw EntityNotFoundException("Unable to find person [$id]")
     }
 
     override fun get(ids: List<UUID>): List<Person> {

@@ -25,8 +25,8 @@
     </div>
 
     <div class="col-12">
-      <label class="form-label" for="pass">Success</label>
-      <select class="form-select" id="pass" v-model="f.success">
+      <label class="form-label" for="pass">Drawn</label>
+      <select class="form-select" id="pass" v-model="f.drawn">
         <option :value="undefined"></option>
         <option value="true">Yes</option>
         <option value="false">No</option>
@@ -41,16 +41,16 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
-import type { PropType } from 'vue'
-import type { ParticipantFilter } from '@/dto/ParticipantFilter'
+import type {PropType} from 'vue'
+import {defineComponent} from 'vue'
+import type {PersonFilter} from '@/dto/PersonFilter'
 
 
 export default defineComponent({
-  name: "ParticipantsFilter",
+  name: "PersonsFilter",
 
   props: {
-    filter: { type: Object as PropType<ParticipantFilter>, required: true },
+    filter: { type: Object as PropType<PersonFilter>, required: true },
   },
   emits: ['filter'],
 

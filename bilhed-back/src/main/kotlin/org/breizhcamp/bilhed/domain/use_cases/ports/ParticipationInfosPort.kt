@@ -13,4 +13,8 @@ interface ParticipationInfosPort {
     fun list(): List<ParticipationInfos>
 
     fun getByGroup(id: UUID): List<ParticipationInfos>
+
+    fun getByGroups(ids: List<UUID>): List<ParticipationInfos>
+
+    fun existsByPersonId(id: UUID): Boolean
 }
