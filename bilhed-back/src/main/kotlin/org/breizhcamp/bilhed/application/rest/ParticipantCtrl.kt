@@ -22,13 +22,12 @@ class ParticipantCtrl(
 
     @GetMapping("/{id}")
     fun get(@PathVariable id: UUID): ParticipantConfirmInfoRes {
-        return participantConfirm.get(id).toDTO()
+        return participantConfirm.getConfirmInfos(id).toDTO()
     }
 
-    @PostMapping("/group/confirm")
+    @PostMapping("/confirm")
     fun confirm(@RequestBody req: List<ParticipantConfirmReq>): ConfirmRes {
         req.forEach { it.validate() }
-//        logger.info { "Confirm participant [$id] with req: $req" }
         return participantConfirm.confirm(req.map { it.id to it.toData() }).toConfirmRes()
     }
 
@@ -42,7 +41,7 @@ class ParticipantCtrl(
     fun handleIAE(e: IllegalArgumentException) = ErrorRes(e.message ?: "Une erreur est survenue")
 
     @ExceptionHandler(EntityNotFoundException::class) @ResponseStatus(HttpStatus.NOT_FOUND)
-    fun handleENFE(e: EntityNotFoundException) = ErrorRes("Not found")
+    fun handleENFE() = ErrorRes("Not found")
 }
 
 private fun ParticipantConfirmReq.toData() = AttendeeData(
@@ -55,9 +54,7 @@ private fun ParticipantConfirmReq.toData() = AttendeeData(
 )
 
 private fun ParticipantConfirmInfo.toDTO() = ParticipantConfirmInfoRes(
-    groupPayment = groupPayment,
-    referent = referent.toDTO(),
-    companions = companions.map { it.toDTO() },
+    members = members.map { it.toDTO() },
     confirmationLimitDate = confirmationLimitDate
 )
 

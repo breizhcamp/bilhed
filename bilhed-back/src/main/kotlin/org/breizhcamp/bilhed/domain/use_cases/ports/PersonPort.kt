@@ -21,15 +21,11 @@ interface PersonPort {
 
     fun levelUpTo(id: UUID, newStatus: PersonStatus): Person
 
-    fun levelUpToParticipant(id: UUID)
-
     fun existsEmailOrPhone(email: String, telephone: String?): Boolean
 
     fun get(id: UUID): Person
 
     fun get(ids: List<UUID>): List<Person>
-
-    fun getParticipant(id: UUID): Person
 
     fun setPayed(ids: List<UUID>)
 

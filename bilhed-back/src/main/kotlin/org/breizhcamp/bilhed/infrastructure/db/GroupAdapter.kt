@@ -36,6 +36,10 @@ class GroupAdapter (
         return groupRepo.findAllById(ids).map { it.toGroup() }
     }
 
+    override fun getByMemberId(memberId: UUID): Group {
+        return groupRepo.findByMemberId(memberId).toGroup()
+    }
+
     override fun list(): List<Group> {
         return groupRepo.findAll().map { it.toGroup() }
     }
@@ -49,10 +53,7 @@ class GroupAdapter (
         return allPeople
             .groupBy { it.group.toGroup() }
             .mapValues { (group, people) ->
-                val personList = people.map { it.toPerson() }
-                val referent = personList.firstOrNull { it.id == group.referentId }
-                    ?: error("Referent with id ${group.referentId} not found in group $group")
-                listOf(referent) + personList.filter { it.id != referent.id }
+                people.map { it.toPerson() }.sortedByDescending { it.id == group.referentId }
             }
     }
 

@@ -198,7 +198,7 @@ export default defineComponent({
 
       axios.delete(`/reminders/config/${rem.id}`)
         .then(() => { // on supprime de la liste des reminders
-          const index = this.remindersConfigs.findIndex(re => re.id === rem.id)
+          const index = this.remindersConfigs.findIndex(re => isReminderConfigRes(re) && re.id === rem.id)
           if (index > -1) this.remindersConfigs.splice(index, 1)
           toastSuccess(`Suppression d'un rappel ${type}`)
         }).catch(() => {

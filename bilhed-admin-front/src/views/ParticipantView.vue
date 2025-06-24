@@ -137,7 +137,6 @@ export default defineComponent({
     },
 
     load(formFilter?: PersonFilter) {
-      console.log(formFilter)
       axios.post("/groups/complete", formFilter ?? this.filter)
           .then(response => {
             const sortedGroups = this.getParticipantSorted(response.data)

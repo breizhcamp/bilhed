@@ -25,7 +25,22 @@ class ParticipationInfosAdapter(
     }
 
     override fun save(partInfos: ParticipationInfos) {
-        partInfosRepo.save(partInfos.toDB(personRepo.getReferenceById(partInfos.personId)))
+        // TODO : voir avec Alex -> impossible de save une copy dans un @Transactional
+        val partInfosDB = partInfosRepo.findByIdOrNull(partInfos.personId)
+
+        if (partInfosDB == null) { // cas d'usage normal
+            partInfosRepo.save(partInfos.toDB(personRepo.getReferenceById(partInfos.personId)))
+            return
+        }
+
+        with(partInfosDB) {
+            participantNotificationConfirmSentDate = partInfos.notificationConfirmSentDate
+            participantConfirmationDate = partInfos.confirmationDate
+            participantNbSmsSent = partInfos.nbSmsSent
+            participantSmsError = partInfos.smsError
+            participantSmsStatus = partInfos.smsStatus
+        }
+        partInfosRepo.save(partInfosDB)
     }
 
     override fun list(): List<ParticipationInfos> {

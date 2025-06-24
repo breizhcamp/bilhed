@@ -197,7 +197,7 @@ import type {Config} from '@/dto/config';
 import dayjs from 'dayjs';
 import {defineComponent} from 'vue'
 import axios from 'axios'
-import type {PersonReq, ReferentReq} from "@/dto/PersonReq";
+import type {PersonReq, ReferentReq} from "@/dto/Person";
 
 export default defineComponent({
   name: "RegisterView",

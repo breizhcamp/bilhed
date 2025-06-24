@@ -8,6 +8,7 @@ import org.breizhcamp.bilhed.domain.use_cases.ports.*
 import org.breizhcamp.bilhed.infrastructure.TimeService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.ZonedDateTime
 import java.util.*
 
 private val logger = KotlinLogging.logger {}
@@ -27,7 +28,7 @@ class PersonRelease(
         val attendees = personPort.get(ids)
         logger.info { "Release [${attendees.size}] attendees: " + attendees.joinToString { "${it.lastname} ${it.firstname}" } }
         ticketPort.delete(attendees)
-        attendees.forEach { release(it.id) }
+        attendees.forEach { release(it) }
         logger.info { "[${attendees.size}] Attendees released"}
     }
 
@@ -41,7 +42,7 @@ class PersonRelease(
 
             val deadline = it.notificationConfirmSentDate.plusHours(timeReminderPar)
             if (deadline.isBefore(now)) {
-                release(it.personId)
+//                release(it)
                 logger.info { "Participant [${it.personId}] released, limit was $deadline" }
             }
         }
@@ -85,7 +86,13 @@ class PersonRelease(
         return personPort.getCompanions(group.id, group.referentId).filter { it.status == PersonStatus.ATTENDEE }
     }
 
-    fun release(id: UUID) {
-        personPort.levelUpTo(id, PersonStatus.RELEASED)
+    fun release(pers: Person, hasPartInfos: Boolean = false) {
+        personPort.levelUpTo(pers.id, PersonStatus.RELEASED)
+
+        if (hasPartInfos && (pers.status == PersonStatus.PARTICIPANT || pers.status == PersonStatus.ATTENDEE)) {
+            val partInfos = partInfosPort.get(pers.id)
+            partInfosPort.save(partInfos.copy(confirmationDate = ZonedDateTime.now()))
+        }
+
     }
 }

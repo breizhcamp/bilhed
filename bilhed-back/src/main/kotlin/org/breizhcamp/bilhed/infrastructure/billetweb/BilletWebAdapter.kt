@@ -46,11 +46,26 @@ class BilletWebAdapter(
         logger.info { "[BilletWeb] Using BilletWeb for ticket creation" }
     }
 
+    private fun getCreateReq(participants: List<Person>): CreateReq {
+        val products = participants.map {
+            CreateProduct(
+                ticket = requireNotNull(config.billetWeb.passNames[it.pass]) { "No BilletWeb pass name found for pass type [${it.pass}]" },
+                name = it.lastname,
+                firstname = it.firstname,
+                email = it.email,
+                price = requireNotNull(config.billetWeb.passPrices[it.pass]) { "No BilletWeb pass price found for pass type [${it.pass}]" },
+            )
+        }
+        val cmd = CreateCmd(participants.first().lastname, participants.first().firstname,
+            participants.first().email, "reservation", products)
+        return CreateReq(cmd)
+    }
+
     override fun create(participants: List<Person>): List<Ticket> {
         val eventId = requireNotNull(config.billetWeb.eventId) { "Erreur config, impossible de créer de Billet sans eventId" }
 
         logger.info { "[BilletWeb] Create ticket for [${participants.size}] participants: " + participants.joinToString { "${it.id}: ${it.lastname} ${it.firstname}" } }
-        val createRes = billetWebClient.create(eventId, CreateReq(participants.toCreateReq())).firstOrNull()
+        val createRes = billetWebClient.create(eventId, getCreateReq(participants)).firstOrNull()
             ?: throw IllegalStateException("Impossible de créer la commande BilletWeb, merci de contacter l'équipe")
 
         val productsId = createRes.products.map { it.toString() }
@@ -116,36 +131,6 @@ class BilletWebAdapter(
 
     private fun buildPayUrl(orderManagement: String) = "$orderManagement&action=pay"
 
-
-
-    private fun Person.toCreateReq() = CreateCmd(
-        name = lastname,
-        firstname = firstname,
-        email = email,
-        paymentType = "reservation",
-        products = listOf(CreateProduct( // liste des billets
-            ticket = requireNotNull(config.billetWeb.passNames[pass]) { "No BilletWeb pass name found for pass type [$pass]" },
-            name = lastname,
-            firstname = firstname,
-            email = email,
-            price = requireNotNull(config.billetWeb.passPrices[pass]) { "No BilletWeb pass price found for pass type [$pass]" },
-        ))
-    )
-
-    private fun List<Person>.toCreateReq() = CreateCmd( // commande groupée
-        name = first().lastname,
-        firstname = first().firstname,
-        email = first().email,
-        paymentType = "reservation",
-        products = map { CreateProduct(
-            ticket = requireNotNull(config.billetWeb.passNames[it.pass]) { "No BilletWeb pass name found for pass type [${it.pass}]" },
-            name = it.lastname,
-            firstname = it.firstname,
-            email = it.email,
-            price = requireNotNull(config.billetWeb.passPrices[it.pass]) { "No BilletWeb pass price found for pass type [${it.pass}]" },
-        ) }
-    )
-
     private fun createClient(): BilletWebClient {
         val apiKey = requireNotNull(config.billetWeb.apiKey) { "Config error, BilletWeb apiKey is missing" }
 
@@ -164,7 +149,7 @@ class BilletWebAdapter(
         val webClient = WebClient.builder()
 //            .clientConnector(ReactorClientHttpConnector(httpClient))
             .exchangeStrategies(strategies)
-            .defaultHeader("Authorization", "Basic ${apiKey}")
+            .defaultHeader("Authorization", "Basic $apiKey")
             .baseUrl(config.billetWeb.url).build()
 
         val factory = HttpServiceProxyFactory.builder(WebClientAdapter.forClient(webClient)).build()

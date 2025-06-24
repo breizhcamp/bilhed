@@ -16,6 +16,8 @@ interface GroupPort {
 
     fun get(ids: List<UUID>): List<Group>
 
+    fun getByMemberId(memberId: UUID): Group
+
     fun list(): List<Group>
 
     fun extendedGroupList(filter: PersonFilter): Map<Group, List<Person>>

@@ -9,21 +9,17 @@ import org.breizhcamp.bilhed.domain.entities.PersonStatus
 import org.breizhcamp.bilhed.domain.use_cases.ports.PersonPort
 import org.breizhcamp.bilhed.infrastructure.db.mappers.toDB
 import org.breizhcamp.bilhed.infrastructure.db.mappers.toPerson
-import org.breizhcamp.bilhed.infrastructure.db.model.ParticipationInfosDB
 import org.breizhcamp.bilhed.infrastructure.db.repos.GroupRepo
-import org.breizhcamp.bilhed.infrastructure.db.repos.ParticipationInfosRepo
 import org.breizhcamp.bilhed.infrastructure.db.repos.PersonRepo
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
-import java.time.ZonedDateTime
 import java.util.*
 
 @Component
 class PersonAdapter(
     private val personRepo: PersonRepo,
     private val groupRepo: GroupRepo,
-    private val participationInfosRepo: ParticipationInfosRepo,
 ): PersonPort {
     override fun filter(filter: PersonFilter): List<Person> {
         return personRepo.filterPerson(filter).map{ it.toPerson() }
@@ -52,20 +48,9 @@ class PersonAdapter(
     }
 
     override fun levelUpTo(id: UUID, newStatus: PersonStatus): Person {
-        return personRepo.findParticipant(id)?.apply {
+        return personRepo.findPersonById(id)?.apply {
             status = newStatus.toDB()
-            if (group.referentId == id && group.groupPayment) {
-                personRepo.getCompanions(group.id, group.referentId).forEach { it.apply { status =
-                    newStatus.toDB() } }
-            }
-            val partInfos = participationInfosRepo.findByPersonId(id) ?: ParticipationInfosDB(person = this)
-            participationInfosRepo.save(partInfos.copy(participantConfirmationDate = ZonedDateTime.now()))
-
         }?.toPerson() ?: throw EntityNotFoundException("Unable to find participant [$id]")
-    }
-
-    override fun levelUpToParticipant(id: UUID) {
-        personRepo.levelUpToParticipant(id)
     }
 
     override fun existsEmailOrPhone(email: String, telephone: String?): Boolean {
@@ -79,10 +64,6 @@ class PersonAdapter(
 
     override fun get(ids: List<UUID>): List<Person> {
         return personRepo.findAllById(ids).map { it.toPerson() }
-    }
-
-    override fun getParticipant(id: UUID): Person {
-        return personRepo.findParticipant(id)?.toPerson() ?: throw EntityNotFoundException("Unable to find participant [$id]")
     }
 
     override fun setPayed(ids: List<UUID>) {

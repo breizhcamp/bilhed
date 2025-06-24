@@ -5,6 +5,7 @@ import org.breizhcamp.bilhed.application.dto.ErrorRes
 import org.breizhcamp.bilhed.application.dto.PersonDTO
 import org.breizhcamp.bilhed.application.dto.admin.UpdateEmailReq
 import org.breizhcamp.bilhed.domain.entities.Reminder
+import org.breizhcamp.bilhed.domain.use_cases.ModifyPersonStatus
 import org.breizhcamp.bilhed.domain.use_cases.PersonCrud
 import org.breizhcamp.bilhed.domain.use_cases.PersonDetail
 import org.breizhcamp.bilhed.domain.use_cases.ReminderCrud
@@ -17,7 +18,8 @@ import java.util.*
 class PersonCtrl (
     private val personDetail: PersonDetail,
     private val reminderCrud: ReminderCrud,
-    private val personCrud: PersonCrud
+    private val personCrud: PersonCrud,
+    private val modifyPersonStatus: ModifyPersonStatus
 ) {
     @GetMapping("/{id}")
     fun getPerson(@PathVariable id: UUID): PersonDTO {
@@ -33,6 +35,11 @@ class PersonCtrl (
     fun updateEmail(@PathVariable id: UUID, @RequestBody req: UpdateEmailReq) {
         req.validate()
         personDetail.updateEmail(id, req)
+    }
+
+    @PostMapping("/levelUp")
+    fun levelUp(@RequestBody ids: List<UUID>) {
+        modifyPersonStatus.levelUp(ids)
     }
 
     @ExceptionHandler(EntityNotFoundException::class) @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

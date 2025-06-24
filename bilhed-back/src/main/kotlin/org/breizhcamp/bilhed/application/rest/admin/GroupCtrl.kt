@@ -8,7 +8,6 @@ import org.breizhcamp.bilhed.domain.entities.PersonFilter
 import org.breizhcamp.bilhed.domain.entities.ReferentInfos
 import org.breizhcamp.bilhed.domain.use_cases.GroupCrud
 import org.breizhcamp.bilhed.domain.use_cases.GroupDraw
-import org.breizhcamp.bilhed.domain.use_cases.GroupStatus
 import org.breizhcamp.bilhed.domain.use_cases.ReferentInfosCrud
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
@@ -19,7 +18,6 @@ import java.util.*
 class GroupCtrl(
     val groupCrud: GroupCrud,
     val referentInfosCrud: ReferentInfosCrud,
-    val groupStatus: GroupStatus,
     val groupDraw: GroupDraw
 ) {
 
@@ -68,12 +66,6 @@ class GroupCtrl(
                 members = members.map { it.toDto() }
             )
         }
-    }
-
-    @PostMapping("/levelUp")
-    fun levelUp(@RequestBody ids: List<UUID>) {
-        // TODO a remplacer par le level up sur les persons
-        groupStatus.levelUp(ids)
     }
 
     @PostMapping("/draw") @ResponseStatus(HttpStatus.NO_CONTENT)

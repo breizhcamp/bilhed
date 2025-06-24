@@ -12,8 +12,7 @@ import java.util.*
 @Repository
 interface PersonRepo: JpaRepository<PersonDB, UUID>, PersonRepoCustom {
 
-    @Query("select p from PersonDB p where p.id = :id and p.status = org.breizhcamp.bilhed.infrastructure.db.model.PersonDBStatus.PARTICIPANT")
-    fun findParticipant(id: UUID): PersonDB?
+    fun findPersonById(id: UUID): PersonDB?
 
     @Query("select p from PersonDB p where p.status = 'ATTENDEE'")
     fun listAttendees(): List<PersonDB>
@@ -33,10 +32,6 @@ interface PersonRepo: JpaRepository<PersonDB, UUID>, PersonRepoCustom {
     fun countAlreadyNotif(): List<Pair<PassType, Int>>
 
     @Modifying
-    @Query("UPDATE PersonDB p SET p.status = org.breizhcamp.bilhed.infrastructure.db.model.PersonDBStatus.PARTICIPANT WHERE p.id = :id")
-    fun levelUpToParticipant(id: UUID)
-
-    @Modifying
     @Query("UPDATE PersonDB p SET p.email = :email WHERE p.id = :id")
     fun updateEmail(id: UUID, email: String)
 
@@ -47,6 +42,6 @@ interface PersonRepo: JpaRepository<PersonDB, UUID>, PersonRepoCustom {
 
     fun findByGroupIdAndStatus(groupId: UUID, status: PersonDBStatus): List<PersonDB>
 
-    @Query("SELECT p FROM PersonDB p JOIN FETCH p.group WHERE p.id = p.group.referentId")
+    @Query("SELECT p FROM PersonDB p JOIN FETCH p.group WHERE p.id = p.group.referentId AND p.group.id = :groupId")
     fun findReferentOfGroup(groupId: UUID): PersonDB
 }

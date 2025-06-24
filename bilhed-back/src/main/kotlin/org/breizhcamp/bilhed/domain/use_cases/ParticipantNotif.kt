@@ -64,9 +64,9 @@ class ParticipantNotif(
 
         try {
             logger.info { "Reminding success participant to confirm the ticket [${p.firstname} ${p.lastname}]" }
-            val limitDate = requireNotNull(partInfos.notificationConfirmSentDate) { "Participant [${p.firstname} ${p.lastname}] has no notification confirmation limit date" }
+            val limitDate = getLimitDate(partInfos)
             val model = mapOf("firstname" to p.firstname, "lastname" to p.lastname, "year" to config.breizhCampYear.toString(),
-                "link" to getConfirmSuccessLink(p), "limit_date" to formatDate(limitDate))
+                "link" to getConfirmSuccessLink(p), "limit_date" to formatDate(limitDate.date))
             sendNotification.sendEmail(Mail(p.getMailAddress(), template, model, it), origin)
 
         } catch (e: Exception) {

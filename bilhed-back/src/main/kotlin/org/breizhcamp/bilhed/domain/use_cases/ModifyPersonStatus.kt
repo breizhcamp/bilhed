@@ -3,6 +3,7 @@ package org.breizhcamp.bilhed.domain.use_cases
 import mu.KotlinLogging
 import org.breizhcamp.bilhed.config.BilhedBackConfig
 import org.breizhcamp.bilhed.domain.entities.Mail
+import org.breizhcamp.bilhed.domain.entities.PersonStatus
 import org.breizhcamp.bilhed.domain.entities.ReminderOrigin
 import org.breizhcamp.bilhed.domain.use_cases.ports.PersonPort
 import org.springframework.stereotype.Service
@@ -12,7 +13,7 @@ import java.util.*
 private val logger = KotlinLogging.logger {}
 
 @Service
-class GroupStatus(
+class ModifyPersonStatus(
     private val personPort: PersonPort,
     private val config: BilhedBackConfig,
     private val sendNotification: SendNotification,
@@ -24,7 +25,7 @@ class GroupStatus(
         ids.forEach {
             val members = personPort.getMembersByGroup(it)
             members.forEach { member ->
-                personPort.levelUpToParticipant(member.id)
+                personPort.levelUpTo(member.id, PersonStatus.PARTICIPANT)
             }
 
             val ref = personPort.getReferentOfGroup(it)

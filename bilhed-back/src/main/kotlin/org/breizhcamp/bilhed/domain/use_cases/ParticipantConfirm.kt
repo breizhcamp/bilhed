@@ -18,106 +18,158 @@ class ParticipantConfirm(
     private val groupPort: GroupPort,
     private val partInfosPort: ParticipationInfosPort,
     private val attendeeDataPort: AttendeeDataPort,
-    private val personRelease: PersonRelease
+    private val personRelease: PersonRelease,
 ) {
 
-    fun get(id: UUID): ParticipantConfirmInfo {
-        val pers = personPort.getParticipant(id)
-        val group = groupPort.get(pers.groupId)
-        val ref = personPort.getReferentOfGroup(group.id)
+    fun getConfirmInfos(persId: UUID): ParticipantConfirmInfo {
+        val group = groupPort.getByMemberId(persId)
+        val members = personPort.getMembersByGroup(group.id)
+        val pair = members.partition { it.id == group.referentId }
 
         if (group.drawOrder == null)
             throw IllegalArgumentException("Vous n'avez pas été tiré au sort")
 
-        if (group.groupPayment && ref.id != pers.id) // paiement groupé, pas ref
+        if (group.groupPayment && pair.first.single().id != persId) // paiement groupé, pas ref
             throw IllegalArgumentException("Ce participant ne doit pas confirmer.")
 
-        val partInfos = partInfosPort.get(pers.id)
-        newCheckLimiteDate(partInfos)
-
-        val companions = mutableListOf<Person>() // paiement séparé, ref
+        val limitDate = getLimitDate(partInfosPort.get(persId))
 
         if (group.groupPayment) // paiement groupé, ref
-            companions.addAll(personPort.getCompanions(group.id, group.referentId))
+            return ParticipantConfirmInfo(
+                pair.first + pair.second,
+                limitDate,
+            )
 
-        if (ref.id != pers.id) // paiement séparé, pas ref
-            companions.add(pers)
-
+        // paiement séparé
         return ParticipantConfirmInfo(
-            group.groupPayment,
-            ref,
-            companions,
-            partInfos.notificationConfirmSentDate!!,
+            listOf(members.find { it.id == persId }!!),
+            limitDate,
         )
+
     }
 
-    private fun newCheckLimiteDate(partInfos: ParticipationInfos) {
-        val limitDate = requireNotNull(partInfos.notificationConfirmSentDate) { "La notification de succès n'a pas été envoyée" }
+    private fun getLimitDate(partInfos: ParticipationInfos): ZonedDateTime {
+        val notifSentDate = requireNotNull(partInfos.notificationConfirmSentDate) { "La notification de succès n'a pas été envoyée" }
         val limitTime = configPort.get("reminderTimePar")
 
-        if (limitDate.plusHours(limitTime.value.toLong()).isBefore(ZonedDateTime.now())) {
+        val limitDate = notifSentDate.plusHours(limitTime.value.toLong())
+        if (limitDate.isBefore(ZonedDateTime.now())) {
             throw IllegalArgumentException("Vous avez dépassé la date limite de confirmation, votre place a été remise en jeu")
         }
+        return limitDate
     }
 
     @Transactional
-    fun confirm(attendees: List<Pair<UUID, AttendeeData>>): Ticket {
-        // TODO : /!\ Créer une commande
-        for (att in attendees) {
-            val p = personPort.get(att.first)
+    fun confirm(attendeesReq: List<Pair<UUID, AttendeeData>>): Ticket {
+        /**
+         * Confirmation from participant
+         * Confirm one person or one group, depends on attendeesReq length
+         */
 
-            logger.info { "Save attendee data for participant [${att.first}] / [${p.lastname}] [${p.firstname}]" }
-            attendeeDataPort.saveData(att.first, att.second)
+        if (attendeesReq.size == 1) {
+            // confirm one person
+            val member = personPort.get(attendeesReq.first().first)
+            val gr = groupPort.get(member.groupId)
+            return confirmOne(listOf(member), gr, attendeesReq).first()
+
+//            return confirmOnePerson(attendeesReq.first())
         }
 
-
-//        return when (p) {
-//            is Participant -> {
-//                logger.info { "Level up participant to attendee [$id]" }
-//                participantPort.levelUpToAttendee(id)
-//
-//                logger.info { "Create ticket for participant [$id] / [${p.lastname}] [${p.firstname}]" }
-//                val ticket = ticketPort.create(p)
-//                logger.info { "Ticket created for participant [$id] / [${p.lastname}] [${p.firstname}]" }
-//
-//                ticket
-//            }
-//
-//            is Attendee -> Ticket(ticketPort.getPayUrl(id), p.payed)
-//
-//            else -> throw IllegalStateException("Participant [$id] / [${p.lastname}] [${p.firstname}] is not a participant or attendee")
-//        }
-        return Ticket("", false)
+        val members = personPort.get(attendeesReq.map { it.first })
+        val group = groupPort.get(members.first().groupId)
+        return confirmOne(members, group, attendeesReq).first() // ticket of referent
     }
 
     @Transactional
-    fun confirmList(ids: List<UUID>): List<Ticket> {
-        val participants = ids.map {
+    fun confirmOne(members: List<Person>, group: Group, attendeesReq: List<Pair<UUID, AttendeeData>>): List<Ticket> {
+        // confirm one group
+        val ref = members.find { it.groupId == group.id } ?: throw IllegalStateException("Referent of group [${group.id}] not found")
+
+        if (ref.status == PersonStatus.ATTENDEE) {
+            return members.map { Ticket(ticketPort.getPayUrl(it.id), it.payed) }
+        }
+
+        // level up to attendee
+        members.map {
             logger.info { "Level up participant to attendee [$it]" }
-            personPort.levelUpTo(it, PersonStatus.ATTENDEE).also { p ->
+            personPort.levelUpTo(it.id, PersonStatus.ATTENDEE).also { p ->
                 logger.info { "Participant [$it] / [${p.lastname}] [${p.firstname}] leveled up to attendee" }
             }
         }
 
-        logger.info { "Create tickets for [${participants.size}] participants" }
-        // TODO : Tickets
-        val tickets = ticketPort.create(participants)
-        logger.info { "[${tickets.size}] tickets created for [${participants.size}] participants" }
+        // save attendee data
+        members.forEach {
+            attendeeDataPort.saveData(it.id, attendeesReq.find { a -> a.first == it.id }!!.second)
+        }
+
+        // filter participants (persons who have participationInfos)
+        val participants = members.filter { person -> !group.groupPayment || person.id == group.referentId }
+
+        // change confirmation date
+        participants.forEach {
+            val partInfos = partInfosPort.get(it.id)
+            partInfosPort.save(partInfos.copy(confirmationDate = ZonedDateTime.now()))    // ← ça passe !
+        }
+
+        // be sure that referent is the first of members
+        val membersSorted = members.sortedByDescending { it.id == group.referentId }
+
+        logger.info { "Create tickets for [${membersSorted.size}] participants" }
+        val tickets = ticketPort.create(membersSorted)
+        logger.info { "[${tickets.size}] tickets created for [${membersSorted.size}] participants" }
+
         return tickets
+    }
+
+    @Transactional
+    fun confirmList(ids: List<UUID>): List<Ticket> {
+        /**
+         * Manual confirmation, from admin
+         * Confirm a list of groups or single persons
+         */
+        val persons = personPort.get(ids)
+        val groups = groupPort.get(persons.map { it.groupId })
+
+        val groupPerson = persons.groupBy { it.groupId }
+
+        return groupPerson.map { (groupId, persons) ->
+            val attendeesData = persons.map { it.id to AttendeeData(
+                tShirtSize = "no", vegan = false, meetAndGreet = false,
+                company = null, tShirtCut = null, postalCode = null
+            ) }
+            confirmOne(persons, groups.find { it.id == groupId }!!, attendeesData) }.flatten()
     }
 
 
 
     @Transactional
     fun cancel(id: UUID) {
+        /**
+         * Cancel the entire group if id is the referent id
+         * Otherwise, cancel the participant
+         */
         val p = personPort.get(id)
+        val group = groupPort.getByMemberId(id)
+
+        if (group.groupPayment && id == group.referentId) {
+            val comp = personPort.getCompanions(group.id, id)
+            comp.forEach {
+                logger.info { "Level up participant to release [$it.id] / [${it.lastname}] [${it.firstname}]" }
+                personRelease.release(it)
+            }
+            logger.info { "Level up participant to release [$id] / [${p.lastname}] [${p.firstname}]" }
+            personRelease.release(p, true)
+            return
+        }
+
         logger.info { "Level up participant to release [$id] / [${p.lastname}] [${p.firstname}]" }
-        personRelease.release(id)
+        personRelease.release(p, id == group.referentId)
     }
 
     @Transactional
     fun release(ids: List<UUID>) = ids.forEach {
+        // TODO : voir avec alex si c'est différent de cancel
         logger.info { "Level up participant to release [$it]" }
-        personRelease.release(it)
+        cancel(it)
     }
 }

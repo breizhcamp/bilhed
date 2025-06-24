@@ -13,8 +13,8 @@ interface GroupRepo: JpaRepository<GroupDB, UUID> {
 
     fun countByReferentId(referentId: UUID): Int
 
-    @Query("SELECT g FROM GroupDB g WHERE g.id IN (:ids)")
-    fun findGroups(ids: List<UUID>): List<GroupDB>
+    @Query("SELECT p.group FROM PersonDB p WHERE p.id = :memberId")
+    fun findByMemberId(memberId: UUID): GroupDB
 
     @Query("SELECT p FROM PersonDB p WHERE p.status = org.breizhcamp.bilhed.infrastructure.db.model.PersonDBStatus.PARTICIPANT AND p.group.drawOrder IS NULL")
     fun listGroupWithNoDraw(): List<PersonDB>

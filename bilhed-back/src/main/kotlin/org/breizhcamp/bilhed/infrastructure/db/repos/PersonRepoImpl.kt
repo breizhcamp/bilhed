@@ -1,7 +1,6 @@
 package org.breizhcamp.bilhed.infrastructure.db.repos
 
 import com.querydsl.jpa.JPQLQuery
-import mu.KotlinLogging
 import org.breizhcamp.bilhed.domain.entities.PersonFilter
 import org.breizhcamp.bilhed.infrastructure.db.mappers.toDB
 import org.breizhcamp.bilhed.infrastructure.db.model.PersonDB
@@ -9,15 +8,12 @@ import org.breizhcamp.bilhed.infrastructure.db.model.QGroupDB
 import org.breizhcamp.bilhed.infrastructure.db.model.QPersonDB
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 
-private val logger = KotlinLogging.logger {}
 
 class PersonRepoImpl: QuerydslRepositorySupport(PersonDB::class.java), PersonRepoCustom {
 
     override fun filterPerson(filter: PersonFilter): List<PersonDB> {
         val p = QPersonDB.personDB
         val g = QGroupDB.groupDB
-
-        logger.info("filterPerson: {}", filter.drawn)
 
         val query = from(p).leftJoin(p.group, g).fetchJoin()
 

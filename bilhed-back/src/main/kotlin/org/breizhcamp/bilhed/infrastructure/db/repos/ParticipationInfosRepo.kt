@@ -14,6 +14,4 @@ interface ParticipationInfosRepo: JpaRepository<ParticipationInfosDB, UUID> {
 
     @Query("SELECT pi FROM ParticipationInfosDB pi WHERE pi.person.group.id IN (:groupIds)")
     fun findAllByGroupIds(groupIds: List<UUID>): List<ParticipationInfosDB>
-
-    fun findByPersonId(personId: UUID): ParticipationInfosDB?
 }

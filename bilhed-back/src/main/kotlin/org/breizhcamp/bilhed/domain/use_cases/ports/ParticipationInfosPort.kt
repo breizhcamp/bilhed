@@ -1,6 +1,7 @@
 package org.breizhcamp.bilhed.domain.use_cases.ports
 
 import org.breizhcamp.bilhed.domain.entities.ParticipationInfos
+import java.time.ZonedDateTime
 import java.util.UUID
 
 interface ParticipationInfosPort {
