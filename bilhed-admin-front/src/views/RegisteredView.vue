@@ -44,7 +44,7 @@
             <i :class="g.members.length > 1 ? 'bi-chevron-down' : 'bi-dash'" class="bi transition-icon col-md-auto" :id="`chevron-${g.group.id}`"></i>
             <span class="col-md-1">{{ g.members[0].lastname }}</span>
             <span class="col-md-1">{{ g.members[0].firstname }}</span>
-            <span class="col-md-3">{{ g.members[0].email }}</span>
+            <span class="col-md-3 break-email">{{ g.members[0].email }}</span>
             <span class="col-md-2">{{ g.members[0].telephone }}</span>
             <span class="col-md-1"><Pass :pass="g.members[0].pass"/></span>
             <span class="col-md-3"><DateView :date="g.referentInfos.registrationDate" format="DD/MM HH:mm"/></span>
@@ -79,7 +79,7 @@
             <tr v-for="comp in g.members.slice(1)" :key="comp.id">
               <td style="width: 20%">{{ comp.lastname }}</td>
               <td style="width: 20%">{{ comp.firstname }}</td>
-              <td style="width: 20%">{{ comp.email }}</td>
+              <td style="width: 20%" class="break-email">{{ comp.email }}</td>
               <td style="width: 20%" v-if="!g.group.groupPayment">{{ comp.telephone }}</td>
               <td style="width: 20%" class="p-0 align-middle text-end">
                 <router-link :to="`/person/${comp.id}`" class="nav-link ms-1 icon-small"><BiPencil/></router-link>

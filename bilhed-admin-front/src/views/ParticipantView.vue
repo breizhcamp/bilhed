@@ -35,7 +35,7 @@
 
           <td>{{ member.lastname }}</td>
           <td>{{ member.firstname }}</td>
-          <td>{{ member.email }}</td>
+          <td class="break-email">{{ member.email }}</td>
           <td>{{ member.telephone }}</td>
           <td><Pass :pass="member.pass"/></td>
           <td>{{ g.group.drawOrder }}</td>

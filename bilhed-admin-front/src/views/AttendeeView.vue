@@ -55,7 +55,7 @@
                 <i :class="g.members.length > 1 && g.group.groupPayment ? 'bi-chevron-down' : 'bi-dash'" class="bi transition-icon col-md-auto" :id="`chevron-${g.group.id}`"></i>
                 <span class="col-md-1">{{ g.members[0].lastname }}</span>
                 <span class="col-md-1">{{ g.members[0].firstname }}</span>
-                <span class="col-md-2">{{ g.members[0].email }}</span>
+                <span class="col-md-2 break-email">{{ g.members[0].email }}</span>
                 <span class="col-md-2">{{ g.members[0].telephone }}</span>
                 <span class="col-md-auto"><Pass :pass="g.members[0].pass"/> &emsp;</span>
                 <span class="col-md-2"><DateView format="DD/MM HH:mm" sup="" :date="g.participationInfos.find(p => p.personId === g.members[0].id)?.confirmationDate"/></span>
@@ -91,7 +91,7 @@
                 <tr v-for="comp in g.members.slice(1)" :key="comp.id">
                   <td class="w-25">{{ comp.lastname }}</td>
                   <td class="w-25">{{ comp.firstname }}</td>
-                  <td class="w-25">{{ comp.email }}</td>
+                  <td class="w-25 break-email">{{ comp.email }}</td>
                   <td class="w-25 p-0 align-middle text-end">
                     <router-link :to="`/person/${g.group.id}`" class="nav-link ms-1  icon-small"><BiPencil/></router-link>
                   </td>
@@ -115,7 +115,7 @@
                 <i class="bi transition-icon col-md-auto bi-dash"></i>
                 <span class="col-md-1">{{ m.lastname }}</span>
                 <span class="col-md-1">{{ m.firstname }}</span>
-                <span class="col-md-2">{{ m.email }}</span>
+                <span class="col-md-2 break-email">{{ m.email }}</span>
                 <span class="col-md-2">{{ m.telephone }}</span>
                 <span class="col-md-auto"><Pass :pass="m.pass"/> &emsp;</span>
                 <span class="col-md-2"><DateView format="DD/MM HH:mm" sup="" :date="g.participationInfos.find(p => p.personId === m.id)?.confirmationDate"/></span>
