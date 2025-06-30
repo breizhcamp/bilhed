@@ -100,7 +100,7 @@
 <script lang="ts">
 import {defineComponent} from 'vue'
 import Pass from "@/components/Pass.vue";
-import type {GroupComplete} from "@/dto/Group";
+import type {GroupCompleteParticipant} from "@/dto/Group";
 import axios from "axios";
 import DateView from "@/components/DateView.vue";
 import {getBoolStr} from "@/utils/Global";
@@ -111,7 +111,7 @@ export default defineComponent({
 
   data() {
     return {
-      group: { } as GroupComplete,
+      group: { } as GroupCompleteParticipant,
       error: "",
       loading: true
     }

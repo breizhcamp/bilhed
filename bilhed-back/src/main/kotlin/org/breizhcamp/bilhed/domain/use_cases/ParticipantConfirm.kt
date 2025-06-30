@@ -71,8 +71,6 @@ class ParticipantConfirm(
             val member = personPort.get(attendeesReq.first().first)
             val gr = groupPort.get(member.groupId)
             return confirmOne(listOf(member), gr, attendeesReq).first()
-
-//            return confirmOnePerson(attendeesReq.first())
         }
 
         val members = personPort.get(attendeesReq.map { it.first })

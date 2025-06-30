@@ -10,7 +10,7 @@
   <div class="mb-3">
     <PersonsFilter :filter="filter" @filter="(f) => load(f)"/>
 
-    <table class="table table-hover">
+    <table class="table table-hover table-borderless">
       <thead>
       <tr>
         <th scope="col"><input type="checkbox" v-model="allChecked"></th>
@@ -33,19 +33,22 @@
           <td><input type="checkbox" v-model="member.checked" :disabled="g.group.groupPayment && iMemb !== 0"
                      @change="g.group.groupPayment && iMemb === 0 ? checkGroup(g.group.id, member.checked) : null"></td>
 
-          <td><router-link :to="`/person/${member.id}`" class="text-decoration-underline text-dark">{{ member.lastname }}</router-link></td>
+          <td>{{ member.lastname }}</td>
           <td>{{ member.firstname }}</td>
           <td>{{ member.email }}</td>
           <td>{{ member.telephone }}</td>
           <td><Pass :pass="member.pass"/></td>
           <td>{{ g.group.drawOrder }}</td>
           <td><DateView :date="getLimitDate(g.group, member.id)" format="DD/MM HH:mm" sup=""/></td>
-          <td v-if="!g.group.groupPayment || iMemb === 0">
-            <button type="button" class="btn btn-link btn-sm" title="Notify success" @click="notifyOne(member.id, 'success')" :disabled="loading"><BiSendCheck/></button>
-            <button type="button" class="btn btn-link btn-sm" title="Notify waiting" @click="notifyOne(member.id, 'waiting')" :disabled="loading"><BiSendExclamation/></button>
-            <button type="button" class="btn btn-link btn-sm" title="Notify failed" @click="notifyOne(member.id, 'failed')" :disabled="loading"><BiSendX/></button>
+          <td class="d-flex align-items-center justify-content-end">
+            <template v-if="!g.group.groupPayment || iMemb === 0">
+              <button type="button" class="btn btn-link btn-sm text-dark" title="Notify success" @click="notifyOne(member.id, 'success')" :disabled="loading"><BiSendCheck/></button>
+              <button type="button" class="btn btn-link btn-sm text-dark" title="Notify waiting" @click="notifyOne(member.id, 'waiting')" :disabled="loading"><BiSendExclamation/></button>
+              <button type="button" class="btn btn-link btn-sm text-dark" title="Notify failed" @click="notifyOne(member.id, 'failed')" :disabled="loading"><BiSendX/></button>
+            </template>
+            <router-link :to="`/person/${member.id}`" class="nav-link ms-2"><BiPencil/></router-link>
+            <router-link :to="`/group/${g.group.id}`" class="nav-link ms-2"><BiPeople/></router-link>
           </td>
-          <td v-else></td>
         </tr>
       </template>
       </tbody>
@@ -78,6 +81,8 @@ import BiSendCheck from 'bootstrap-icons/icons/send-check.svg?component'
 import BiSendExclamation from 'bootstrap-icons/icons/send-exclamation.svg?component'
 import BiSendX from 'bootstrap-icons/icons/send-x.svg?component'
 import BiArrowUp from 'bootstrap-icons/icons/arrow-bar-up.svg?component'
+import BiPencil from "bootstrap-icons/icons/pencil.svg?component";
+import BiPeople from "bootstrap-icons/icons/people.svg?component";
 import {defineComponent} from 'vue'
 import Pass from '@/components/Pass.vue'
 import PersonsFilter from '@/components/PersonsFilter.vue'
@@ -85,14 +90,14 @@ import type {PersonFilter} from '@/dto/PersonFilter'
 import dayjs from "dayjs";
 import type {Config} from "@/dto/Config";
 import {toastError, toastSuccess, toastWarning, toInt} from "@/utils/ReminderUtils";
-import type {Group, GroupComplete} from "@/dto/Group";
-import type {ParticipationInfos} from "@/dto/Participant";
-import {type Person, PersonStatus} from "@/dto/Person";
+import type {Group, GroupCompleteParticipant} from "@/dto/Group";
+import {type ParticipationInfos, type Person, PersonStatus} from "@/dto/Person";
 import DateView from "@/components/DateView.vue";
+import {getSortedGroups} from "@/utils/Global";
 
 export default defineComponent({
   name: "ParticipantView",
-  components: {DateView, PersonsFilter, Pass, BiSendCheck, BiSendExclamation, BiSendX, BiArrowUp },
+  components: {DateView, PersonsFilter, Pass, BiSendCheck, BiSendExclamation, BiSendX, BiArrowUp, BiPencil, BiPeople},
 
   data() {
     return {
@@ -100,7 +105,7 @@ export default defineComponent({
       loading: false,
       filter: { status: PersonStatus.PARTICIPANT} as PersonFilter,
       reminderTimePar: {} as Config,
-      groups: [] as GroupComplete[],
+      groups: [] as GroupCompleteParticipant[],
       partInfos: [] as ParticipationInfos[]
     }
   },
@@ -137,10 +142,10 @@ export default defineComponent({
     },
 
     load(formFilter?: PersonFilter) {
-      axios.post("/groups/complete", formFilter ?? this.filter)
+      axios.post("/groups/participant/complete", formFilter ?? this.filter)
           .then(response => {
-            const sortedGroups = this.getParticipantSorted(response.data)
-            this.groups = sortedGroups
+            const sortedGroups = getSortedGroups(response.data)
+            this.groups = sortedGroups as GroupCompleteParticipant[]
 
             if (sortedGroups.length > 0 && sortedGroups[0].group.drawOrder != null) {
               const ids = sortedGroups.map(e => e.group.id)
@@ -154,20 +159,6 @@ export default defineComponent({
       axios.get('/config/reminderTimePar').then(res => {
         this.reminderTimePar = res.data
       })
-    },
-
-    getParticipantSorted(groups: GroupComplete[]): GroupComplete[] {
-      const grouped: { [p: string]: GroupComplete[] } = groups.reduce((acc : { [p: string]: GroupComplete[] }, g) => {
-        const ref = g.members[0]
-        acc[ref.pass] = (acc[ref.pass] || []).concat(g);
-        return acc;
-      }, {})
-
-      for (const pass in grouped) {
-        grouped[pass].sort((a, b) => (a.group.drawOrder ?? Infinity) - (b.group.drawOrder ?? Infinity));
-      }
-
-      return Object.values(grouped).flat()
     },
 
     draw() {

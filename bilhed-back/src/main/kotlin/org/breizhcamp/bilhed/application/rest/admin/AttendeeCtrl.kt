@@ -3,13 +3,9 @@ package org.breizhcamp.bilhed.application.rest.admin
 import jakarta.servlet.http.HttpServletResponse
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVPrinter
-import org.breizhcamp.bilhed.application.dto.PersonDTO
-import org.breizhcamp.bilhed.domain.entities.PersonFilter
-import org.breizhcamp.bilhed.domain.entities.PersonStatus
 import org.breizhcamp.bilhed.domain.entities.ReminderOrigin
 import org.breizhcamp.bilhed.domain.entities.TicketExportData
 import org.breizhcamp.bilhed.domain.use_cases.AttendeeNotify
-import org.breizhcamp.bilhed.domain.use_cases.PersonCrud
 import org.breizhcamp.bilhed.domain.use_cases.PersonRelease
 import org.breizhcamp.bilhed.domain.use_cases.TicketExport
 import org.springframework.http.HttpHeaders
@@ -24,15 +20,7 @@ class AttendeeCtrl(
     private val attendeeNotify: AttendeeNotify,
     private val personRelease: PersonRelease,
     private val ticketExport: TicketExport,
-    private val personCrud: PersonCrud,
 ) {
-
-    @GetMapping
-    fun list(): List<PersonDTO> = personCrud.filter(PersonFilter(status = PersonStatus.ATTENDEE)).map { it.toDto() }
-
-    @PostMapping("/filter")
-    fun filter(@RequestBody filter: PersonFilter): List<PersonDTO> = personCrud.filter(filter).map { it.toDto() }
-
     @PostMapping("/notif/payed/reminder/mail") @ResponseStatus(HttpStatus.NO_CONTENT)
     fun payedReminderMail(@RequestBody ids: List<UUID>) {
         attendeeNotify.remindPayedMail(ids, ReminderOrigin.MANUAL)

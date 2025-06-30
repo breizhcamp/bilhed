@@ -41,16 +41,16 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
-import type { PropType } from 'vue'
-import type { AttendeeFilter } from '@/dto/AttendeeFilter'
+import type {PropType} from 'vue'
+import {defineComponent} from 'vue'
+import type {PersonFilter} from "@/dto/PersonFilter";
 
 
 export default defineComponent({
   name: "AttendeesFilter",
 
   props: {
-    filter: { type: Object as PropType<AttendeeFilter>, required: true },
+    filter: { type: Object as PropType<PersonFilter>, required: true },
   },
   emits: ['filter'],
 

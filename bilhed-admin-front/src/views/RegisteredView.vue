@@ -13,8 +13,8 @@
         <div class="col-md-1">Nom</div>
         <div class="col-md-1">Prénom</div>
         <div class="col-md-3">Email</div>
-        <div class="col-md-2">Téléphone</div>
-        <div class="col-md-auto">Pass</div>
+        <div style="width: 15%">Téléphone</div>
+        <div class="col-md-1">Pass</div>
         <div class="col-md-3">Date inscription</div>
       </div>
     </div>
@@ -26,12 +26,10 @@
   <div class="accordion mb-3" id="groupAccordion">
     <div v-for="(g, i) in groups" :key="g.group.id" :class="['accordion-item', { 'bg-body-secondary': i % 2 === 0 }]">
       <div class="d-flex align-items-center p-2">
-        <!-- Checkbox -->
         <div class="form-check">
           <input class="form-check-input" type="checkbox" :id="`checkbox${g.group.id}`" v-model="g.members[0].checked" @change="checkGroup(g.group.id, g.members[0].checked)" />
         </div>
 
-        <!-- Bouton accordéon custom -->
         <button
             type="button"
             class="btn flex-grow-1 text-start me-2"
@@ -48,14 +46,15 @@
             <span class="col-md-1">{{ g.members[0].firstname }}</span>
             <span class="col-md-3">{{ g.members[0].email }}</span>
             <span class="col-md-2">{{ g.members[0].telephone }}</span>
-            <span class="col-md-auto"><Pass :pass="g.members[0].pass"/></span>
-            <span class="col-md-3"><DateView :date="g.referentInfos.registrationDate"/></span>
+            <span class="col-md-1"><Pass :pass="g.members[0].pass"/></span>
+            <span class="col-md-3"><DateView :date="g.referentInfos.registrationDate" format="DD/MM HH:mm"/></span>
           </span>
         </button>
         <div class="d-flex">
-          <button type="button" class="btn btn-link btn-sm" title="Send SMS reminder" @click="sendReminder(g.members[0].id, 'sms')" :disabled="loading"><BiChatText/></button>
-          <button type="button" class="btn btn-link btn-sm ms-1" title="Send email reminder" @click="sendReminder(g.members[0].id, 'email')" :disabled="loading"><BiEnvelope/></button>
-          <router-link :to="`/group/${g.group.id}`" class="nav-link ms-1 d-flex align-items-center"><BiPencil/></router-link>
+          <button type="button" class="btn btn-link btn-sm icon-small" title="Send SMS reminder" @click="sendReminder(g.members[0].id, 'sms')" :disabled="loading"><BiChatText/></button>
+          <button type="button" class="btn btn-link btn-sm ms-2 icon-small" title="Send email reminder" @click="sendReminder(g.members[0].id, 'email')" :disabled="loading"><BiEnvelope/></button>
+          <router-link :to="`/group/${g.group.id}`" class="nav-link ms-2 d-flex align-items-center icon-small"><BiPencil/></router-link>
+          <router-link :to="`/group/${g.group.id}`" class="nav-link ms-2 d-flex align-items-center icon-small"><BiPeople/></router-link>
         </div>
       </div>
 
@@ -73,14 +72,18 @@
               <th scope="col">Prénom</th>
               <th scope="col">Email</th>
               <th scope="col" v-if="!g.group.groupPayment">Téléphone</th>
+              <th scope="col"></th>
             </tr>
             </thead>
             <tbody>
             <tr v-for="comp in g.members.slice(1)" :key="comp.id">
-              <td class="w-25">{{ comp.lastname }}</td>
-              <td class="w-25">{{ comp.firstname }}</td>
-              <td class="w-25">{{ comp.email }}</td>
-              <td class="w-25" v-if="!g.group.groupPayment">{{ comp.telephone }}</td>
+              <td style="width: 20%">{{ comp.lastname }}</td>
+              <td style="width: 20%">{{ comp.firstname }}</td>
+              <td style="width: 20%">{{ comp.email }}</td>
+              <td style="width: 20%" v-if="!g.group.groupPayment">{{ comp.telephone }}</td>
+              <td style="width: 20%" class="p-0 align-middle text-end">
+                <router-link :to="`/person/${comp.id}`" class="nav-link ms-1 icon-small"><BiPencil/></router-link>
+              </td>
             </tr>
             </tbody>
           </table>
@@ -105,20 +108,22 @@ import DateView from '@/components/DateView.vue'
 import BiChatText from 'bootstrap-icons/icons/chat-text.svg?component'
 import BiEnvelope from 'bootstrap-icons/icons/envelope.svg?component'
 import BiPencil from 'bootstrap-icons/icons/pencil.svg?component'
+import BiPeople from "bootstrap-icons/icons/people.svg?component";
 import Pass from "@/components/Pass.vue";
 import {toastError, toastSuccess, toastWarning} from "@/utils/ReminderUtils";
-import type {GroupComplete} from "@/dto/Group";
+import type {GroupCompleteParticipant} from "@/dto/Group";
 import {PersonStatus} from "@/dto/Person";
+import {animateChevron} from "@/utils/Global";
 
 export default defineComponent({
   name: "RegisteredView",
-  components: {Pass, DateView, BiChatText, BiEnvelope, BiPencil},
+  components: {Pass, DateView, BiChatText, BiEnvelope, BiPencil, BiPeople},
 
   data() {
     return {
       loading: false,
       allChecked: false,
-      groups: [] as GroupComplete[]
+      groups: [] as GroupCompleteParticipant[]
     }
   },
 
@@ -133,16 +138,11 @@ export default defineComponent({
   },
 
   methods: {
+    animateChevron,
     load() {
-      axios.post('/groups/complete', {status: PersonStatus.REGISTERED}).then( response => {
+      axios.post('/groups/participant/complete', {status: PersonStatus.REGISTERED}).then( response => {
         this.groups = response.data
       })
-    },
-
-    animateChevron(id: string) {
-      const t = document.getElementById(id)
-      if (t == null) return
-      t.classList.contains("rotate-180") ? t.classList.remove("rotate-180") : t.classList.add("rotate-180")
     },
 
     sendReminder(id: string, type: string) {
@@ -161,7 +161,6 @@ export default defineComponent({
     levelUp() {
       const ids = this.groups.flatMap(g => g.members.filter(m => m.checked)).map(m => m.id);
 
-      // const ids = this.groups.filter((g) => g.members.filter(m => m.checked)).map((g) => g.group.id)
       if (ids.length === 0) {
         toastWarning("Aucun groupe sélectionné")
         return
@@ -190,20 +189,5 @@ export default defineComponent({
 </script>
 
 <style scoped>
-button.btn-sm {
-  padding: 0;
-  color: #212529;
-  line-height: 0;
-  vertical-align: text-top;
-}
-.transition-icon {
-  transition: transform 0.3s ease;
-}
-.rotate-180 {
-  transform: rotate(180deg);
-}
-.btn.no-pointer-events {
-  pointer-events: none;
-  cursor: default;
-}
+
 </style>

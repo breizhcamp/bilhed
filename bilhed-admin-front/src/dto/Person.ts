@@ -22,6 +22,15 @@ export interface ReferentInfos {
     nbTokenTries: number
 }
 
+export interface ParticipationInfos {
+    personId: string
+    smsStatus?: string
+    nbSmsSent: number
+    smsError?: string
+    notificationConfirmSentDate?: string
+    confirmationDate?: string
+}
+
 export enum PersonStatus {
     REGISTERED = "REGISTERED",
     PARTICIPANT = "PARTICIPANT",

@@ -8,13 +8,3 @@ export interface Participant extends Person{
 
     checked: boolean
 }
-
-export interface ParticipationInfos {
-    personId: string
-    smsStatus?: string
-    nbSmsSent: number
-    smsError?: string
-    notificationConfirmSentDate?: string
-    confirmationDate?: string
-
-}

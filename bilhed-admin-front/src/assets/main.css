@@ -4,3 +4,19 @@
 .table-transparent, .table-transparent td, .table-transparent th {
   background-color: transparent!important;
 }
+button.btn-sm.icon-small {
+  padding: 0;
+  color: #212529;
+  line-height: 0;
+  vertical-align: text-top;
+}
+.transition-icon {
+  transition: transform 0.3s ease;
+}
+.rotate-180 {
+  transform: rotate(180deg);
+}
+.btn.no-pointer-events {
+  pointer-events: none;
+  cursor: default;
+}
