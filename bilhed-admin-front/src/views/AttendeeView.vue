@@ -93,7 +93,7 @@
                   <td class="w-25">{{ comp.firstname }}</td>
                   <td class="w-25 break-email">{{ comp.email }}</td>
                   <td class="w-25 p-0 align-middle text-end">
-                    <router-link :to="`/person/${g.group.id}`" class="nav-link ms-1  icon-small"><BiPencil/></router-link>
+                    <router-link :to="`/person/${comp.id}`" class="nav-link ms-1  icon-small"><BiPencil/></router-link>
                   </td>
                 </tr>
                 </tbody>
