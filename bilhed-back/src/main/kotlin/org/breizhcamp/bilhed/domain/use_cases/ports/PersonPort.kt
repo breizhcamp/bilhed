@@ -13,8 +13,6 @@ interface PersonPort {
 
     fun save(person: Person)
 
-    fun listTopDrawByPassWithLimit(pass: PassType, limit: Int): List<Person>
-
     fun getAlreadyNotifCount(): Map<PassType, Int>
 
     fun updateEmail(id: UUID, updateEmailReq: UpdateEmailReq)

@@ -77,7 +77,7 @@
     </div>
   </section>
 
-  <section style="background-color: #F6F5CBFF" class="rounded p-3 mb-3" v-if="!loading && partInfos">
+  <section style="background-color: #F6F5CBFF" class="rounded p-3 mb-3" v-if="!loading && partInfos.length > 0">
     <h2>Participation</h2>
     <table class="table border-dark m-0 table-transparent">
       <thead>
@@ -137,7 +137,6 @@ export default defineComponent({
         if (groupRes.data.group.drawOrder != null) {
           axios.get(`/participations/group/${groupRes.data.group.id}`).then(res => {
             this.partInfos = res.data
-            console.log(this.partInfos)
           })
         }
       }).finally(() => this.loading = false)
@@ -148,6 +147,7 @@ export default defineComponent({
        * Récupère la date de confirmation dans le part Infos de la person
        * Si pas de partInfos (= groupPayment), on prend la date du référent
        */
+      if (this.partInfos.length === 0) return undefined
       return this.partInfos.find(pi => pi.personId === personId)?.confirmationDate || this.partInfos[0].confirmationDate
     }
   }

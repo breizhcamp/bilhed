@@ -119,7 +119,7 @@
                 <span class="col-md-2">{{ m.telephone }}</span>
                 <span class="col-md-auto"><Pass :pass="m.pass"/> &emsp;</span>
                 <span class="col-md-2"><DateView format="DD/MM HH:mm" sup="" :date="g.participationInfos.find(p => p.personId === m.id)?.confirmationDate"/></span>
-                <span class="col-md-2"><DateView format="DD/MM HH:mm" sup="" :date="g.participationInfos.find(p => p.personId === m.id)?.confirmationDate"/></span>
+                <span class="col-md-2"><DateView format="DD/MM HH:mm" sup="" :date="getLimitDate(g.participationInfos.find(p => p.personId === m.id)?.confirmationDate)"/></span>
                 <span class="col-md-auto">{{ getBoolStr(m.payed) }}</span>
               </span>
             </button>
@@ -297,7 +297,13 @@ export default defineComponent({
         return ''
       }
       const dateJs = dayjs(date)
-      return dateJs.add(this.nbHoursBeforeRelease, 'hour').toString()
+      const t = dateJs.add(this.nbHoursBeforeRelease, 'hour').toString()
+
+
+      console.log(date)
+      console.log(this.nbHoursBeforeRelease)
+      console.log(t)
+      return t
     },
     checkGroup(groupId: string, checked: boolean) {
       const group = this.groups.find(g => g.group.id === groupId)

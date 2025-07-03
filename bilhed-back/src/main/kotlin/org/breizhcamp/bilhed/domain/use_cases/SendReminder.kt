@@ -114,7 +114,6 @@ class SendReminder (
             if (prevRemConfig.templateMail.isNotBlank())
                 attendeeNotify.remindPayedMail(listOf(att.id), ReminderOrigin.AUTOMATIC, prevRemConfig.templateMail)
 
-            // TODO : /!\ attendee SMS ?
             if (prevRemConfig.templateSms.isNotBlank())
                 attendeeNotify.remindPayedSms(listOf(att.id), ReminderOrigin.AUTOMATIC, prevRemConfig.templateSms)
         }

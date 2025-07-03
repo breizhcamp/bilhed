@@ -29,13 +29,6 @@ class PersonAdapter(
         personRepo.save(person.toDB(groupRepo.getReferenceById(person.groupId)))
     }
 
-    override fun listTopDrawByPassWithLimit(
-        pass: PassType,
-        limit: Int
-    ): List<Person> {
-        TODO("Not yet implemented")
-    }
-
     override fun getAlreadyNotifCount(): Map<PassType, Int> {
         val res = personRepo.countAlreadyNotif().toMap()
         return PassType.values().associateWith { res[it] ?: 0 }
