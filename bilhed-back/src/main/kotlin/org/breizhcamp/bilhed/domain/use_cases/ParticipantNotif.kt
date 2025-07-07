@@ -31,14 +31,20 @@ class ParticipantNotif(
         // the list contains ids of member if !groupPayment and id of referent else
         for (id in ids) {
             val participant = personPort.get(id)
-            if (participationInfosPort.existsByPersonId(id)) continue // TODO que faire ? (quand c'est pas la première notif de succès)
-            notifySuccessParticipant(participant)
+            if (participationInfosPort.existsByPersonId(id))
+                notifySuccessParticipant(participant, true)
+            else
+                notifySuccessParticipant(participant)
         }
     }
 
-    private fun notifySuccessParticipant(p: Person) {
+    private fun notifySuccessParticipant(p: Person, resetTime: Boolean = false) {
         logger.info { "Notifying success participant to confirm the ticket [${p.firstname} ${p.lastname}]" }
-        val partInfos = ParticipationInfos(p.id)
+        var partInfos = ParticipationInfos(p.id)
+        if (resetTime) {
+            partInfos = participationInfosPort.get(id = p.id)
+            partInfos = partInfos.copy(notificationConfirmSentDate = ZonedDateTime.now(ZoneId.of("Europe/Paris")))
+        }
         val limitDate = getLimitDate(partInfos)
 
         val shortLink = urlShortenerPort.shorten(getConfirmSuccessLink(p), config.breizhCampCloseDate)
@@ -46,7 +52,6 @@ class ParticipantNotif(
             "firstname" to p.firstname, "lastname" to p.lastname, "year" to config.breizhCampYear.toString(),
             "link" to shortLink, "limit_date" to limitDate.str, "delay" to limitDate.delayStr
         )
-
 
         val resSms = sendDrawSuccessSms(p, partInfos, model)
         sendNotification.sendEmail(Mail(p.getMailAddress(), "draw_success", model, p.id), ReminderOrigin.MANUAL)
@@ -118,9 +123,8 @@ class ParticipantNotif(
 
     @Transactional
     fun saveSmsStatus(id: UUID, error: String?) {
-        val partInfos = participationInfosPort.get(id)
         val smsStatus = if (error == null) SmsStatus.SENT else SmsStatus.ERROR
-        participationInfosPort.save(partInfos.copy(smsStatus = smsStatus, smsError = error))
+        participationInfosPort.updateSms(id = id, smsStatus = smsStatus, error = error)
     }
 
     private data class LimitDate(val now: ZonedDateTime, val date: ZonedDateTime, val str: String, val delayStr: String)

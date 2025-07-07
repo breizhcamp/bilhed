@@ -2,6 +2,7 @@ package org.breizhcamp.bilhed.infrastructure.db
 
 import jakarta.persistence.EntityNotFoundException
 import org.breizhcamp.bilhed.domain.entities.ParticipationInfos
+import org.breizhcamp.bilhed.domain.entities.SmsStatus
 import org.breizhcamp.bilhed.domain.use_cases.ports.ParticipationInfosPort
 import org.breizhcamp.bilhed.infrastructure.db.mappers.toDB
 import org.breizhcamp.bilhed.infrastructure.db.mappers.toParticipationInfos
@@ -9,6 +10,7 @@ import org.breizhcamp.bilhed.infrastructure.db.repos.ParticipationInfosRepo
 import org.breizhcamp.bilhed.infrastructure.db.repos.PersonRepo
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
+import java.time.ZonedDateTime
 import java.util.*
 
 @Component
@@ -25,22 +27,7 @@ class ParticipationInfosAdapter(
     }
 
     override fun save(partInfos: ParticipationInfos) {
-        // TODO : voir avec Alex -> impossible de save une copy dans un @Transactional
-        val partInfosDB = partInfosRepo.findByIdOrNull(partInfos.personId)
-
-        if (partInfosDB == null) { // cas d'usage normal
-            partInfosRepo.save(partInfos.toDB(personRepo.getReferenceById(partInfos.personId)))
-            return
-        }
-
-        with(partInfosDB) {
-            participantNotificationConfirmSentDate = partInfos.notificationConfirmSentDate
-            participantConfirmationDate = partInfos.confirmationDate
-            participantNbSmsSent = partInfos.nbSmsSent
-            participantSmsError = partInfos.smsError
-            participantSmsStatus = partInfos.smsStatus
-        }
-        partInfosRepo.save(partInfosDB)
+        partInfosRepo.save(partInfos.toDB(personRepo.getReferenceById(partInfos.personId)))
     }
 
     override fun list(): List<ParticipationInfos> {
@@ -57,6 +44,21 @@ class ParticipationInfosAdapter(
 
     override fun existsByPersonId(id: UUID): Boolean {
         return partInfosRepo.existsById(id)
+    }
+
+    override fun updateConfirmationDate(id: UUID, confirmationDate: ZonedDateTime) {
+        val partInfosDB = partInfosRepo.findByIdOrNull(id) ?: throw EntityNotFoundException("ParticipationInfos of [$id] Not Found")
+        partInfosDB.apply {
+            participantConfirmationDate = confirmationDate
+        }
+    }
+
+    override fun updateSms(id: UUID, smsStatus: SmsStatus, error: String?) {
+        val partInfosDB = partInfosRepo.findByIdOrNull(id) ?: throw EntityNotFoundException("ParticipationInfos of [$id] Not Found")
+        partInfosDB.apply {
+            participantSmsStatus = smsStatus
+            participantSmsError = error
+        }
     }
 
 }

@@ -227,7 +227,7 @@ export default defineComponent({
   methods: {
     getBoolStr,
     load() {
-      axios.get(`/person/${this.$route.params.id}`).then(personRes => {
+      axios.get(`/persons/${this.$route.params.id}`).then(personRes => {
         this.person = personRes.data
         switch (this.person.status) {
           case PersonStatus.REGISTERED:
@@ -243,7 +243,7 @@ export default defineComponent({
         }
         this.personFromDB = {...this.person}
       })
-      axios.get(`/person/${this.$route.params.id}/reminders`).then(rem => {
+      axios.get(`/persons/${this.$route.params.id}/reminders`).then(rem => {
         this.reminders = rem.data
       })
     },
@@ -257,7 +257,7 @@ export default defineComponent({
       if (!confirm(`Voulez vous modifier les contacts de ${this.person.firstname} ${this.person.lastname} ?`))
         return
 
-      axios.put(`/person/${this.person.id}`, {
+      axios.put(`/persons/${this.person.id}`, {
         email: this.person.email,
         telephone: this.person.telephone
       }).then(() => toastSuccess("Le changement a bien été effectué")).catch(this.displayError)

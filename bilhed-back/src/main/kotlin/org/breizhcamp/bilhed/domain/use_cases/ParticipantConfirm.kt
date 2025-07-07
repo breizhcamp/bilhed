@@ -5,6 +5,7 @@ import org.breizhcamp.bilhed.domain.entities.*
 import org.breizhcamp.bilhed.domain.use_cases.ports.*
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -105,8 +106,7 @@ class ParticipantConfirm(
 
         // change confirmation date
         participants.forEach {
-            val partInfos = partInfosPort.get(it.id)
-            partInfosPort.save(partInfos.copy(confirmationDate = ZonedDateTime.now()))    // ← ça passe !
+            partInfosPort.updateConfirmationDate(it.id, ZonedDateTime.now(ZoneId.of("Europe/Paris")))
         }
 
         // be sure that referent is the first of members
@@ -152,7 +152,7 @@ class ParticipantConfirm(
         if (group.groupPayment && id == group.referentId) {
             val comp = personPort.getCompanions(group.id, id)
             comp.forEach {
-                logger.info { "Level up participant to release [$it.id] / [${it.lastname}] [${it.firstname}]" }
+                logger.info { "Level up participant to release [${it.id}] / [${it.lastname}] [${it.firstname}]" }
                 personRelease.release(it)
             }
             logger.info { "Level up participant to release [$id] / [${p.lastname}] [${p.firstname}]" }
@@ -162,12 +162,5 @@ class ParticipantConfirm(
 
         logger.info { "Level up participant to release [$id] / [${p.lastname}] [${p.firstname}]" }
         personRelease.release(p, id == group.referentId)
-    }
-
-    @Transactional
-    fun release(ids: List<UUID>) = ids.forEach {
-        // TODO : voir avec alex si c'est différent de cancel
-        logger.info { "Level up participant to release [$it]" }
-        cancel(it)
     }
 }

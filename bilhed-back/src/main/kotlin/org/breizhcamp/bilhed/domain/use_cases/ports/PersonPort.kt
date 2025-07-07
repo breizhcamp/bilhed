@@ -1,6 +1,6 @@
 package org.breizhcamp.bilhed.domain.use_cases.ports
 
-import org.breizhcamp.bilhed.application.dto.admin.UpdateEmailReq
+import org.breizhcamp.bilhed.application.dto.admin.UpdateContactReq
 import org.breizhcamp.bilhed.domain.entities.PassType
 import org.breizhcamp.bilhed.domain.entities.Person
 import org.breizhcamp.bilhed.domain.entities.PersonFilter
@@ -15,7 +15,7 @@ interface PersonPort {
 
     fun getAlreadyNotifCount(): Map<PassType, Int>
 
-    fun updateEmail(id: UUID, updateEmailReq: UpdateEmailReq)
+    fun updateContact(id: UUID, updateContactReq: UpdateContactReq)
 
     fun levelUpTo(id: UUID, newStatus: PersonStatus): Person
 

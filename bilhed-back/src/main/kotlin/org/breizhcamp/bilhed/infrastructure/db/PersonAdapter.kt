@@ -1,7 +1,7 @@
 package org.breizhcamp.bilhed.infrastructure.db
 
 import jakarta.persistence.EntityNotFoundException
-import org.breizhcamp.bilhed.application.dto.admin.UpdateEmailReq
+import org.breizhcamp.bilhed.application.dto.admin.UpdateContactReq
 import org.breizhcamp.bilhed.domain.entities.PassType
 import org.breizhcamp.bilhed.domain.entities.Person
 import org.breizhcamp.bilhed.domain.entities.PersonFilter
@@ -35,9 +35,9 @@ class PersonAdapter(
     }
 
     @Transactional
-    override fun updateEmail(id: UUID, updateEmailReq: UpdateEmailReq) {
+    override fun updateContact(id: UUID, updateContactReq: UpdateContactReq) {
         personRepo.findByIdOrNull(id) ?: throw EntityNotFoundException("Unable to find person [$id]")
-        personRepo.updateEmail(id, updateEmailReq.email)
+        personRepo.updateContact(id, updateContactReq.telephone, updateContactReq.email)
     }
 
     override fun levelUpTo(id: UUID, newStatus: PersonStatus): Person {

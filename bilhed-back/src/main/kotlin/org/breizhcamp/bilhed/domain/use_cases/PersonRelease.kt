@@ -8,6 +8,7 @@ import org.breizhcamp.bilhed.domain.use_cases.ports.*
 import org.breizhcamp.bilhed.infrastructure.TimeService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -64,19 +65,9 @@ class PersonRelease(
             }
         }
         if (ids.isNotEmpty()) attendeeRelease(ids)
-
-//          OLD fun
-//        val ids: List<UUID> = personPort.filter(PersonFilter(status = PersonStatus.ATTENDEE)).mapNotNull {
-//
-//            val deadline = it.participantConfirmationDate.plusHours(timeReminderAtt)
-//            if (!it.payed && deadline.isBefore(now)) it.id else null
-//        }
-//
-//        if (ids.isNotEmpty()) attendeeRelease(ids)
     }
 
     private fun membersMustPay(group: Group): List<Person> {
-        // TODO : /!\ Diff entre personne attendee et personne avec date de confirmation ?
         // A voir pour opti
         if (group.groupPayment && group.drawOrder != null) {
             val ref = personPort.getReferentOfGroup(group.id)
@@ -90,8 +81,7 @@ class PersonRelease(
         personPort.levelUpTo(pers.id, PersonStatus.RELEASED)
 
         if (hasPartInfos && (pers.status == PersonStatus.PARTICIPANT || pers.status == PersonStatus.ATTENDEE)) {
-            val partInfos = partInfosPort.get(pers.id)
-            partInfosPort.save(partInfos.copy(confirmationDate = ZonedDateTime.now()))
+            partInfosPort.updateConfirmationDate(pers.id, ZonedDateTime.now(ZoneId.of("Europe/Paris")))
         }
 
     }

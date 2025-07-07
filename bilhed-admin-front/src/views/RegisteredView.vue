@@ -53,7 +53,7 @@
         <div class="d-flex">
           <button type="button" class="btn btn-link btn-sm icon-small" title="Send SMS reminder" @click="sendReminder(g.members[0].id, 'sms')" :disabled="loading"><BiChatText/></button>
           <button type="button" class="btn btn-link btn-sm ms-2 icon-small" title="Send email reminder" @click="sendReminder(g.members[0].id, 'email')" :disabled="loading"><BiEnvelope/></button>
-          <router-link :to="`/group/${g.group.id}`" class="nav-link ms-2 d-flex align-items-center icon-small"><BiPencil/></router-link>
+          <router-link :to="`/person/${g.members[0].id}`" class="nav-link ms-2 d-flex align-items-center icon-small"><BiPencil/></router-link>
           <router-link :to="`/group/${g.group.id}`" class="nav-link ms-2 d-flex align-items-center icon-small"><BiPeople/></router-link>
         </div>
       </div>

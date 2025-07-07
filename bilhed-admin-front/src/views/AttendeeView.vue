@@ -297,13 +297,7 @@ export default defineComponent({
         return ''
       }
       const dateJs = dayjs(date)
-      const t = dateJs.add(this.nbHoursBeforeRelease, 'hour').toString()
-
-
-      console.log(date)
-      console.log(this.nbHoursBeforeRelease)
-      console.log(t)
-      return t
+      return dateJs.add(this.nbHoursBeforeRelease, 'hour').toString()
     },
     checkGroup(groupId: string, checked: boolean) {
       const group = this.groups.find(g => g.group.id === groupId)

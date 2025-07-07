@@ -32,8 +32,8 @@ interface PersonRepo: JpaRepository<PersonDB, UUID>, PersonRepoCustom {
     fun countAlreadyNotif(): List<Pair<PassType, Int>>
 
     @Modifying
-    @Query("UPDATE PersonDB p SET p.email = :email WHERE p.id = :id")
-    fun updateEmail(id: UUID, email: String)
+    @Query("UPDATE PersonDB p SET p.telephone = :telephone, p.email = :email WHERE p.id = :id")
+    fun updateContact(id: UUID, telephone: String?, email: String)
 
     @Query("SELECT p FROM PersonDB p JOIN FETCH p.group WHERE p.group.id = :groupId AND p.id <> :referentId")
     fun getCompanions(groupId: UUID, referentId: UUID): List<PersonDB>

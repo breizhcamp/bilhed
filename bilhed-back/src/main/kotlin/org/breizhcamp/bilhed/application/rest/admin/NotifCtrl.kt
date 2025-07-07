@@ -21,7 +21,7 @@ class NotifCtrl(
     fun levelUpToAttendee(@RequestBody ids: List<UUID>): Int = participantConfirm.confirmList(ids).size
 
     @PostMapping("/levelUp/release") @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun levelUpToRelease(@RequestBody ids: List<UUID>) = participantConfirm.release(ids)
+    fun levelUpToRelease(@RequestBody ids: List<UUID>) = ids.forEach { participantConfirm.cancel(it) }
 
     @PostMapping("/success") @ResponseStatus(HttpStatus.NO_CONTENT)
     fun succeed(@RequestBody ids: List<UUID>) {
@@ -35,7 +35,7 @@ class NotifCtrl(
 
     @PostMapping("/waiting") @ResponseStatus(HttpStatus.NO_CONTENT)
     fun waiting(@RequestBody ids: List<UUID>) {
-        participantNotif.notifyWaiting(ids) // TODO : Pq pas appeler la bonne méthode directement ?
+        participantNotif.notifyWaiting(ids)
     }
 
     @PostMapping("/failed") @ResponseStatus(HttpStatus.NO_CONTENT)

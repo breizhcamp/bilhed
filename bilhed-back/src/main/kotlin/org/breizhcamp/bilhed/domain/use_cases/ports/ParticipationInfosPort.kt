@@ -1,6 +1,8 @@
 package org.breizhcamp.bilhed.domain.use_cases.ports
 
 import org.breizhcamp.bilhed.domain.entities.ParticipationInfos
+import org.breizhcamp.bilhed.domain.entities.SmsStatus
+import java.time.ZonedDateTime
 import java.util.*
 
 interface ParticipationInfosPort {
@@ -17,4 +19,8 @@ interface ParticipationInfosPort {
     fun getByGroups(ids: List<UUID>): List<ParticipationInfos>
 
     fun existsByPersonId(id: UUID): Boolean
+
+    fun updateConfirmationDate(id: UUID, confirmationDate: ZonedDateTime)
+
+    fun updateSms(id: UUID, smsStatus: SmsStatus, error: String?)
 }
