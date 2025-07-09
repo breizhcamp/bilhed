@@ -3,6 +3,8 @@ package org.breizhcamp.bilhed.application.rest
 import jakarta.persistence.EntityNotFoundException
 import org.breizhcamp.bilhed.application.dto.*
 import org.breizhcamp.bilhed.domain.entities.*
+import org.breizhcamp.bilhed.domain.use_cases.PersonCrud
+import org.breizhcamp.bilhed.domain.use_cases.ReferentInfosCrud
 import org.breizhcamp.bilhed.domain.use_cases.Registration
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
@@ -12,6 +14,8 @@ import java.util.*
 @RequestMapping("/api/register")
 class RegisterCtrl(
     private val registration: Registration,
+    private val personCrud: PersonCrud,
+    private val referentInfosCrud: ReferentInfosCrud,
 ) {
 
     @PostMapping
@@ -20,16 +24,17 @@ class RegisterCtrl(
         val referentId = UUID.randomUUID()
         val group = registration.registerGroup(req.toGroup(referentId))
 
-        val members = mutableListOf(req.referent.toPerson(group.id, referentId))
-        members.addAll(req.companions.map { it.toPerson(group.id, members.first().pass) })
-        registration.registerMembers(members)
+        val members = listOf(req.referent.toPerson(group.id, referentId)) + req.companions.map { it.toPerson(group.id, req.referent.pass) }
+        registration.registerMembers(referentId, members)
 
         return RegisterRes(referentId)
     }
 
     @GetMapping("/{id}")
     fun getRegisterState(@PathVariable id: UUID): RegisterStateRes {
-        return registration.getReferent(id).toStateRes()
+        val pers = personCrud.get(id)
+        val refInfos = referentInfosCrud.get(id)
+        return RegisterStateRes(pers.localPhone(), refInfos.nbSmsSent)
     }
 
     @PostMapping("/{id}") @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -74,9 +79,6 @@ class RegisterCtrl(
         pass,
         groupId
     )
-
-
-    private fun Referent.toStateRes() = RegisterStateRes(person.localPhone(), referentInfos.nbSmsSent)
 
     private fun GroupRegisterReq.toGroup(referentId: UUID, groupId: UUID = UUID.randomUUID()) = Group(groupId, referentId, groupPayment)
 }

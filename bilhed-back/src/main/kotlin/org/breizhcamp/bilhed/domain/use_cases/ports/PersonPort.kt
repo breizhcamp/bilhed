@@ -32,4 +32,6 @@ interface PersonPort {
     fun getMembersByGroup(id: UUID): List<Person>
 
     fun getReferentOfGroup(groupId: UUID): Person
+
+    fun getMembersBy(referentId: UUID): List<Person>
 }

@@ -35,6 +35,5 @@ export enum PersonStatus {
     REGISTERED = "REGISTERED",
     PARTICIPANT = "PARTICIPANT",
     ATTENDEE = "ATTENDEE",
-    ATTENDEE_FULL = "ATTENDEE_FULL"
 }
 

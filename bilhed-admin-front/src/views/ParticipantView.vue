@@ -28,6 +28,7 @@
       <template v-for="(g, i) in groups" :key="g.group.id">
         <tr v-for="(member, iMemb) in g.members" :key="member.id" :class="{ 'table-secondary': i % 2 === 0 }"
             @click.exact="g.group.groupPayment && iMemb === 0 ? checkGroup(g.group.id, !member.checked) : checkPerson(g.group.groupPayment, member)"
+            @click.shift="checkBetween(member)"
             >
 
           <td><input type="checkbox" v-model="member.checked" :disabled="g.group.groupPayment && iMemb !== 0"
@@ -128,6 +129,7 @@ export default defineComponent({
 
   methods: {
     checkBetween(p: Person) {
+      const firstMemberId: string | undefined = this.groups.find(g => g.members.some(m => m.checked))?.members.find(m => m.checked)?.id
       const first = this.groups.findIndex(g => g.members.some(m => m.checked))
       const clicked = this.groups.findIndex(g => g.members.some(m => m.id === p.id))
       if (first === -1) {
@@ -136,7 +138,12 @@ export default defineComponent({
         const min = Math.min(first, clicked)
         const max = Math.max(first, clicked)
         for (let i = min; i <= max; i++) {
-          this.groups[i].members.forEach(m => m.checked = !m.checked)
+          this.groups[i].members.forEach((m => {
+            // to not re-update the first one
+            if (i !== first || !firstMemberId || m.id !== firstMemberId) {
+              m.checked = !m.checked
+            }
+          }))
         }
       }
     },

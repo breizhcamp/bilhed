@@ -2,7 +2,6 @@ package org.breizhcamp.bilhed.domain.use_cases
 
 import org.breizhcamp.bilhed.config.BilhedBackConfig
 import org.breizhcamp.bilhed.domain.entities.Mail
-import org.breizhcamp.bilhed.domain.entities.Referent
 import org.breizhcamp.bilhed.domain.entities.ReminderOrigin
 import org.breizhcamp.bilhed.domain.entities.Sms
 import org.breizhcamp.bilhed.domain.use_cases.ports.PersonPort
@@ -27,29 +26,27 @@ class RegisteredReminder(
     fun send(id: UUID, smsTemplate: String, emailTemplate: String, origin: ReminderOrigin) {
         if (smsTemplate.isBlank() && emailTemplate.isBlank()) return
 
-        val ref = Referent(
-            personPort.get(id),
-            referentInfosPort.get(id)
-        )
+        val ref = personPort.get(id)
+        val refInfos = referentInfosPort.get(id)
 
         referentInfosPort.resetSmsCount(id)
-        val link = "${config.participantFrontUrl}/#/${ref.person.id}"
+        val link = "${config.participantFrontUrl}/#/${ref.id}"
 
         if (!emailTemplate.isBlank()) {
             val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy à HH:mm")
             val closeDate = dateFormatter.format(config.registerCloseDate.withZoneSameInstant(ZoneId.of("Europe/Paris")))
 
-            val model = mapOf("firstname" to ref.person.firstname, "lastname" to ref.person.lastname,
+            val model = mapOf("firstname" to ref.firstname, "lastname" to ref.lastname,
                 "year" to config.breizhCampYear.toString(), "link" to link, "closeDate" to closeDate)
 
-            sendNotification.sendEmail(Mail(ref.person.getMailAddress(), emailTemplate, model, id), origin)
+            sendNotification.sendEmail(Mail(ref.getMailAddress(), emailTemplate, model, id), origin)
         }
 
         if (!smsTemplate.isBlank()) {
             val shortLink = urlShortenerPort.shorten(link, config.registerCloseDate)
-            val smsModel = mapOf("link" to shortLink, "token" to ref.referentInfos.token)
-            if (ref.person.telephone != null)
-                sendNotification.sendSms(Sms(ref.person.id, ref.person.telephone, smsTemplate, smsModel), origin)
+            val smsModel = mapOf("link" to shortLink, "token" to refInfos.token)
+            if (ref.telephone != null)
+                sendNotification.sendSms(Sms(ref.id, ref.telephone, smsTemplate, smsModel), origin)
         }
     }
 

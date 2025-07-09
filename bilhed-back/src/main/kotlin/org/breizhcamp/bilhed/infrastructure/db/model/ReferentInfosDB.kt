@@ -17,11 +17,11 @@ data class ReferentInfosDB(
     val registrationDate: ZonedDateTime,
 
     @Enumerated(EnumType.STRING)
-    val registrationSmsStatus: SmsStatus,
+    var registrationSmsStatus: SmsStatus,
 
-    val registrationNbSmsSent: Int,
-    val registrationLastSmsSentDate: ZonedDateTime?,
-    val registrationSmsError: String? = null,
-    val registrationToken: String,
-    val registrationNbTokenTries: Int = 0,
+    var registrationNbSmsSent: Int,
+    var registrationLastSmsSentDate: ZonedDateTime?,
+    var registrationSmsError: String? = null,
+    var registrationToken: String,
+    var registrationNbTokenTries: Int = 0,
 )

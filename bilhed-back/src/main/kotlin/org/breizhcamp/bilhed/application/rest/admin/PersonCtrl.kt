@@ -5,8 +5,8 @@ import org.breizhcamp.bilhed.application.dto.ErrorRes
 import org.breizhcamp.bilhed.application.dto.PersonDTO
 import org.breizhcamp.bilhed.application.dto.admin.UpdateContactReq
 import org.breizhcamp.bilhed.domain.entities.Reminder
-import org.breizhcamp.bilhed.domain.use_cases.ModifyPersonStatus
 import org.breizhcamp.bilhed.domain.use_cases.PersonCrud
+import org.breizhcamp.bilhed.domain.use_cases.Registration
 import org.breizhcamp.bilhed.domain.use_cases.ReminderCrud
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
@@ -17,7 +17,7 @@ import java.util.*
 class PersonCtrl (
     private val reminderCrud: ReminderCrud,
     private val personCrud: PersonCrud,
-    private val modifyPersonStatus: ModifyPersonStatus
+    private val registration: Registration
 ) {
     @GetMapping("/{id}")
     fun getPerson(@PathVariable id: UUID): PersonDTO {
@@ -36,12 +36,12 @@ class PersonCtrl (
     }
 
     @PostMapping("/levelUp")
-    fun levelUp(@RequestBody ids: List<UUID>) {
-        modifyPersonStatus.levelUp(ids)
+    fun levelUp(@RequestBody ids: List<UUID>) = ids.forEach {
+        registration.levelUpAndNotify(it)
     }
 
     @ExceptionHandler(EntityNotFoundException::class) @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    fun handleENFE(e: EntityNotFoundException) = ErrorRes("Une erreur est survenue")
+    fun handleENFE() = ErrorRes("Une erreur est survenue")
 
     @ExceptionHandler(IllegalArgumentException::class) @ResponseStatus(HttpStatus.BAD_REQUEST)
     fun handleIAE(e: IllegalArgumentException) = ErrorRes(e.message ?: "Une erreur est survenue")

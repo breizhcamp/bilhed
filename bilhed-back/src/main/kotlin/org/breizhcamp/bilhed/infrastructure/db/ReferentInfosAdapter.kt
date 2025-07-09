@@ -2,6 +2,7 @@ package org.breizhcamp.bilhed.infrastructure.db
 
 import jakarta.persistence.EntityNotFoundException
 import org.breizhcamp.bilhed.domain.entities.ReferentInfos
+import org.breizhcamp.bilhed.domain.entities.SmsStatus
 import org.breizhcamp.bilhed.domain.use_cases.ports.ReferentInfosPort
 import org.breizhcamp.bilhed.infrastructure.db.mappers.toDB
 import org.breizhcamp.bilhed.infrastructure.db.mappers.toReferentInfos
@@ -32,6 +33,14 @@ class ReferentInfosAdapter(
 
     override fun get(ids: List<UUID>): List<ReferentInfos> {
         return referentInfosRepo.findAllById(ids).map { it.toReferentInfos() }
+    }
+
+    override fun updateSms(id: UUID, smsStatus: SmsStatus, error: String?) {
+        val refInfos = referentInfosRepo.findByIdOrNull(id) ?: throw EntityNotFoundException("Referent Infos with id [$id] not found.")
+        refInfos.apply {
+            registrationSmsStatus = smsStatus
+            registrationSmsError = error
+        }
     }
 
 }

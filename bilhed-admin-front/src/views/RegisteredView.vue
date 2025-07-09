@@ -159,7 +159,8 @@ export default defineComponent({
     },
 
     levelUp() {
-      const ids = this.groups.flatMap(g => g.members.filter(m => m.checked)).map(m => m.id);
+      // select only referent Ids
+      const ids = this.groups.flatMap(g => g.members.filter(m => m.checked && m.id === g.group.referentId)).map(m => m.id);
 
       if (ids.length === 0) {
         toastWarning("Aucun groupe sélectionné")
@@ -170,7 +171,7 @@ export default defineComponent({
         return
 
       this.loading = true
-      axios.post('/groups/levelUp', ids).then(() => {
+      axios.post('/notifs/levelUp/participant', ids).then(() => {
         this.load()
         toastSuccess(`Le statut a bien été modifié (${ids.length} groupes).`)
       }).catch(() => {

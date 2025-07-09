@@ -3,8 +3,11 @@ package org.breizhcamp.bilhed.application.rest.admin
 import jakarta.servlet.http.HttpServletResponse
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVPrinter
+import org.breizhcamp.bilhed.application.dto.admin.AttendeeDataDTO
+import org.breizhcamp.bilhed.domain.entities.AttendeeData
 import org.breizhcamp.bilhed.domain.entities.ReminderOrigin
 import org.breizhcamp.bilhed.domain.entities.TicketExportData
+import org.breizhcamp.bilhed.domain.use_cases.AttendeeDataCrud
 import org.breizhcamp.bilhed.domain.use_cases.AttendeeNotify
 import org.breizhcamp.bilhed.domain.use_cases.PersonRelease
 import org.breizhcamp.bilhed.domain.use_cases.TicketExport
@@ -20,6 +23,7 @@ class AttendeeCtrl(
     private val attendeeNotify: AttendeeNotify,
     private val personRelease: PersonRelease,
     private val ticketExport: TicketExport,
+    private val attendeeDataCrud: AttendeeDataCrud,
 ) {
     @PostMapping("/notif/payed/reminder/mail") @ResponseStatus(HttpStatus.NO_CONTENT)
     fun payedReminderMail(@RequestBody ids: List<UUID>) {
@@ -54,5 +58,17 @@ class AttendeeCtrl(
 
         out.close()
     }
+
+    @GetMapping("/{id}/data")
+    fun getAttendeeData(@PathVariable id: UUID): AttendeeDataDTO = attendeeDataCrud.get(id).toDto()
 }
+
+fun AttendeeData.toDto() = AttendeeDataDTO(
+    company = company,
+    tShirtSize = tShirtSize,
+    tShirtCut = tShirtCut,
+    vegan = vegan,
+    meetAndGreet = meetAndGreet,
+    postalCode = postalCode,
+)
 

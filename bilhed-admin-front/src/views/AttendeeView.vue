@@ -38,7 +38,9 @@
         <template v-if="g.members.length > 1 && g.group.groupPayment">
           <div class="d-flex align-items-center p-2">
             <div class="form-check">
-              <input class="form-check-input" type="checkbox" :id="`checkbox${g.group.id}`" v-model="g.members[0].checked" @change="checkGroup(g.group.id, g.members[0].checked)" />
+              <input class="form-check-input" type="checkbox" :id="`checkbox${g.group.id}`" v-model="g.members[0].checked" @change="checkGroup(g.group.id, g.members[0].checked)"
+               @click.shift="checkBetween(g.members[0])"
+              />
             </div>
 
             <button
@@ -104,7 +106,8 @@
         <template v-else v-for="m in g.members" :key="m.id">
           <div class="d-flex align-items-center p-2">
             <div class="form-check">
-              <input class="form-check-input" type="checkbox" :id="`checkbox${m.id}`" v-model="m.checked" />
+              <input class="form-check-input" type="checkbox" :id="`checkbox${m.id}`" v-model="m.checked"                 @click.shift="checkBetween(m)"
+              />
             </div>
 
             <button
@@ -154,7 +157,6 @@
 import AttendeesFilter from '@/components/AttendeesFilter.vue';
 import DateView from '@/components/DateView.vue'
 import Pass from '@/components/Pass.vue'
-import type {Attendee} from '@/dto/Attendee';
 import axios from 'axios'
 import BiArrowUp from 'bootstrap-icons/icons/arrow-bar-up.svg?component'
 import BiSendCheck from 'bootstrap-icons/icons/send-check.svg?component'
@@ -178,7 +180,6 @@ export default defineComponent({
 
   data() {
     return {
-      participants: [] as Attendee[],
       allChecked: false,
       loading: false,
       filter: { status: PersonStatus.ATTENDEE } as PersonFilter,
@@ -206,16 +207,22 @@ export default defineComponent({
   methods: {
     getBoolStr,
     animateChevron,
-    checkBetween(p: Attendee) {
-      const first = this.participants.findIndex((r) => r.checked)
-      const clicked = this.participants.findIndex((r) => r.id === p.id)
+    checkBetween(p: Person) {
+      const firstMemberId: string | undefined = this.groups.find(g => g.members.some(m => m.checked))?.members.find(m => m.checked)?.id
+      const first = this.groups.findIndex(g => g.members.some(m => m.checked))
+      const clicked = this.groups.findIndex(g => g.members.some(m => m.id === p.id))
       if (first === -1) {
         p.checked = !p.checked
       } else {
         const min = Math.min(first, clicked)
         const max = Math.max(first, clicked)
         for (let i = min; i <= max; i++) {
-          this.participants[i].checked = !p.checked
+          this.groups[i].members.forEach((m => {
+            // to not re-update the first one
+            if (i !== first || !firstMemberId || m.id !== firstMemberId) {
+              m.checked = !m.checked
+            }
+          }))
         }
       }
     },
@@ -288,8 +295,8 @@ export default defineComponent({
       })
     },
 
-    getSelected: function () {
-      return this.participants.filter((p) => p.checked).map((p) => p.id)
+    getSelected: function (): string[] {
+      return this.groups.flatMap((g) => g.members.filter(m => m.checked)).map(p => p.id)
     },
 
     getLimitDate(date ?: string) {

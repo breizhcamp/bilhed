@@ -75,4 +75,8 @@ class PersonAdapter(
         return personRepo.findReferentOfGroup(groupId).toPerson()
     }
 
+    override fun getMembersBy(referentId: UUID): List<Person> {
+        return personRepo.getMembersBy(referentId).map { it.toPerson() }
+    }
+
 }

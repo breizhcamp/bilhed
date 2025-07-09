@@ -2,7 +2,7 @@ package org.breizhcamp.bilhed.domain.use_cases
 
 import mu.KotlinLogging
 import org.breizhcamp.bilhed.domain.entities.Person
-import org.breizhcamp.bilhed.domain.entities.Referent
+import org.breizhcamp.bilhed.domain.entities.ReferentInfos
 import org.breizhcamp.bilhed.domain.entities.ReminderOrigin
 import org.breizhcamp.bilhed.domain.entities.Sms
 import org.breizhcamp.bilhed.domain.entities.SmsStatus
@@ -18,42 +18,40 @@ class SendRegistrationSms(
     private val referentInfosPort: ReferentInfosPort
 ) {
 
-    fun sendSms(referent: Referent): Person {
-        if (referent.person.telephone == null || !referent.person.telephone.startsWith("+")) {
-            logger.warn { "Trying to send sms to [${referent.person.telephone}] / [${referent.person.lastname} ${referent.person.firstname}] but phone number is not international" }
+    fun sendSms(ref: Person, refInfos: ReferentInfos): Person {
+        if (ref.telephone == null || !ref.telephone.startsWith("+")) {
+            logger.warn { "Trying to send sms to [${ref.telephone}] / [${ref.lastname} $ref.firstname}] but phone number is not international" }
             throw IllegalArgumentException("Erreur interne, le téléphone n'est pas au format international")
         }
 
-        if (referent.referentInfos.nbSmsSent >= 3) {
-            logger.warn { "Trying to send sms to registered [${referent.person.lastname} ${referent.person.firstname}] but already sent 3 times" }
+        if (refInfos.nbSmsSent >= 3) {
+            logger.warn { "Trying to send sms to registered [${ref.lastname} ${ref.firstname}] but already sent 3 times" }
             throw IllegalArgumentException("Vous avez déjà demandé 3 fois un code par SMS. Veuillez contacter l'organisation.")
         }
 
-        if (referent.referentInfos.smsStatus == SmsStatus.SENDING && referent.referentInfos.lastSmsSentDate?.plusSeconds(29)?.isAfter(ZonedDateTime.now()) == true) {
-            logger.warn { "Trying to send sms to registered [${referent.person.lastname} ${referent.person.firstname}] but already sent less than 30 sec ago" }
+        if (refInfos.smsStatus == SmsStatus.SENDING && refInfos.lastSmsSentDate?.plusSeconds(29)?.isAfter(ZonedDateTime.now()) == true) {
+            logger.warn { "Trying to send sms to registered [${ref.lastname} ${ref.firstname}] but already sent less than 30 sec ago" }
             throw IllegalArgumentException("Un SMS a déjà été envoyé il y a moins de 30 secondes. Veuillez patienter.")
         }
 
         Thread.sleep(1000)
 
-        val refInfos = referent.referentInfos.copy(
+        val newRefInfos = refInfos.copy(
             smsStatus = SmsStatus.SENDING,
-            nbSmsSent = referent.referentInfos.nbSmsSent + 1,
+            nbSmsSent = refInfos.nbSmsSent + 1,
             lastSmsSentDate = ZonedDateTime.now(),
-            token = referent.referentInfos.token
+            token = refInfos.token
         )
 
         val sms = Sms(
-            id = referent.referentInfos.personId,
-            phone = referent.person.telephone,
+            id = refInfos.personId,
+            phone = ref.telephone,
             template = "registered_token",
-            model = mapOf("token" to referent.referentInfos.token),
+            model = mapOf("token" to refInfos.token),
         )
 
-        val ref = referent.copy(referentInfos = refInfos)
-
         sendNotification.sendSms(sms, ReminderOrigin.MANUAL)
-        referentInfosPort.save(refInfos)
-        return ref.person
+        referentInfosPort.save(newRefInfos)
+        return ref
     }
 }

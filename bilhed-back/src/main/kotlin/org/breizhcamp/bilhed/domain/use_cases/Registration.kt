@@ -40,12 +40,12 @@ class Registration(
         return group
     }
 
-    fun registerMembers(persons: List<Person>) {
+    fun registerMembers(refId: UUID, persons: List<Person>) {
         if (config.registerCloseDate.isBefore(ZonedDateTime.now())) {
             throw IllegalArgumentException("Les inscriptions sont closes.")
         }
 
-        val ref = persons.first()
+        val ref = persons.find { it.id == refId } ?: throw IllegalArgumentException("Referent with id $refId not found.")
         for (person in persons) {
             if (personPort.existsEmailOrPhone(person.email, person.telephone)) {
                 throw IllegalArgumentException("Une inscription avec cet email ou ce téléphone existe déjà.")
@@ -59,62 +59,61 @@ class Registration(
         referentInfosPort.save(infos)
         logger.info { "New referent infos for [${ref.lastname} ${ref.firstname}] created" }
 
-        smsSend.sendSms(Referent(ref, infos))
-    }
-
-    fun getReferent(id: UUID): Referent {
-        return Referent(
-            person = personPort.get(id),
-            referentInfos = referentInfosPort.get(id)
-        )
+        smsSend.sendSms(ref, infos)
     }
 
     fun changePhoneNumber(id: UUID, phone: String) {
-        val referent = getReferent(id)
+        val ref = personPort.get(id)
 
         if (personPort.existsEmailOrPhone("", phone)) {
-            logger.warn { "Trying to change phone number of registered [$id][${referent.person.lastname} ${referent.person.firstname}] to [$phone] but this phone number is already used" }
+            logger.warn { "Trying to change phone number of registered [$id][${ref.lastname} ${ref.firstname}] to [$phone] but this phone number is already used" }
             throw IllegalArgumentException("Une inscription avec cet email ou ce téléphone existe déjà.")
         }
 
-        logger.info { "Changing phone number of registered [${referent.person.lastname} ${referent.person.firstname}] to [$phone]" }
-        val pers = referent.person.copy(telephone = phone)
-        val newRef = referent.copy(person = pers)
+        logger.info { "Changing phone number of registered [${ref.lastname} ${ref.firstname}] to [$phone]" }
+        val pers = ref.copy(telephone = phone)
         personPort.save(pers)
 
-        smsSend.sendSms(newRef)
+        smsSend.sendSms(pers, referentInfosPort.get(id))
     }
 
     fun resendSms(id: UUID) {
-        smsSend.sendSms(getReferent(id))
+        smsSend.sendSms(personPort.get(id), referentInfosPort.get(id))
     }
 
     @Transactional
     fun saveSmsStatus(id: UUID, error: String?) {
-        val referent = getReferent(id)
         val smsStatus = if (error == null) SmsStatus.SENT else SmsStatus.ERROR
-        referentInfosPort.save(referent.referentInfos.copy(smsStatus = smsStatus, smsError = error))
+        referentInfosPort.updateSms(id = id, smsStatus = smsStatus, error = error)
     }
 
     @Transactional(noRollbackFor = [IllegalArgumentException::class])
     fun validateToken(id: UUID, code: String) {
         if (!code.matches("^[0-9]{6}\$".toRegex())) throw IllegalArgumentException("Le code saisi est invalide")
-        val referent = getReferent(id)
-        if (referent.referentInfos.nbTokenTries >= 3) throw IllegalArgumentException("Vous avez dépassé le nombre de tentatives autorisées, merci de nous contacter")
-        if (code != referent.referentInfos.token) {
-            referentInfosPort.save(referent.referentInfos.copy(nbTokenTries = referent.referentInfos.nbTokenTries + 1))
+        val refInfos = referentInfosPort.get(id)
+
+        if (refInfos.nbTokenTries >= 3) throw IllegalArgumentException("Vous avez dépassé le nombre de tentatives autorisées, merci de nous contacter")
+        if (code != refInfos.token) {
+            referentInfosPort.save(refInfos.copy(nbTokenTries = refInfos.nbTokenTries + 1))
             throw IllegalArgumentException("Le code saisi est invalide")
         }
 
-        personPort.levelUpTo(referent.person.id, PersonStatus.PARTICIPANT)
-        personPort.getCompanions(referent.person.groupId, referent.person.id).forEach {
+        levelUpAndNotify(id)
+    }
+
+    @Transactional
+    fun levelUpAndNotify(referentId: UUID) {
+        val persons = personPort.getMembersBy(referentId = referentId)
+        persons.forEach {
             personPort.levelUpTo(it.id, PersonStatus.PARTICIPANT)
         }
 
-        val model = mapOf("firstname" to referent.person.firstname, "lastname" to referent.person.lastname, "year" to config.breizhCampYear.toString())
+        val ref = persons.find { it.id == referentId } ?: throw IllegalStateException("Referent with id $referentId not found.")
 
-        sendNotification.sendEmail(Mail(referent.person.getMailAddress(), "register", model, id), ReminderOrigin.AUTOMATIC)
+        val model = mapOf("firstname" to ref.firstname, "lastname" to ref.lastname, "year" to config.breizhCampYear.toString())
 
-        logger.info { "Validated group of [${referent.person.lastname} ${referent.person.firstname}] as a participant" }
+        sendNotification.sendEmail(Mail(ref.getMailAddress(), "register", model, referentId), ReminderOrigin.AUTOMATIC)
+
+        logger.info { "Validated group of [${ref.lastname} ${ref.firstname}] as a participant" }
     }
 }

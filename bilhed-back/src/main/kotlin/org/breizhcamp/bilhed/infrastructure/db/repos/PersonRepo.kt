@@ -44,4 +44,8 @@ interface PersonRepo: JpaRepository<PersonDB, UUID>, PersonRepoCustom {
 
     @Query("SELECT p FROM PersonDB p JOIN FETCH p.group WHERE p.id = p.group.referentId AND p.group.id = :groupId")
     fun findReferentOfGroup(groupId: UUID): PersonDB
+
+    @Query("SELECT p FROM PersonDB p WHERE p.group.id in (" +
+            "  select g.id FROM GroupDB g WHERE g.referentId = :referentId ) ")
+    fun getMembersBy(referentId: UUID): List<PersonDB>
 }

@@ -5,23 +5,29 @@
     </div>
   </div>
   <section style="background-color: #bde4f3" class="rounded p-3 mb-3">
-    <h2>Informations sur {{ person.firstname }} {{ person.lastname }}</h2>
+    <div class="d-flex justify-content-between align-items-start">
+      <h2>Informations sur {{ person.firstname }} {{ person.lastname }}</h2>
+      <router-link :to="`/group/${person.groupId}`" class="btn btn-outline-dark">Accéder  à son groupe</router-link>
+    </div>
     <!--    infos globales -->
     <table class="table table-borderless m-0 table-transparent">
       <thead>
       <tr>
+        <th scope="col">Statut</th>
         <th scope="col">Email</th>
         <th scope="col">Telephone</th>
         <th scope="col">Pass</th>
-        <th scope="col">Enfants</th>
+        <th scope="col">Payé ?</th>
         <th scope="col"></th>
       </tr>
       </thead>
       <tbody>
       <tr>
+        <td>{{ person.status }}</td>
         <td><input class="form-control form-control-sm" type="text" id="mail" v-model="person.email" /></td>
         <td><input class="form-control form-control-sm" type="text" id="phone" v-model="person.telephone" /></td>
         <td><Pass :pass="person.pass"/></td>
+        <td>{{ getBoolStr(person.payed) }}</td>
         <td>
           <button type="button" class="btn btn-primary btn-sm" title="Modify Person" @click="updatePerson()">Modifier</button>
         </td>
@@ -29,49 +35,9 @@
       </tbody>
     </table>
   </section>
-  <section :style="`background-color: ${bgColor}`" class="rounded p-3 mb-3" >
-    <h2>Statut {{ person.status }}</h2>
-    <table v-if="person.status === PersonStatus.REGISTERED && registered" class="table table-borderless m-0 table-transparent">
-      <thead>
-        <tr>
-          <th scope="col">Date d'inscription</th>
-          <th scope="col">Status SMS</th>
-          <th scope="col">Nb Sms envoyés</th>
-          <th scope="col">Date dernier Sms envoyé</th>
-          <th scope="col">Sms erreur</th>
-          <th scope="col">Token</th>
-          <th scope="col">Nb essais token</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><DateView :date="registered.registrationDate" /> </td>
-          <td>{{ registered.smsStatus }}</td>
-          <td>{{ registered.nbSmsSent }}</td>
-          <td><DateView :date="registered.lastSmsSentDate" /></td>
-          <td>{{ registered.smsError }}</td>
-          <td>{{ registered.token }}</td>
-          <td>{{ registered.nbTokenTries }}</td>
-        </tr>
-      </tbody>
-    </table>
-    <table v-if="person.status === PersonStatus.PARTICIPANT" class="table table-borderless m-0 table-transparent">
-      <thead>
-      <tr>
-        <th scope="col">Date de participation</th>
-        <th scope="col">Ordre tirage</th>
-        <th scope="col">Date envoi notification tirage</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr v-if="participant">
-        <td><DateView :date="participant.participationDate" /></td>
-        <td>{{ participant.drawOrder }}</td>
-        <td><DateView :date="participant.notificationConfirmSentDate" /></td>
-      </tr>
-      </tbody>
-    </table>
-    <table v-if="person.status === PersonStatus.ATTENDEE || person.status === PersonStatus.ATTENDEE_FULL" class="table table-borderless m-0 table-transparent">
+  <section style="background-color: #F6F5CBFF" class="rounded p-3 mb-3" v-if="person.status === PersonStatus.ATTENDEE">
+    <h2>Données attendee</h2>
+    <table class="table table-borderless m-0 table-transparent">
       <thead>
       <tr>
         <th scope="col">Entreprise</th>
@@ -80,31 +46,23 @@
         <th scope="col">Vegan ?</th>
         <th scope="col">Meet and Greet ?</th>
         <th scope="col">Code postal</th>
-        <th scope="col">Date de confirmation participant</th>
-        <th scope="col">Payé ?</th>
       </tr>
       </thead>
       <tbody>
-      <tr v-if="attendee">
-        <template v-if="attendeeFull">
-          <td>{{ attendeeFull.company }}</td>
-          <td>{{ attendeeFull.tshirtSize }}</td>
-          <td>{{ attendeeFull.tshirtCut }}</td>
-          <td>{{ getBoolStr(attendeeFull.vegan) }}</td>
-          <td>{{ getBoolStr(attendeeFull.meetAndGreet) }}</td>
-          <td>{{ attendeeFull.postalCode }}</td>
-        </template>
-        <template v-else>
-          <td/><td/><td/><td/><td/><td/>
-        </template>
-        <td><DateView :date="attendee.participantConfirmationDate" /></td>
-        <td>{{ getBoolStr(attendee.payed) }}</td>
+      <tr>
+        <td>{{ attendeeData.company }}</td>
+        <td>{{ attendeeData.tshirtSize }}</td>
+        <td>{{ attendeeData.tshirtCut }}</td>
+        <td>{{ getBoolStr(attendeeData.vegan) }}</td>
+        <td>{{ getBoolStr(attendeeData.meetAndGreet) }}</td>
+        <td>{{ attendeeData.postalCode }}</td>
       </tr>
       </tbody>
     </table>
   </section>
-  <section>
+  <section v-if="reminders.length > 0">
 <!--    reminders-->
+    <h2>Historique des notifications</h2>
     <table class="table table-striped table-borderless mb-4">
       <colgroup>
         <col style="width: 20%"/>
@@ -152,14 +110,14 @@
 
       </div>
     </div>
-    <div v-if="person.status === PersonStatus.ATTENDEE || person.status === PersonStatus.ATTENDEE_FULL" class="container-fluid">
+    <div v-if="person.status === PersonStatus.ATTENDEE" class="container-fluid">
       <div>
-        <button v-if="!attendeeFull?.payed || !attendee?.payed"
+        <button v-if="!person?.payed"
                 type="button"
                 class="btn btn-primary me-1"
                 v-on:click="notify('payed/reminder/mail')"
                 :disabled="loading"><BiSendCheck/> Remind payed mail</button>
-        <button v-if="!attendeeFull?.payed || !attendee?.payed"
+        <button v-if="!person?.payed"
                 type="button"
                 class="btn btn-outline-warning me-1"
                 v-on:click="notify('payed/reminder/sms')" :disabled="loading"><BiSendCheck/> Remind payed SMS</button>
@@ -181,12 +139,10 @@ import BiEnvelope from 'bootstrap-icons/icons/envelope.svg?component'
 import {type Person, PersonStatus} from "@/dto/Person";
 import Pass from "@/components/Pass.vue";
 import DateView from "@/components/DateView.vue";
-import type {Registered} from "@/dto/Registered";
-import type {Participant} from "@/dto/Participant";
-import type {Attendee, AttendeeData} from "@/dto/Attendee";
 import {toastSuccess, toastWarning} from "@/utils/ReminderUtils";
 import type {Reminder} from "@/dto/Reminder";
 import {getBoolStr} from "@/utils/Global";
+import type {AttendeeData} from "@/dto/Attendee";
 
 export default defineComponent({
   name: "PersonView",
@@ -194,18 +150,6 @@ export default defineComponent({
     PersonStatus() {
       return PersonStatus
     },
-    registered(): Registered {
-      return this.person as Registered
-    },
-    participant(): Participant {
-      return this.person as Participant
-    },
-    attendee(): Attendee {
-      return this.person as Attendee
-    },
-    attendeeFull(): AttendeeData | undefined {
-      return this.person.status === PersonStatus.ATTENDEE_FULL ? this.person as AttendeeData : undefined
-    }
   },
   components: {DateView, Pass, BiChatText, BiSendCheck, BiSendX, BiArrowUp, BiSendExclamation, BiEnvelope},
 
@@ -213,10 +157,10 @@ export default defineComponent({
     return {
       person: {} as Person,
       personFromDB: {} as Person,
-      bgColor: '',
       error: "",
       reminders: [] as Reminder[],
-      loading: false
+      loading: false,
+      attendeeData: {} as AttendeeData
     }
   },
 
@@ -229,19 +173,12 @@ export default defineComponent({
     load() {
       axios.get(`/persons/${this.$route.params.id}`).then(personRes => {
         this.person = personRes.data
-        switch (this.person.status) {
-          case PersonStatus.REGISTERED:
-            this.bgColor = "#EACBEA"
-            break;
-          case PersonStatus.PARTICIPANT:
-            this.bgColor = "#F8D2B2"
-            break;
-          case PersonStatus.ATTENDEE:
-          case PersonStatus.ATTENDEE_FULL:
-            this.bgColor = "#F6F5CBFF"
-            break;
-        }
         this.personFromDB = {...this.person}
+        if (personRes.data.status === PersonStatus.ATTENDEE) {
+          axios.get(`/attendees/${this.$route.params.id}/data`).then(dataRes => {
+            this.attendeeData = dataRes.data
+          })
+        }
       })
       axios.get(`/persons/${this.$route.params.id}/reminders`).then(rem => {
         this.reminders = rem.data
@@ -302,7 +239,6 @@ export default defineComponent({
         case PersonStatus.PARTICIPANT:
           url = `/participants/levelUp/${level}`
           break;
-        case PersonStatus.ATTENDEE_FULL:
         case PersonStatus.ATTENDEE:
           url = `/attendees/levelUp/${level}`
           break;

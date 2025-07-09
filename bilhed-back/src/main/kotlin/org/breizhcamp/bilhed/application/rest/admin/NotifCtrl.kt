@@ -5,6 +5,7 @@ import org.breizhcamp.bilhed.domain.entities.ReminderOrigin
 import org.breizhcamp.bilhed.domain.use_cases.ParticipantConfirm
 import org.breizhcamp.bilhed.domain.use_cases.ParticipantNotif
 import org.breizhcamp.bilhed.domain.use_cases.RegisteredReminder
+import org.breizhcamp.bilhed.domain.use_cases.Registration
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import java.util.*
@@ -15,7 +16,10 @@ class NotifCtrl(
     private val participantNotif: ParticipantNotif,
     private val participantConfirm: ParticipantConfirm,
     private val registeredReminder: RegisteredReminder,
+    private val registration: Registration,
 ) {
+    @PostMapping("/levelUp/participant")
+    fun levelUpToParticipant(@RequestBody ids: List<UUID>) = ids.forEach { registration.levelUpAndNotify(it) }
 
     @PostMapping("/levelUp/attendee")
     fun levelUpToAttendee(@RequestBody ids: List<UUID>): Int = participantConfirm.confirmList(ids).size
