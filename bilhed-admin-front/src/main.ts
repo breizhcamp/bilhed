@@ -21,9 +21,9 @@ axios.interceptors.request.use(async config => {
 
 await vueKeycloak.install(app, {
   config: {
-    url: 'https://auth.breizhcamp.org/auth/',
-    realm: 'BreizhCamp',
-    clientId: 'bilhed-admin-front',
+    url: 'https://lemur-15.cloud-iam.com/auth/',
+    realm: 'breizhcamp',
+    clientId: 'bilhed',
   }
 })
 
