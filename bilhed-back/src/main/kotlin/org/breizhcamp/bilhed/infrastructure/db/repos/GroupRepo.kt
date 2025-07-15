@@ -16,6 +16,9 @@ interface GroupRepo: JpaRepository<GroupDB, UUID> {
     @Query("SELECT p.group FROM PersonDB p WHERE p.id = :memberId")
     fun findByMemberId(memberId: UUID): GroupDB
 
+    @Query("SELECT p.group FROM PersonDB p WHERE p.id IN (:memberIds)")
+    fun findAllByMemberIds(memberIds: List<UUID>): List<GroupDB>
+
     @Query("SELECT p FROM PersonDB p WHERE p.status = org.breizhcamp.bilhed.infrastructure.db.model.PersonDBStatus.PARTICIPANT AND p.group.drawOrder IS NULL")
     fun listGroupWithNoDraw(): List<PersonDB>
 

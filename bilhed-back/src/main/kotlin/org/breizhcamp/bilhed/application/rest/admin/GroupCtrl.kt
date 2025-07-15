@@ -37,7 +37,7 @@ class GroupCtrl(
 
     @GetMapping("/{id}/complete")
     fun getCompleteGroup(@PathVariable id: UUID): GroupCompleteParticipant {
-        val groupEntry = groupCrud.extendedGroupById(id)
+        val groupEntry = groupCrud.extendedGroupBy(id)
         val ref = groupEntry.second.find { it.id == groupEntry.first.referentId } ?: throw IllegalStateException("Group [$id] has no referent.")
 
         return GroupCompleteParticipant(
@@ -62,10 +62,9 @@ class GroupCtrl(
             .associateBy { it.personId }
 
         return groupEntries.map { (group, members) ->
-            val referent = referentMap[group.referentId]
-                ?: error("Referent not found for group ${group.id}")
-            val referentInfos = refInfosMap[referent.id]
-                ?: error("Referent infos not found for person ${referent.id}")
+            // it may be that the referent has already paid for his place but not the others if payment is separate
+            // so we need to retrieve the ref info from the referentId
+            val referentInfos = refInfosMap[group.referentId] ?: referentInfosCrud.get(group.referentId)
 
             GroupCompleteParticipant(
                 group = group.toDto(),

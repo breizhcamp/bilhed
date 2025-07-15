@@ -88,6 +88,10 @@ class BilletWebAdapter(
     }
 
     override fun delete(attendees: List<Person>) {
+        /**
+         * attendees: persons who have participationInfos (= should pay)
+         * so, not companions
+         */
         val eventId = requireNotNull(config.billetWeb.eventId) { "Erreur config, impossible de supprimer de Billet sans eventId" }
 
         val ordersId = billetWebRepo.findAllById(attendees.map { it.id }).map { it.attendeeId }

@@ -38,7 +38,7 @@ class PersonReleaseTest {
 
     lateinit var person: Person
 
-    lateinit var personRelease: PersonRelease
+    lateinit var releasePerson: ReleasePerson
 
     var now: ZonedDateTime = ZonedDateTime.now()
 

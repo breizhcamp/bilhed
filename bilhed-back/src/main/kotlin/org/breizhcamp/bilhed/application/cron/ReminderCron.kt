@@ -1,6 +1,6 @@
 package org.breizhcamp.bilhed.application.cron
 
-import org.breizhcamp.bilhed.domain.use_cases.PersonRelease
+import org.breizhcamp.bilhed.domain.use_cases.ReleasePerson
 import org.breizhcamp.bilhed.domain.use_cases.SendReminder
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
@@ -9,16 +9,16 @@ import java.util.concurrent.TimeUnit
 @Component
 class ReminderCron (
     private val sendReminder: SendReminder,
-    private val personRelease: PersonRelease
+    private val releasePerson: ReleasePerson
 ) {
 
-//    @Scheduled(fixedDelay = 1, timeUnit = TimeUnit.MINUTES, initialDelay = 1)
+    @Scheduled(fixedDelay = 1, timeUnit = TimeUnit.MINUTES, initialDelay = 1)
     fun checkReminders() {
-        personRelease.participantReleaseAuto()
-        personRelease.attendeeReleaseAuto()
+        releasePerson.participantReleaseAuto()
+        releasePerson.attendeeReleaseAuto()
 
-        sendReminder.sendRegisteredReminder()
-        sendReminder.sendParticipantReminder()
-        sendReminder.sendAttendeeReminder()
+//        sendReminder.sendRegisteredReminder()
+//        sendReminder.sendParticipantReminder()
+//        sendReminder.sendAttendeeReminder()
     }
 }

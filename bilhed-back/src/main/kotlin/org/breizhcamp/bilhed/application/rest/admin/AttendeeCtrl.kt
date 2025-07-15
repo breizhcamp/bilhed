@@ -9,7 +9,7 @@ import org.breizhcamp.bilhed.domain.entities.ReminderOrigin
 import org.breizhcamp.bilhed.domain.entities.TicketExportData
 import org.breizhcamp.bilhed.domain.use_cases.AttendeeDataCrud
 import org.breizhcamp.bilhed.domain.use_cases.AttendeeNotify
-import org.breizhcamp.bilhed.domain.use_cases.PersonRelease
+import org.breizhcamp.bilhed.domain.use_cases.ReleasePerson
 import org.breizhcamp.bilhed.domain.use_cases.TicketExport
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -21,7 +21,7 @@ import java.util.*
 @RequestMapping("/admin/attendees")
 class AttendeeCtrl(
     private val attendeeNotify: AttendeeNotify,
-    private val personRelease: PersonRelease,
+    private val releasePerson: ReleasePerson,
     private val ticketExport: TicketExport,
     private val attendeeDataCrud: AttendeeDataCrud,
 ) {
@@ -37,7 +37,7 @@ class AttendeeCtrl(
 
     @PostMapping("/levelUp/release") @ResponseStatus(HttpStatus.NO_CONTENT)
     fun release(@RequestBody ids: List<UUID>) {
-        personRelease.attendeeRelease(ids)
+        releasePerson.manualAttendeeRelease(ids)
     }
 
     @GetMapping("/export")

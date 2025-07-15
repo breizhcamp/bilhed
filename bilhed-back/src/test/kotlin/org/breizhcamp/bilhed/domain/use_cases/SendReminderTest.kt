@@ -36,7 +36,7 @@ class SendReminderTest {
     lateinit var registeredReminder: RegisteredReminder
 
     @RelaxedMockK
-    lateinit var participantNotif: ParticipantNotif
+    lateinit var participantNotify: ParticipantNotify
 
     @RelaxedMockK
     lateinit var attendeeNotify: AttendeeNotify

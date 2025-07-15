@@ -19,11 +19,11 @@ class ParticipantConfirm(
     private val groupPort: GroupPort,
     private val partInfosPort: ParticipationInfosPort,
     private val attendeeDataPort: AttendeeDataPort,
-    private val personRelease: PersonRelease,
+    private val releasePerson: ReleasePerson,
 ) {
 
     fun getConfirmInfos(persId: UUID): ParticipantConfirmInfo {
-        val group = groupPort.getByMemberId(persId)
+        val group = groupPort.getBy(persId)
         val members = personPort.getMembersByGroup(group.id)
         val pair = members.partition { it.id == group.referentId }
 
@@ -147,20 +147,20 @@ class ParticipantConfirm(
          * Otherwise, cancel the participant
          */
         val p = personPort.get(id)
-        val group = groupPort.getByMemberId(id)
+        val group = groupPort.getBy(id)
 
         if (group.groupPayment && id == group.referentId) {
             val comp = personPort.getCompanions(group.id, id)
             comp.forEach {
                 logger.info { "Level up participant to release [${it.id}] / [${it.lastname}] [${it.firstname}]" }
-                personRelease.release(it)
+                releasePerson.release(it)
             }
             logger.info { "Level up participant to release [$id] / [${p.lastname}] [${p.firstname}]" }
-            personRelease.release(p, true)
+            releasePerson.release(p, true)
             return
         }
 
         logger.info { "Level up participant to release [$id] / [${p.lastname}] [${p.firstname}]" }
-        personRelease.release(p, id == group.referentId)
+        releasePerson.release(p, id == group.referentId)
     }
 }

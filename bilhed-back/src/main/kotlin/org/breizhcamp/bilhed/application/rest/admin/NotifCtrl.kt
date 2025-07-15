@@ -3,7 +3,7 @@ package org.breizhcamp.bilhed.application.rest.admin
 import org.breizhcamp.bilhed.application.dto.admin.ReminderReq
 import org.breizhcamp.bilhed.domain.entities.ReminderOrigin
 import org.breizhcamp.bilhed.domain.use_cases.ParticipantConfirm
-import org.breizhcamp.bilhed.domain.use_cases.ParticipantNotif
+import org.breizhcamp.bilhed.domain.use_cases.ParticipantNotify
 import org.breizhcamp.bilhed.domain.use_cases.RegisteredReminder
 import org.breizhcamp.bilhed.domain.use_cases.Registration
 import org.springframework.http.HttpStatus
@@ -13,7 +13,7 @@ import java.util.*
 @RestController("adminNotifCtrl")
 @RequestMapping("/admin/notifs")
 class NotifCtrl(
-    private val participantNotif: ParticipantNotif,
+    private val participantNotify: ParticipantNotify,
     private val participantConfirm: ParticipantConfirm,
     private val registeredReminder: RegisteredReminder,
     private val registration: Registration,
@@ -29,22 +29,22 @@ class NotifCtrl(
 
     @PostMapping("/success") @ResponseStatus(HttpStatus.NO_CONTENT)
     fun succeed(@RequestBody ids: List<UUID>) {
-        participantNotif.notifySuccess(ids)
+        participantNotify.notifySuccess(ids)
     }
 
     @PostMapping("/success/reminder") @ResponseStatus(HttpStatus.NO_CONTENT)
     fun successReminder(@RequestBody ids: List<UUID>) {
-        participantNotif.remindSuccess(ids, ReminderOrigin.MANUAL)
+        participantNotify.remindSuccess(ids, ReminderOrigin.MANUAL)
     }
 
     @PostMapping("/waiting") @ResponseStatus(HttpStatus.NO_CONTENT)
     fun waiting(@RequestBody ids: List<UUID>) {
-        participantNotif.notifyWaiting(ids)
+        participantNotify.notifyWaiting(ids)
     }
 
     @PostMapping("/failed") @ResponseStatus(HttpStatus.NO_CONTENT)
     fun failed(@RequestBody ids: List<UUID>) {
-        participantNotif.notifyFailed(ids)
+        participantNotify.notifyFailed(ids)
     }
 
     @PostMapping("/registered/{id}/reminder")

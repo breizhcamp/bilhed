@@ -48,4 +48,8 @@ interface PersonRepo: JpaRepository<PersonDB, UUID>, PersonRepoCustom {
     @Query("SELECT p FROM PersonDB p WHERE p.group.id in (" +
             "  select g.id FROM GroupDB g WHERE g.referentId = :referentId ) ")
     fun getMembersBy(referentId: UUID): List<PersonDB>
+
+    @Modifying
+    @Query("UPDATE PersonDB p SET p.status = :newStatus WHERE p.group.id = :groupId")
+    fun levelUpGroupTo(groupId: UUID, newStatus: PersonDBStatus)
 }

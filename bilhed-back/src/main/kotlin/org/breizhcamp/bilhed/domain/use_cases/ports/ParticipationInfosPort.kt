@@ -1,6 +1,7 @@
 package org.breizhcamp.bilhed.domain.use_cases.ports
 
 import org.breizhcamp.bilhed.domain.entities.ParticipationInfos
+import org.breizhcamp.bilhed.domain.entities.PersonStatus
 import org.breizhcamp.bilhed.domain.entities.SmsStatus
 import java.time.ZonedDateTime
 import java.util.*
@@ -12,7 +13,7 @@ interface ParticipationInfosPort {
 
     fun save(partInfos: ParticipationInfos)
 
-    fun list(): List<ParticipationInfos>
+    fun list(status: PersonStatus): List<ParticipationInfos>
 
     fun getByGroup(id: UUID): List<ParticipationInfos>
 
@@ -23,4 +24,6 @@ interface ParticipationInfosPort {
     fun updateConfirmationDate(id: UUID, confirmationDate: ZonedDateTime)
 
     fun updateSms(id: UUID, smsStatus: SmsStatus, error: String?)
+
+    fun updateNotification(id: UUID, notificationDate: ZonedDateTime)
 }

@@ -16,13 +16,15 @@ interface GroupPort {
 
     fun get(ids: List<UUID>): List<Group>
 
-    fun getByMemberId(memberId: UUID): Group
+    fun getBy(memberId: UUID): Group
+
+    fun getBy(memberIds: List<UUID>): List<Group>
 
     fun list(): List<Group>
 
     fun extendedGroupList(filter: PersonFilter): Map<Group, List<Person>>
 
-    fun extendedGroupById(groupId: UUID): Pair<Group, List<Person>>
+    fun extendedGroupBy(groupId: UUID): Pair<Group, List<Person>>
 
     fun listIdsWithNoDraw(): Map<PassType, List<UUID>>
 

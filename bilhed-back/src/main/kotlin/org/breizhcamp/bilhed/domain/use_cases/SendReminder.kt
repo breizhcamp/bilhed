@@ -13,7 +13,7 @@ class SendReminder (
     private val reminderPort: ReminderPort,
     private val reminderConfigPort: ReminderConfigPort,
     private val registeredReminder: RegisteredReminder,
-    private val participantNotif: ParticipantNotif,
+    private val participantNotify: ParticipantNotify,
     private val attendeeNotify: AttendeeNotify,
     private val configPort: ConfigPort,
     private val timeService: TimeService,
@@ -82,7 +82,7 @@ class SendReminder (
         val maxTime = configPort.get("reminderTimePar").value.toLong()
 
         val reminderConfigs = reminderConfigPort.listByType("PARTICIPANT")
-        val participants = participationInfosPort.list()
+        val participants = participationInfosPort.list(PersonStatus.PARTICIPANT)
         val notifications = getNotifications(participants.map { it.personId })
 
         for (par in participants) {
@@ -90,7 +90,7 @@ class SendReminder (
             if (deadline == null) continue // tirage au sort pas encore effectué
             val prevRemConfig = areConditionsMet(deadline, reminderConfigs, now, notifications[par.personId]) ?: break
 
-            participantNotif.remindSuccess(listOf(par.personId), ReminderOrigin.AUTOMATIC, prevRemConfig.templateMail)
+            participantNotify.remindSuccess(listOf(par.personId), ReminderOrigin.AUTOMATIC, prevRemConfig.templateMail)
         }
     }
 

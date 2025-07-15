@@ -190,8 +190,8 @@
                                  referencedTableName="person"
                                  referencedColumnNames="id" />
         <addForeignKeyConstraint baseTableName="billetweb" baseColumnNames="participant_id" constraintName="fk_billetweb_participant"
-                                 referencedTableName="participation_infos"
-                                 referencedColumnNames="person_id" />
+                                 referencedTableName="person"
+                                 referencedColumnNames="id" />
     </changeSet>
 
 </databaseChangeLog>

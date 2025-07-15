@@ -36,8 +36,12 @@ class GroupAdapter (
         return groupRepo.findAllById(ids).map { it.toGroup() }
     }
 
-    override fun getByMemberId(memberId: UUID): Group {
+    override fun getBy(memberId: UUID): Group {
         return groupRepo.findByMemberId(memberId).toGroup()
+    }
+
+    override fun getBy(memberIds: List<UUID>): List<Group> {
+        return groupRepo.findAllByMemberIds(memberIds).map { it.toGroup() }
     }
 
     override fun list(): List<Group> {
@@ -57,7 +61,7 @@ class GroupAdapter (
             }
     }
 
-    override fun extendedGroupById(groupId: UUID): Pair<Group, List<Person>> {
+    override fun extendedGroupBy(groupId: UUID): Pair<Group, List<Person>> {
         val persons = personRepo.filterPerson(PersonFilter(groupId = groupId))
         val group = persons.firstOrNull()?.group?.toGroup()
             ?: throw EntityNotFoundException("Unable to find group [$groupId]")

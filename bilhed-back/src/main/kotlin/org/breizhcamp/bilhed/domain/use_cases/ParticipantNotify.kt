@@ -17,7 +17,7 @@ import java.util.*
 private val logger = KotlinLogging.logger {}
 
 @Service
-class ParticipantNotif(
+class ParticipantNotify(
     private val config: BilhedBackConfig,
     private val personPort: PersonPort,
     private val urlShortenerPort: UrlShortenerPort,
@@ -28,24 +28,20 @@ class ParticipantNotif(
 
     /** Notify the list of [ids] that they have been drawn */
     fun notifySuccess(ids: List<UUID>) {
-        // the list contains ids of member if !groupPayment and id of referent else
+        /**
+         * the list contains ids of member if !groupPayment and id of referent otherwise
+         * Create new ParticipationInfo if it is the first notification
+         */
         for (id in ids) {
             val participant = personPort.get(id)
-            if (participationInfosPort.existsByPersonId(id))
-                notifySuccessParticipant(participant, true)
-            else
-                notifySuccessParticipant(participant)
+            notifySuccessParticipant(participant, !participationInfosPort.existsByPersonId(id))
         }
     }
 
-    private fun notifySuccessParticipant(p: Person, resetTime: Boolean = false) {
+    private fun notifySuccessParticipant(p: Person, firstNotif: Boolean = true) {
         logger.info { "Notifying success participant to confirm the ticket [${p.firstname} ${p.lastname}]" }
-        var partInfos = ParticipationInfos(p.id)
-        if (resetTime) {
-            partInfos = participationInfosPort.get(id = p.id)
-            partInfos = partInfos.copy(notificationConfirmSentDate = ZonedDateTime.now(ZoneId.of("Europe/Paris")))
-        }
-        val limitDate = getLimitDate(partInfos)
+        val partInfos = if (firstNotif) ParticipationInfos(p.id) else participationInfosPort.get(p.id)
+        val limitDate = getLimitDate(p = partInfos, resetNotifDate = true)
 
         val shortLink = urlShortenerPort.shorten(getConfirmSuccessLink(p), config.breizhCampCloseDate)
         val model = mapOf(
@@ -56,7 +52,10 @@ class ParticipantNotif(
         val resSms = sendDrawSuccessSms(p, partInfos, model)
         sendNotification.sendEmail(Mail(p.getMailAddress(), "draw_success", model, p.id), ReminderOrigin.MANUAL)
 
-        participationInfosPort.save(resSms.copy(notificationConfirmSentDate = limitDate.now))
+        if (firstNotif)
+            participationInfosPort.save(resSms.copy(notificationConfirmSentDate = limitDate.now))
+        else
+            participationInfosPort.updateNotification(resSms.personId, limitDate.now)
     }
 
     fun notifyWaiting(ids: List<UUID>) = notifyWaitingParticipant(ids, "draw_waiting")
@@ -91,8 +90,12 @@ class ParticipantNotif(
 
     private fun getConfirmSuccessLink(p: Person) = "${config.participantFrontUrl}/#/${p.id}/success"
 
-    private fun getLimitDate(p: ParticipationInfos): LimitDate {
-        val notifDate = p.notificationConfirmSentDate ?: ZonedDateTime.now(ZoneId.of("Europe/Paris"))
+    private fun getLimitDate(p: ParticipationInfos, resetNotifDate: Boolean = false): LimitDate {
+        val notifDate =
+            if (resetNotifDate || p.notificationConfirmSentDate == null)
+                ZonedDateTime.now(ZoneId.of("Europe/Paris"))
+            else
+                p.notificationConfirmSentDate
         val timeLimit = configPort.get("reminderTimePar")
         val limitDate = notifDate.plusHours(timeLimit.value.toLong())
         val limitDateStr = formatDate(limitDate)

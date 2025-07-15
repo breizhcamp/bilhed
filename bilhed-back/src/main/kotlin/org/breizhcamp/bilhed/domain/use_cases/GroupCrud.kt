@@ -18,5 +18,5 @@ class GroupCrud(
 
     fun extendedGroupList(filter: PersonFilter): Map<Group, List<Person>> = groupPort.extendedGroupList(filter)
 
-    fun extendedGroupById(groupId: UUID): Pair<Group, List<Person>> = groupPort.extendedGroupById(groupId)
+    fun extendedGroupBy(groupId: UUID): Pair<Group, List<Person>> = groupPort.extendedGroupBy(groupId)
 }

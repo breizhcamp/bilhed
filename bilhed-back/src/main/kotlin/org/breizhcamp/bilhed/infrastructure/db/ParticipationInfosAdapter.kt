@@ -2,6 +2,7 @@ package org.breizhcamp.bilhed.infrastructure.db
 
 import jakarta.persistence.EntityNotFoundException
 import org.breizhcamp.bilhed.domain.entities.ParticipationInfos
+import org.breizhcamp.bilhed.domain.entities.PersonStatus
 import org.breizhcamp.bilhed.domain.entities.SmsStatus
 import org.breizhcamp.bilhed.domain.use_cases.ports.ParticipationInfosPort
 import org.breizhcamp.bilhed.infrastructure.db.mappers.toDB
@@ -30,8 +31,8 @@ class ParticipationInfosAdapter(
         partInfosRepo.save(partInfos.toDB(personRepo.getReferenceById(partInfos.personId)))
     }
 
-    override fun list(): List<ParticipationInfos> {
-        return partInfosRepo.findAll().map { it.toParticipationInfos() }
+    override fun list(status: PersonStatus): List<ParticipationInfos> {
+        return partInfosRepo.findAllByStatus(status.toDB()).map { it.toParticipationInfos() }
     }
 
     override fun getByGroup(id: UUID): List<ParticipationInfos> {
@@ -59,6 +60,15 @@ class ParticipationInfosAdapter(
             participantSmsStatus = smsStatus
             participantSmsError = error
         }
+
+    }
+
+    override fun updateNotification(id: UUID, notificationDate: ZonedDateTime) {
+        val partInfosDB = partInfosRepo.findByIdOrNull(id) ?: throw EntityNotFoundException("ParticipationInfos of [$id] Not Found")
+        partInfosDB.apply {
+            participantNotificationConfirmSentDate = notificationDate
+        }
+        partInfosRepo.save(partInfosDB)
     }
 
 }
