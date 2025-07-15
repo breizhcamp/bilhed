@@ -17,8 +17,8 @@ class ReminderCron (
         releasePerson.participantReleaseAuto()
         releasePerson.attendeeReleaseAuto()
 
-//        sendReminder.sendRegisteredReminder()
-//        sendReminder.sendParticipantReminder()
-//        sendReminder.sendAttendeeReminder()
+        sendReminder.sendRegisteredReminder()
+        sendReminder.sendParticipantReminder()
+        sendReminder.sendAttendeeReminder()
     }
 }
