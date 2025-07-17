@@ -113,10 +113,10 @@ class BilletWebAdapter(
 
     override fun getPayed(): List<UUID> {
         val eventId = requireNotNull(config.billetWeb.eventId) { "Erreur config, impossible de sync sans eventId" }
-        val attendees = billetWebClient.listAttendees(eventId).filter { it.orderPaid == "1" }
+        val orders = billetWebClient.listAttendees(eventId).filter { it.orderPaid == "1" }.map { it.orderId }.distinct()
         val tickets = billetWebRepo.findAll().groupBy { it.attendeeId }
 
-        return attendees.mapNotNull { tickets[it.orderId] }.flatten().map { it.participantId }
+        return orders.mapNotNull { tickets[it] }.flatten().map { it.participantId }
     }
 
     override fun getExportList(): List<TicketExportData> {
