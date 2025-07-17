@@ -1,18 +1,17 @@
 package org.breizhcamp.bilhed.domain.use_cases.ports
 
-import org.breizhcamp.bilhed.domain.entities.Attendee
-import org.breizhcamp.bilhed.domain.entities.Participant
+import org.breizhcamp.bilhed.domain.entities.Person
 import org.breizhcamp.bilhed.domain.entities.Ticket
 import org.breizhcamp.bilhed.domain.entities.TicketExportData
 import java.util.*
 
 interface TicketPort {
 
-    fun create(participant: Participant): Ticket = create(listOf(participant)).first()
+    fun create(participant: Person): Ticket = create(listOf(participant)).first()
 
-    fun create(participants: List<Participant>): List<Ticket>
+    fun create(participants: List<Person>): List<Ticket>
 
-    fun delete(attendees: List<Attendee>)
+    fun delete(attendees: List<Person>)
 
     fun hasTicket(id: UUID): Boolean
 

@@ -3,14 +3,13 @@ package org.breizhcamp.bilhed.application.rest.admin
 import jakarta.servlet.http.HttpServletResponse
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVPrinter
-import org.breizhcamp.bilhed.application.dto.admin.AttendeeDTO
-import org.breizhcamp.bilhed.domain.entities.Attendee
-import org.breizhcamp.bilhed.domain.entities.AttendeeFilter
+import org.breizhcamp.bilhed.application.dto.admin.AttendeeDataDTO
+import org.breizhcamp.bilhed.domain.entities.AttendeeData
 import org.breizhcamp.bilhed.domain.entities.ReminderOrigin
 import org.breizhcamp.bilhed.domain.entities.TicketExportData
-import org.breizhcamp.bilhed.domain.use_cases.AttendeeList
+import org.breizhcamp.bilhed.domain.use_cases.AttendeeDataCrud
 import org.breizhcamp.bilhed.domain.use_cases.AttendeeNotify
-import org.breizhcamp.bilhed.domain.use_cases.PersonRelease
+import org.breizhcamp.bilhed.domain.use_cases.ReleasePerson
 import org.breizhcamp.bilhed.domain.use_cases.TicketExport
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -21,18 +20,11 @@ import java.util.*
 @RestController("adminAttendeeCtrl")
 @RequestMapping("/admin/attendees")
 class AttendeeCtrl(
-    private val attendeeList: AttendeeList,
     private val attendeeNotify: AttendeeNotify,
-    private val personRelease: PersonRelease,
+    private val releasePerson: ReleasePerson,
     private val ticketExport: TicketExport,
+    private val attendeeDataCrud: AttendeeDataCrud,
 ) {
-
-    @GetMapping
-    fun list(): List<AttendeeDTO> = attendeeList.filter(AttendeeFilter.empty()).map { it.toDto() }
-
-    @PostMapping("/filter")
-    fun filter(@RequestBody filter: AttendeeFilter): List<AttendeeDTO> = attendeeList.filter(filter).map { it.toDto() }
-
     @PostMapping("/notif/payed/reminder/mail") @ResponseStatus(HttpStatus.NO_CONTENT)
     fun payedReminderMail(@RequestBody ids: List<UUID>) {
         attendeeNotify.remindPayedMail(ids, ReminderOrigin.MANUAL)
@@ -45,7 +37,7 @@ class AttendeeCtrl(
 
     @PostMapping("/levelUp/release") @ResponseStatus(HttpStatus.NO_CONTENT)
     fun release(@RequestBody ids: List<UUID>) {
-        personRelease.attendeeRelease(ids)
+        releasePerson.manualAttendeeRelease(ids)
     }
 
     @GetMapping("/export")
@@ -66,18 +58,17 @@ class AttendeeCtrl(
 
         out.close()
     }
+
+    @GetMapping("/{id}/data")
+    fun getAttendeeData(@PathVariable id: UUID): AttendeeDataDTO = attendeeDataCrud.get(id).toDto()
 }
 
-fun Attendee.toDto() = AttendeeDTO(
-    id = id,
-    lastname = lastname,
-    firstname = firstname,
-    email = email,
-    telephone = telephone,
-    pass = pass,
-    kids = kids,
-
-    participantConfirmationDate = participantConfirmationDate,
-    payed = payed,
+fun AttendeeData.toDto() = AttendeeDataDTO(
+    company = company,
+    tShirtSize = tShirtSize,
+    tShirtCut = tShirtCut,
+    vegan = vegan,
+    meetAndGreet = meetAndGreet,
+    postalCode = postalCode,
 )
 

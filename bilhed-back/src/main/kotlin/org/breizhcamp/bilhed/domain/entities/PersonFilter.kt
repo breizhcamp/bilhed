@@ -1,8 +1,14 @@
 package org.breizhcamp.bilhed.domain.entities
 
-sealed class PersonFilter {
-    abstract val lastname: String?
-    abstract val firstname: String?
-    abstract val email: String?
-    abstract val pass: PassType?
-}
+import java.util.UUID
+
+class PersonFilter (
+    val status: PersonStatus? = null,
+    val lastname: String? = null,
+    val firstname: String? = null,
+    val email: String? = null,
+    val pass: PassType? = null,
+    val payed: Boolean? = null,
+    val groupId: UUID? = null,
+    val drawn: Boolean? = null,
+)

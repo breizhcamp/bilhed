@@ -4,8 +4,8 @@ spring:
   security.oauth2:
     resourceserver:
       jwt:
-        issuer-uri: https://auth.breizhcamp.org/auth/realms/BreizhCamp
-        jwk-set-uri: https://auth.breizhcamp.org/auth/realms/BreizhCamp/protocol/openid-connect/certs
+        issuer-uri: https://lemur-15.cloud-iam.com/auth/realms/breizhcamp
+        jwk-set-uri: https://lemur-15.cloud-iam.com/auth/realms/breizhcamp/protocol/openid-connect/certs
 
 
 #logging.level.reactor.netty.http.client: DEBUG

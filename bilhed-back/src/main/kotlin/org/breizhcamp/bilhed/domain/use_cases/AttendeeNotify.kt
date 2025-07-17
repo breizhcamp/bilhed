@@ -6,8 +6,9 @@ import org.breizhcamp.bilhed.domain.entities.Mail
 import org.breizhcamp.bilhed.domain.entities.Person
 import org.breizhcamp.bilhed.domain.entities.ReminderOrigin
 import org.breizhcamp.bilhed.domain.entities.Sms
-import org.breizhcamp.bilhed.domain.use_cases.ports.AttendeePort
 import org.breizhcamp.bilhed.domain.use_cases.ports.ConfigPort
+import org.breizhcamp.bilhed.domain.use_cases.ports.ParticipationInfosPort
+import org.breizhcamp.bilhed.domain.use_cases.ports.PersonPort
 import org.breizhcamp.bilhed.domain.use_cases.ports.UrlShortenerPort
 import org.springframework.stereotype.Service
 import java.time.Duration
@@ -21,49 +22,61 @@ private val logger = KotlinLogging.logger {}
 @Service
 class AttendeeNotify(
     private val config: BilhedBackConfig,
-    private val attendeePort: AttendeePort,
     private val urlShortenerPort: UrlShortenerPort,
     private val sendNotification: SendNotification,
-    private val configPort: ConfigPort
+    private val configPort: ConfigPort,
+    private val personPort: PersonPort,
+    private val participationInfosPort: ParticipationInfosPort
 ) {
 
-    fun remindPayedMail(ids: List<UUID>, origin: ReminderOrigin, template: String = "payed_reminder") = ids.forEach {
-        val a = attendeePort.get(it)
+    fun remindPayedMail(ids: List<UUID>, origin: ReminderOrigin, template: String = "payed_reminder") {
+        val persons = personPort.get(ids)
+        val partInfos = participationInfosPort.get(ids).associateBy { it.personId }
 
-        try {
-            logger.info { "Sending remind payed mail to [${a.firstname} ${a.lastname}]" }
+        for (p in persons) {
+            val notifConfirmDate = partInfos[p.id]?.confirmationDate ?: throw IllegalArgumentException("No confirmation date found")
 
-            val model = mapOf("firstname" to a.firstname, "lastname" to a.lastname, "year" to config.breizhCampYear.toString(),
-                "link" to getConfirmSuccessLink(a), "limit_date" to formatDate(getLimitDate(a.participantConfirmationDate)))
+            try {
+                logger.info { "Sending remind payed mail to [${p.firstname} ${p.lastname}]" }
 
-            sendNotification.sendEmail(Mail(a.getMailAddress(), template, model, it), origin)
+                val model = mapOf("firstname" to p.firstname, "lastname" to p.lastname, "year" to config.breizhCampYear.toString(),
+                    "link" to getConfirmSuccessLink(p), "limit_date" to formatDate(getLimitDate(notifConfirmDate)))
 
-        } catch (e: Exception) {
-            logger.error(e) { "Unable to send remind payed mail to [${a.firstname} ${a.lastname}]" }
+                sendNotification.sendEmail(Mail(p.getMailAddress(), template, model, p.id), origin)
+
+            } catch (e: Exception) {
+                logger.error(e) { "Unable to send remind payed mail to [${p.firstname} ${p.lastname}]" }
+            }
         }
     }
 
-    fun remindPayedSms(ids: List<UUID>, origin: ReminderOrigin, template: String = "payed_reminder") = ids.forEach {
-        val a = attendeePort.get(it)
+    fun remindPayedSms(ids: List<UUID>, origin: ReminderOrigin, template: String = "payed_reminder") {
+        val persons = personPort.get(ids)
+        val partInfos = participationInfosPort.get(ids).associateBy { it.personId }
 
-        try {
-            logger.info { "Sending remind payed SMS to [${a.firstname} ${a.lastname}]" }
-            val remainingTime = getRemainingTime(getLimitDate(a.participantNotificationConfirmDate)) ?: run {
-                logger.warn { "Not sending reminder to [${a.firstname} ${a.lastname}] because confirm time is over" }
-                return@forEach
+        for (p in persons) {
+            val notifConfirmDate = partInfos[p.id]?.notificationConfirmSentDate ?: throw IllegalStateException("No confirmation date found")
+
+            try {
+                logger.info { "Sending remind payed SMS to [${p.firstname} ${p.lastname}]" }
+                val remainingTime = getRemainingTime(getLimitDate(notifConfirmDate)) ?: run {
+                    logger.warn { "Not sending reminder to [${p.firstname} ${p.lastname}] because confirm time is over" }
+                    return
+                }
+
+                val shortLink = urlShortenerPort.shorten(getConfirmSuccessLink(p), config.breizhCampCloseDate)
+
+                val model = mapOf("firstname" to p.firstname, "lastname" to p.lastname, "year" to config.breizhCampYear.toString(),
+                    "link" to shortLink, "limit_time" to formatLimitTime(getLimitDate(notifConfirmDate)),
+                    "remaining_time" to remainingTime)
+
+                if (p.telephone == null) throw IllegalStateException("Telephone must not be null for person [${p.id}] / [${p.firstname} ${p.lastname}]")
+                sendNotification.sendSms(Sms(p.telephone, template, model), origin)
+
+
+            } catch (e: Exception) {
+                logger.error(e) { "Unable to send remind payed sms to [${p.firstname} ${p.lastname}]" }
             }
-
-            val shortLink = urlShortenerPort.shorten(getConfirmSuccessLink(a), config.breizhCampCloseDate)
-
-            val model = mapOf("firstname" to a.firstname, "lastname" to a.lastname, "year" to config.breizhCampYear.toString(),
-                "link" to shortLink, "limit_time" to formatLimitTime(getLimitDate(a.participantNotificationConfirmDate)),
-                "remaining_time" to remainingTime)
-
-            sendNotification.sendSms(Sms(a.telephone, template, model), origin)
-
-
-        } catch (e: Exception) {
-            logger.error(e) { "Unable to send remind payed sms to [${a.firstname} ${a.lastname}]" }
         }
     }
 
