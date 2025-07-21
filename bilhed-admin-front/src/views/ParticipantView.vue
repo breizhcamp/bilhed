@@ -26,13 +26,13 @@
       </thead>
       <tbody>
       <template v-for="(g, i) in groups" :key="g.group.id">
-        <tr v-for="(member, iMemb) in g.members" :key="member.id" :class="{ 'table-secondary': i % 2 === 0 }"
-            @click.exact="g.group.groupPayment && iMemb === 0 ? checkGroup(g.group.id, !member.checked) : checkPerson(g.group.groupPayment, member)"
+        <tr v-for="member in g.members" :key="member.id" :class="{ 'table-secondary': i % 2 === 0 }"
+            @click.exact="g.group.groupPayment && g.group.referentId === member.id ? checkGroup(g.group.id, !member.checked) : checkPerson(g.group.groupPayment, member)"
             @click.shift="checkBetween(member)"
             >
 
-          <td><input type="checkbox" v-model="member.checked" :disabled="g.group.groupPayment && iMemb !== 0"
-                     @change="g.group.groupPayment && iMemb === 0 ? checkGroup(g.group.id, member.checked) : null"></td>
+          <td><input type="checkbox" v-model="member.checked" :disabled="g.group.groupPayment && g.group.referentId !== member.id"
+                     @change="g.group.referentId === member.id ? checkGroup(g.group.id, member.checked) : null"></td>
 
           <td>{{ member.lastname }}</td>
           <td>{{ member.firstname }}</td>
@@ -42,7 +42,7 @@
           <td>{{ g.group.drawOrder }}</td>
           <td><DateView :date="getLimitDate(g.group, member.id)" format="DD/MM HH:mm" sup=""/></td>
           <td class="d-flex align-items-center justify-content-end">
-            <template v-if="!g.group.groupPayment || iMemb === 0">
+            <template v-if="g.group.groupPayment && g.group.referentId === member.id">
               <button type="button" class="btn btn-link btn-sm text-dark" title="Notify success" @click="notifyOne(member.id, 'success')" :disabled="loading"><BiSendCheck/></button>
               <button type="button" class="btn btn-link btn-sm text-dark" title="Notify waiting" @click="notifyOne(member.id, 'waiting')" :disabled="loading"><BiSendExclamation/></button>
               <button type="button" class="btn btn-link btn-sm text-dark" title="Notify failed" @click="notifyOne(member.id, 'failed')" :disabled="loading"><BiSendX/></button>

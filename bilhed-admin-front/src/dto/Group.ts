@@ -19,3 +19,11 @@ export interface GroupCompleteParticipant extends GroupComplete {
 export interface GroupCompleteAttendee extends GroupComplete{
     participationInfos: ParticipationInfos[]
 }
+
+export interface GroupCompleteParticipantWithRef extends GroupCompleteParticipant {
+    referent: Person | null
+}
+
+export interface GroupCompleteAttendeeWithRef extends GroupCompleteAttendee {
+    referent: Person | null
+}

@@ -24,36 +24,36 @@
   </div>
 
   <div class="accordion mb-3" id="groupAccordion">
-    <div v-for="(g, i) in groups" :key="g.group.id" :class="['accordion-item', { 'bg-body-secondary': i % 2 === 0 }]">
+    <div v-for="(g, i) in groupsWithRef" :key="g.group.id" :class="['accordion-item', { 'bg-body-secondary': i % 2 === 0 }]">
       <div class="d-flex align-items-center p-2">
         <div class="form-check">
-          <input class="form-check-input" type="checkbox" :id="`checkbox${g.group.id}`" v-model="g.members[0].checked" @change="checkGroup(g.group.id, g.members[0].checked)" />
+          <input class="form-check-input" type="checkbox" :id="`checkbox${g.group.id}`" v-model="g.referent!.checked" @change="checkGroup(g.group.id, g.referent!.checked)" />
         </div>
 
         <button
             type="button"
             class="btn flex-grow-1 text-start me-2"
-            :class="{ 'no-pointer-events': g.members.length === 1 }"
-            :data-bs-toggle="g.members.length > 1 ? 'collapse' : null"
+            :class="{ 'no-pointer-events': g.members.length === 0 }"
+            :data-bs-toggle="g.members.length > 0 ? 'collapse' : null"
             :data-bs-target="`#collapseG${g.group.id}`"
             aria-expanded="false"
             :aria-controls="`collapseG${g.group.id}`"
-            @click="g.members.length > 1 ? animateChevron(`chevron-${g.group.id}`) : null"
+            @click="g.members.length > 0 ? animateChevron(`chevron-${g.group.id}`) : null"
         >
           <span class="row">
-            <i :class="g.members.length > 1 ? 'bi-chevron-down' : 'bi-dash'" class="bi transition-icon col-md-auto" :id="`chevron-${g.group.id}`"></i>
-            <span class="col-md-1">{{ g.members[0].lastname }}</span>
-            <span class="col-md-1">{{ g.members[0].firstname }}</span>
-            <span class="col-md-3 break-email">{{ g.members[0].email }}</span>
-            <span class="col-md-2">{{ g.members[0].telephone }}</span>
-            <span class="col-md-1"><Pass :pass="g.members[0].pass"/></span>
+            <i :class="g.members.length > 0 ? 'bi-chevron-down' : 'bi-dash'" class="bi transition-icon col-md-auto" :id="`chevron-${g.group.id}`"></i>
+            <span class="col-md-1">{{ g.referent!.lastname }}</span>
+            <span class="col-md-1">{{ g.referent!.firstname }}</span>
+            <span class="col-md-3 break-email">{{ g.referent!.email }}</span>
+            <span class="col-md-2">{{ g.referent!.telephone }}</span>
+            <span class="col-md-1"><Pass :pass="g.referent!.pass"/></span>
             <span class="col-md-3"><DateView :date="g.referentInfos.registrationDate" format="DD/MM HH:mm"/></span>
           </span>
         </button>
         <div class="d-flex">
-          <button type="button" class="btn btn-link btn-sm icon-small" title="Send SMS reminder" @click="sendReminder(g.members[0].id, 'sms')" :disabled="loading"><BiChatText/></button>
-          <button type="button" class="btn btn-link btn-sm ms-2 icon-small" title="Send email reminder" @click="sendReminder(g.members[0].id, 'email')" :disabled="loading"><BiEnvelope/></button>
-          <router-link :to="`/person/${g.members[0].id}`" class="nav-link ms-2 d-flex align-items-center icon-small"><BiPencil/></router-link>
+          <button type="button" class="btn btn-link btn-sm icon-small" title="Send SMS reminder" @click="sendReminder(g.referent!.id, 'sms')" :disabled="loading"><BiChatText/></button>
+          <button type="button" class="btn btn-link btn-sm ms-2 icon-small" title="Send email reminder" @click="sendReminder(g.referent!.id, 'email')" :disabled="loading"><BiEnvelope/></button>
+          <router-link :to="`/person/${g.referent!.id}`" class="nav-link ms-2 d-flex align-items-center icon-small"><BiPencil/></router-link>
           <router-link :to="`/group/${g.group.id}`" class="nav-link ms-2 d-flex align-items-center icon-small"><BiPeople/></router-link>
         </div>
       </div>
@@ -76,7 +76,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr v-for="comp in g.members.slice(1)" :key="comp.id">
+            <tr v-for="comp in g.members" :key="comp.id">
               <td style="width: 20%">{{ comp.lastname }}</td>
               <td style="width: 20%">{{ comp.firstname }}</td>
               <td style="width: 20%" class="break-email">{{ comp.email }}</td>
@@ -111,7 +111,7 @@ import BiPencil from 'bootstrap-icons/icons/pencil.svg?component'
 import BiPeople from "bootstrap-icons/icons/people.svg?component";
 import Pass from "@/components/Pass.vue";
 import {toastError, toastSuccess, toastWarning} from "@/utils/ReminderUtils";
-import type {GroupCompleteParticipant} from "@/dto/Group";
+import type {GroupCompleteParticipant, GroupCompleteParticipantWithRef} from "@/dto/Group";
 import {PersonStatus} from "@/dto/Person";
 import {animateChevron} from "@/utils/Global";
 
@@ -134,6 +134,17 @@ export default defineComponent({
   watch: {
     allChecked() {
       this.groups.forEach((g) => g.members.forEach(m => m.checked = this.allChecked))
+    }
+  },
+
+  computed: {
+    groupsWithRef(): GroupCompleteParticipantWithRef[] {
+      // ref should/could not be null in this page
+      return this.groups.map(gc => {
+        const referent = gc.members.find(m => m.id === gc.group.referentId) || null;
+        const companions = gc.members.filter(m => m.id !== gc.group.referentId)
+        return {...gc, referent: referent, members: companions};
+      })
     }
   },
 

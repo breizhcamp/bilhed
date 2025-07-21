@@ -9,8 +9,8 @@ export function getSortedGroups(groups: GroupComplete[]): GroupComplete[] {
      * Sort groups to have pass three days in first, and sorted by draw order
      */
     const grouped: { [p: string]: GroupComplete[] } = groups.reduce((acc : { [p: string]: GroupComplete[] }, g) => {
-        const ref = g.members[0]
-        acc[ref.pass] = (acc[ref.pass] || []).concat(g);
+        const passType = g.members[0].pass
+        acc[passType] = (acc[passType] || []).concat(g);
         return acc;
     }, {})
 

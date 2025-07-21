@@ -33,42 +33,42 @@
     </div>
 
     <div class="accordion mb-3" id="groupAccordion">
-      <div v-for="(g, i) in groups" :key="g.group.id" :class="['accordion-item', { 'bg-body-secondary': i % 2 === 0 }]">
-
-        <template v-if="g.members.length > 1 && g.group.groupPayment">
+      <div v-for="(g, i) in groupsWithRef" :key="g.group.id" :class="['accordion-item', { 'bg-body-secondary': i % 2 === 0 }]">
+        <!-- If solo registration, groupPayment is also True so we check number of members -->
+        <template v-if="g.referent && g.group.groupPayment">
           <div class="d-flex align-items-center p-2">
             <div class="form-check">
-              <input class="form-check-input" type="checkbox" :id="`checkbox${g.group.id}`" v-model="g.members[0].checked" @change="checkGroup(g.group.id, g.members[0].checked)"
-               @click.shift="checkBetween(g.members[0])"
+              <input class="form-check-input" type="checkbox" :id="`checkbox${g.group.id}`" v-model="g.referent!.checked" @change="checkGroup(g.group.id, g.referent!.checked)"
+               @click.shift="checkBetween(g.referent!)"
               />
             </div>
 
             <button
                 type="button"
                 class="btn flex-grow-1 text-start me-2"
-                :class="{ 'no-pointer-events': g.members.length === 1 && !g.group.groupPayment }"
-                :data-bs-toggle="g.members.length > 1 && g.group.groupPayment ? 'collapse' : null"
+                :class="{ 'no-pointer-events': g.members.length === 0 && !g.group.groupPayment }"
+                :data-bs-toggle="g.members.length > 0 && g.group.groupPayment ? 'collapse' : null"
                 :data-bs-target="`#collapseG${g.group.id}`"
                 aria-expanded="false"
                 :aria-controls="`collapseG${g.group.id}`"
-                @click="g.members.length > 1 && g.group.groupPayment ? animateChevron(`chevron-${g.group.id}`) : null"
+                @click="g.members.length > 0 && g.group.groupPayment ? animateChevron(`chevron-${g.group.id}`) : null"
             >
               <span class="row">
-                <i :class="g.members.length > 1 && g.group.groupPayment ? 'bi-chevron-down' : 'bi-dash'" class="bi transition-icon col-md-auto" :id="`chevron-${g.group.id}`"></i>
-                <span class="col-md-1">{{ g.members[0].lastname }}</span>
-                <span class="col-md-1">{{ g.members[0].firstname }}</span>
-                <span class="col-md-2 break-email">{{ g.members[0].email }}</span>
-                <span class="col-md-2">{{ g.members[0].telephone }}</span>
-                <span class="col-md-auto"><Pass :pass="g.members[0].pass"/> &emsp;</span>
-                <span class="col-md-2"><DateView format="DD/MM HH:mm" sup="" :date="g.participationInfos.find(p => p.personId === g.members[0].id)?.confirmationDate"/></span>
-                <span class="col-md-2"><DateView format="DD/MM HH:mm" sup="" :date="getLimitDate(g.participationInfos.find(p => p.personId === g.members[0].id)?.confirmationDate)"/></span>
-                <span class="col-md-auto">{{ getBoolStr(g.members[0].payed) }}</span>
+                <i :class="g.members.length > 0 && g.group.groupPayment ? 'bi-chevron-down' : 'bi-dash'" class="bi transition-icon col-md-auto" :id="`chevron-${g.group.id}`"></i>
+                <span class="col-md-1">{{ g.referent!.lastname }}</span>
+                <span class="col-md-1">{{ g.referent!.firstname }}</span>
+                <span class="col-md-2 break-email">{{ g.referent!.email }}</span>
+                <span class="col-md-2">{{ g.referent!.telephone }}</span>
+                <span class="col-md-auto"><Pass :pass="g.referent!.pass"/> &emsp;</span>
+                <span class="col-md-2"><DateView format="DD/MM HH:mm" sup="" :date="g.participationInfos.find(p => p.personId === g.referent!.id)?.confirmationDate"/></span>
+                <span class="col-md-2"><DateView format="DD/MM HH:mm" sup="" :date="getLimitDate(g.participationInfos.find(p => p.personId === g.referent!.id)?.confirmationDate)"/></span>
+                <span class="col-md-auto">{{ getBoolStr(g.referent!.payed) }}</span>
               </span>
             </button>
             <div class="d-flex">
-              <button type="button" class="btn btn-link btn-sm ms-1 icon-small" title="Send email reminder" @click="notifyOne(g.members[0].id, 'payed/reminder/mail')" :disabled="loading"><BiEnvelope/></button>
-              <button type="button" class="btn btn-link btn-sm ms-1 icon-small" title="Send sms reminder" @click="notifyOne(g.members[0].id, 'payed/reminder/sms')" :disabled="loading"><BiChatText/></button>
-              <router-link :to="`/person/${g.members[0].id}`" class="nav-link ms-1 d-flex align-items-center icon-small"><BiPencil/></router-link>
+              <button type="button" class="btn btn-link btn-sm ms-1 icon-small" title="Send email reminder" @click="notifyOne(g.referent!.id, 'payed/reminder/mail')" :disabled="loading"><BiEnvelope/></button>
+              <button type="button" class="btn btn-link btn-sm ms-1 icon-small" title="Send sms reminder" @click="notifyOne(g.referent!.id, 'payed/reminder/sms')" :disabled="loading"><BiChatText/></button>
+              <router-link :to="`/person/${g.referent!.id}`" class="nav-link ms-1 d-flex align-items-center icon-small"><BiPencil/></router-link>
               <router-link :to="`/group/${g.group.id}`" class="nav-link ms-1 d-flex align-items-center icon-small"><BiPeople/></router-link>
             </div>
           </div>
@@ -90,7 +90,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr v-for="comp in g.members.slice(1)" :key="comp.id">
+                <tr v-for="comp in g.members" :key="comp.id">
                   <td class="w-25">{{ comp.lastname }}</td>
                   <td class="w-25">{{ comp.firstname }}</td>
                   <td class="w-25 break-email">{{ comp.email }}</td>
@@ -106,8 +106,7 @@
         <template v-else v-for="m in g.members" :key="m.id">
           <div class="d-flex align-items-center p-2">
             <div class="form-check">
-              <input class="form-check-input" type="checkbox" :id="`checkbox${m.id}`" v-model="m.checked"                 @click.shift="checkBetween(m)"
-              />
+              <input class="form-check-input" type="checkbox" :id="`checkbox${m.id}`" v-model="m.checked" @click.shift="checkBetween(m)"/>
             </div>
 
             <button
@@ -171,7 +170,7 @@ import type {Config} from "@/dto/Config";
 import dayjs from "dayjs";
 import type {PersonFilter} from "@/dto/PersonFilter";
 import {animateChevron, getBoolStr, getSortedGroups} from "@/utils/Global";
-import type {GroupCompleteAttendee} from "@/dto/Group";
+import type {GroupCompleteAttendee, GroupCompleteAttendeeWithRef} from "@/dto/Group";
 import {type Person, PersonStatus} from "@/dto/Person";
 
 export default defineComponent({
@@ -191,6 +190,18 @@ export default defineComponent({
   computed: {
     checked(): Person[] {
       return this.groups.flatMap(g => g.members.filter(m => m.checked))
+    },
+    groupsWithRef(): GroupCompleteAttendeeWithRef[] {
+      // ref should/could not be null in this page
+      return this.groups.map(gc => {
+        // if solo registration, we consider the person as a member and not as a referent to display
+        if (gc.group.groupPayment && gc.members.length > 1) {
+          const referent = gc.members.find(m => m.id === gc.group.referentId) || null;
+          const companions = gc.members.filter(m => m.id !== gc.group.referentId)
+          return {...gc, referent: referent, members: companions}
+        }
+        return {...gc, referent: null, members: gc.members}
+      })
     }
   },
 

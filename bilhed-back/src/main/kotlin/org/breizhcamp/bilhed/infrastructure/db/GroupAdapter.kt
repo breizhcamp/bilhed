@@ -56,8 +56,8 @@ class GroupAdapter (
 
         return allPeople
             .groupBy { it.group.toGroup() }
-            .mapValues { (group, people) ->
-                people.map { it.toPerson() }.sortedByDescending { it.id == group.referentId }
+            .mapValues { (_, people) ->
+                people.map { it.toPerson() }
             }
     }
 
@@ -66,11 +66,7 @@ class GroupAdapter (
         val group = persons.firstOrNull()?.group?.toGroup()
             ?: throw EntityNotFoundException("Unable to find group [$groupId]")
 
-        val referent = persons.firstOrNull { it.id == group.referentId }
-            ?: error("Referent with id ${group.referentId} not found among group members")
-
-        val orderedPersons= listOf(referent) + persons.filter { it.id != referent.id }
-        return group to orderedPersons.map { it.toPerson() }
+        return group to persons.map { it.toPerson() }
     }
 
     override fun listIdsWithNoDraw(): Map<PassType, List<UUID>> {
