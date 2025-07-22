@@ -9,8 +9,7 @@ export interface ReminderConfigRes extends ReminderConfig {
     id: string
 }
 
-export interface ReminderUpdate {
-    reminders: ReminderConfig[]
+export interface maxTimeUpdate {
     reminderTime: number
     oldReminderTime: number
 }
