@@ -1,15 +1,20 @@
 <template>
-  <form class="g-3 mt-2 mb-3" @submit.prevent="submitReminders">
+  <form class="g-3 mt-2 mb-3" @submit.prevent="submitMaxTime">
     <div class="form-group mb-4">
       <label class="form-label fw-bold" :for="`time${rType}`">Temps maximal pour confirmer </label>
-      <div class="input-group input-group-sm">
-        <input type="number" class="form-control" :id="`time${rType}`" v-model="rTime" min="0">
-        <span class="input-group-text">heures</span>
+      <div class="d-flex">
+        <div class="input-group input-group-sm me-2">
+          <input type="number" class="form-control" :id="`time${rType}`" v-model="rTime" min="0">
+          <span class="input-group-text">heures</span>
+        </div>
+        <button type="submit" class="btn btn-primary btn-sm">Enregistrer</button>
       </div>
     </div>
     <p class="m-0">Les rappels sont envoyés X heures avant la fin du temps maximal</p>
-
+  </form>
+  <form class="g-3 mt-2 mb-3" @submit.prevent="submitReminders">
     <hr>
+    <p v-if="reminderTime === 0" class="text-center fw-bold">Vous devez configurer un temps maximal avant de pouvoir modifier les relances.</p>
     <template v-for="(item, i) in r || []" :key="`reminder-${rType}-${i}`">
       <div class="d-flex flex-column mb-2 p-2 shadow rounded" :style="{ backgroundColor: reminderBgColor }" >
         <div class="form-group mb-3">
@@ -43,15 +48,17 @@
       </div>
 
     </template>
-    <button type="button" class="btn btn-sm btn-block shadow rounded mb-4" :style="{ backgroundColor: reminderBgColor }"
+    <button type="button" class="btn btn-sm btn-block shadow rounded mb-4"
+            :style="{ backgroundColor: reminderBgColor }"
+            v-if="reminderTime !== 0"
             @click="addReminder" style="width: 100%">Ajouter un rappel</button>
-    <button type="submit" class="btn btn-primary btn-sm">Enregistrer</button>
+    <button v-if="reminderTime !== 0" type="submit" class="btn btn-primary btn-sm">Enregistrer</button>
   </form>
 </template>
 
 <script lang="ts">
 import {defineComponent, type PropType} from "vue";
-import {type ReminderConfig, ReminderType, type ReminderUpdate} from "@/dto/ReminderConfig";
+import {type maxTimeUpdate, type ReminderConfig, ReminderType} from "@/dto/ReminderConfig";
 import {getShorterType, isReminderConfigRes} from "@/utils/ReminderUtils";
 
 export default defineComponent({
@@ -62,7 +69,7 @@ export default defineComponent({
     reminderType: { type: String as PropType<ReminderType>, required: true},
     reminderBgColor: { type: String, required: true }
   },
-  emits: ['submit', 'delete'],
+  emits: ['reminder', 'delete', 'maxTime'],
   inject: ["templateMailList", "templateSmsList"],
 
   data() {
@@ -87,9 +94,11 @@ export default defineComponent({
 
   methods: {
     submitReminders() {
-      this.$emit('submit',
-          { reminders: this.r, reminderTime: this.rTime,
-            oldReminderTime: this.reminderTime } as ReminderUpdate)
+      this.$emit('reminder', this.r)
+    },
+
+    submitMaxTime() {
+      this.$emit('maxTime', {reminderTime: this.rTime, oldReminderTime: this.reminderTime} as maxTimeUpdate)
     },
 
     deleteReminder(reminder: ReminderConfig, index: number) {

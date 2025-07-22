@@ -5,8 +5,7 @@ import jakarta.annotation.PostConstruct
 import jakarta.persistence.EntityNotFoundException
 import mu.KotlinLogging
 import org.breizhcamp.bilhed.config.BilhedBackConfig
-import org.breizhcamp.bilhed.domain.entities.Attendee
-import org.breizhcamp.bilhed.domain.entities.Participant
+import org.breizhcamp.bilhed.domain.entities.Person
 import org.breizhcamp.bilhed.domain.entities.Ticket
 import org.breizhcamp.bilhed.domain.entities.TicketExportData
 import org.breizhcamp.bilhed.domain.use_cases.ports.TicketPort
@@ -20,7 +19,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.codec.json.Jackson2JsonDecoder
 import org.springframework.stereotype.Component
-import org.springframework.transaction.annotation.Transactional
 import org.springframework.util.MimeType
 import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
@@ -48,11 +46,26 @@ class BilletWebAdapter(
         logger.info { "[BilletWeb] Using BilletWeb for ticket creation" }
     }
 
-    override fun create(participants: List<Participant>): List<Ticket> {
+    private fun getCreateReq(participants: List<Person>): CreateReq {
+        val products = participants.map {
+            CreateProduct(
+                ticket = requireNotNull(config.billetWeb.passNames[it.pass]) { "No BilletWeb pass name found for pass type [${it.pass}]" },
+                name = it.lastname,
+                firstname = it.firstname,
+                email = it.email,
+                price = requireNotNull(config.billetWeb.passPrices[it.pass]) { "No BilletWeb pass price found for pass type [${it.pass}]" },
+            )
+        }
+        val cmd = CreateCmd(participants.first().lastname, participants.first().firstname,
+            participants.first().email, "reservation", products)
+        return CreateReq(cmd)
+    }
+
+    override fun create(participants: List<Person>): List<Ticket> {
         val eventId = requireNotNull(config.billetWeb.eventId) { "Erreur config, impossible de créer de Billet sans eventId" }
 
         logger.info { "[BilletWeb] Create ticket for [${participants.size}] participants: " + participants.joinToString { "${it.id}: ${it.lastname} ${it.firstname}" } }
-        val createRes = billetWebClient.create(eventId, CreateReq(participants.toCreateReq())).firstOrNull()
+        val createRes = billetWebClient.create(eventId, getCreateReq(participants)).firstOrNull()
             ?: throw IllegalStateException("Impossible de créer la commande BilletWeb, merci de contacter l'équipe")
 
         val productsId = createRes.products.map { it.toString() }
@@ -74,7 +87,11 @@ class BilletWebAdapter(
         return billetWeb.map { Ticket(buildPayUrl(it.orderManagerUrl), false) }
     }
 
-    override fun delete(attendees: List<Attendee>) {
+    override fun delete(attendees: List<Person>) {
+        /**
+         * attendees: persons who have participationInfos (= should pay)
+         * so, not companions
+         */
         val eventId = requireNotNull(config.billetWeb.eventId) { "Erreur config, impossible de supprimer de Billet sans eventId" }
 
         val ordersId = billetWebRepo.findAllById(attendees.map { it.id }).map { it.attendeeId }
@@ -96,10 +113,10 @@ class BilletWebAdapter(
 
     override fun getPayed(): List<UUID> {
         val eventId = requireNotNull(config.billetWeb.eventId) { "Erreur config, impossible de sync sans eventId" }
-        val attendees = billetWebClient.listAttendees(eventId).filter { it.orderPaid == "1" }
+        val orders = billetWebClient.listAttendees(eventId).filter { it.orderPaid == "1" }.map { it.orderId }.distinct()
         val tickets = billetWebRepo.findAll().groupBy { it.attendeeId }
 
-        return attendees.mapNotNull { tickets[it.orderId] }.flatten().map { it.participantId }
+        return orders.mapNotNull { tickets[it] }.flatten().map { it.participantId }
     }
 
     override fun getExportList(): List<TicketExportData> {
@@ -117,36 +134,6 @@ class BilletWebAdapter(
     }
 
     private fun buildPayUrl(orderManagement: String) = "$orderManagement&action=pay"
-
-
-
-    private fun Participant.toCreateReq() = CreateCmd(
-        name = lastname,
-        firstname = firstname,
-        email = email,
-        paymentType = "reservation",
-        products = listOf(CreateProduct(
-            ticket = requireNotNull(config.billetWeb.passNames[pass]) { "No BilletWeb pass name found for pass type [$pass]" },
-            name = lastname,
-            firstname = firstname,
-            email = email,
-            price = requireNotNull(config.billetWeb.passPrices[pass]) { "No BilletWeb pass price found for pass type [$pass]" },
-        ))
-    )
-
-    private fun List<Participant>.toCreateReq() = CreateCmd(
-        name = first().lastname,
-        firstname = first().firstname,
-        email = first().email,
-        paymentType = "reservation",
-        products = map { CreateProduct(
-            ticket = requireNotNull(config.billetWeb.passNames[it.pass]) { "No BilletWeb pass name found for pass type [${it.pass}]" },
-            name = it.lastname,
-            firstname = it.firstname,
-            email = it.email,
-            price = requireNotNull(config.billetWeb.passPrices[it.pass]) { "No BilletWeb pass price found for pass type [${it.pass}]" },
-        ) }
-    )
 
     private fun createClient(): BilletWebClient {
         val apiKey = requireNotNull(config.billetWeb.apiKey) { "Config error, BilletWeb apiKey is missing" }
@@ -166,7 +153,7 @@ class BilletWebAdapter(
         val webClient = WebClient.builder()
 //            .clientConnector(ReactorClientHttpConnector(httpClient))
             .exchangeStrategies(strategies)
-            .defaultHeader("Authorization", "Basic ${apiKey}")
+            .defaultHeader("Authorization", "Basic $apiKey")
             .baseUrl(config.billetWeb.url).build()
 
         val factory = HttpServiceProxyFactory.builder(WebClientAdapter.forClient(webClient)).build()

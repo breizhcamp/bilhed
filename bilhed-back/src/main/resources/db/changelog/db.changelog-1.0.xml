@@ -126,5 +126,72 @@
         <dropColumn tableName="participant" columnName="participant_sms_confirm_sent_date"/>
         <renameColumn tableName="participant" oldColumnName="participant_mail_confirm_sent_date" newColumnName="participant_notification_confirm_sent_date"/>
     </changeSet>
+    
+    <changeSet id="12" author="nicolas">
+        <createTable tableName="person">
+            <column name="id" type="uuid"><constraints primaryKey="true" nullable="false"/></column>
+
+            <column name="status" type="text"><constraints nullable="false"/></column>
+
+            <column name="lastname" type="text"><constraints nullable="false"/></column>
+            <column name="firstname" type="text"><constraints nullable="false"/></column>
+            <column name="email" type="text"><constraints nullable="false"/></column>
+            <column name="telephone" type="text"/>
+            <column name="pass" type="text"><constraints nullable="false"/></column>
+            <column name="payed" type="boolean" defaultValueBoolean="false"><constraints nullable="false"/></column>
+            <column name="group_id" type="uuid"/>
+        </createTable>
+        <createIndex tableName="person" indexName="person_status"><column name="status" /></createIndex>
+        <createIndex tableName="person" indexName="person_email"><column name="email" /></createIndex>
+        <createIndex tableName="person" indexName="person_telephone"><column name="telephone" /></createIndex>
+
+
+        <createTable tableName="person_group">
+            <column name="id" type="uuid"><constraints primaryKey="true" nullable="false"/></column>
+            <column name="referent_id" type="uuid"><constraints unique="true"/></column>
+            <column name="group_payment" type="boolean"><constraints nullable="false"/></column>
+            <column name="draw_order" type="int"/>
+        </createTable>
+
+        <createTable tableName="referent_infos">
+            <column name="person_id" type="uuid"><constraints primaryKey="true" nullable="false"/></column>
+            <column name="registration_date" type="timestamp with time zone"><constraints nullable="false"/></column>
+            <column name="registration_sms_status" type="text"><constraints nullable="false"/></column>
+            <column name="registration_nb_sms_sent" type="int"><constraints nullable="false"/></column>
+            <column name="registration_last_sms_sent_date" type="timestamp with time zone"/>
+            <column name="registration_token" type="text"><constraints nullable="false"/></column>
+            <column name="registration_sms_error" type="text"/>
+            <column name="registration_nb_token_tries" type="int" defaultValueNumeric="0"><constraints nullable="false"/></column>
+        </createTable>
+
+        <createTable tableName="participation_infos">
+            <column name="person_id" type="uuid"><constraints primaryKey="true" nullable="false"/></column>
+            <column name="participant_sms_status" type="text"/>
+            <column name="participant_nb_sms_sent" type="int" defaultValueNumeric="0"><constraints nullable="false"/></column>
+            <column name="participant_sms_error" type="text"/>
+            <column name="participant_notification_confirm_sent_date" type="timestamp with time zone"/>
+            <column name="participant_confirmation_date" type="timestamp with time zone"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="person" baseColumnNames="group_id" constraintName="fk_person_group" referencedTableName="person_group"
+                                 referencedColumnNames="id" />
+        <addForeignKeyConstraint baseTableName="referent_infos" baseColumnNames="person_id" constraintName="fk_referent_person" referencedTableName="person"
+                                 referencedColumnNames="id" />
+        <addForeignKeyConstraint baseTableName="participation_infos" baseColumnNames="person_id" constraintName="fk_participation_person" referencedTableName="person"
+                                 referencedColumnNames="id" />
+
+        <dropForeignKeyConstraint baseTableName="reminder" constraintName="fk_reminder_participant"/>
+        <addForeignKeyConstraint baseTableName="reminder" baseColumnNames="person_id" constraintName="fk_reminder_person"
+                                 referencedTableName="person" referencedColumnNames="id" />
+
+        <dropTable tableName="participant"/>
+        
+        <addForeignKeyConstraint baseTableName="attendee_data" baseColumnNames="id" constraintName="fk_attendee_data_person"
+                                 referencedTableName="person"
+                                 referencedColumnNames="id" />
+        <addForeignKeyConstraint baseTableName="billetweb" baseColumnNames="participant_id" constraintName="fk_billetweb_participant"
+                                 referencedTableName="person"
+                                 referencedColumnNames="id" />
+    </changeSet>
 
 </databaseChangeLog>

@@ -2,24 +2,26 @@ package org.breizhcamp.bilhed.application.rest.admin
 
 import jakarta.persistence.EntityNotFoundException
 import org.breizhcamp.bilhed.application.dto.ErrorRes
-import org.breizhcamp.bilhed.application.dto.admin.PersonDTO
+import org.breizhcamp.bilhed.application.dto.PersonDTO
 import org.breizhcamp.bilhed.application.dto.admin.UpdateContactReq
 import org.breizhcamp.bilhed.domain.entities.Reminder
-import org.breizhcamp.bilhed.domain.use_cases.PersonDetail
+import org.breizhcamp.bilhed.domain.use_cases.PersonCrud
+import org.breizhcamp.bilhed.domain.use_cases.Registration
 import org.breizhcamp.bilhed.domain.use_cases.ReminderCrud
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import java.util.*
 
 @RestController("adminPersonCtrl")
-@RequestMapping("/admin/person")
+@RequestMapping("/admin/persons")
 class PersonCtrl (
-    private val personDetail: PersonDetail,
-    private val reminderCrud: ReminderCrud
+    private val reminderCrud: ReminderCrud,
+    private val personCrud: PersonCrud,
+    private val registration: Registration
 ) {
     @GetMapping("/{id}")
     fun getPerson(@PathVariable id: UUID): PersonDTO {
-        return personDetail.get(id)
+        return personCrud.get(id).toDto()
     }
 
     @GetMapping("/{id}/reminders")
@@ -28,13 +30,18 @@ class PersonCtrl (
     }
 
     @PutMapping("/{id}")
-    fun updateEmailPhone(@PathVariable id: UUID, @RequestBody req: UpdateContactReq) {
+    fun updateContact(@PathVariable id: UUID, @RequestBody req: UpdateContactReq) {
         req.validate()
-        personDetail.updateContact(id, req)
+        personCrud.updateContact(id, req)
+    }
+
+    @PostMapping("/levelUp")
+    fun levelUp(@RequestBody ids: List<UUID>) = ids.forEach {
+        registration.levelUpAndNotify(it)
     }
 
     @ExceptionHandler(EntityNotFoundException::class) @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    fun handleENFE(e: EntityNotFoundException) = ErrorRes("Une erreur est survenue")
+    fun handleENFE() = ErrorRes("Une erreur est survenue")
 
     @ExceptionHandler(IllegalArgumentException::class) @ResponseStatus(HttpStatus.BAD_REQUEST)
     fun handleIAE(e: IllegalArgumentException) = ErrorRes(e.message ?: "Une erreur est survenue")

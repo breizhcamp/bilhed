@@ -45,8 +45,9 @@
       <h3>{{ bloc.title }}</h3>
       <p>{{ bloc.text }}</p>
       <RemindersSection :reminders="getArrayByType(bloc.type, true)"
-                 @submit="(up) => remindersManager(up, bloc.type)"
-                 :reminderTime="toInt(getConfigByKey(`reminderTime${bloc.short}`).value)"
+                 @maxTime="(time) => updateMaxTime(time, bloc.type)"
+                 @reminder="(rem) => remindersManager(rem, bloc.type)"
+                 :reminderTime="toInt(getConfigByKey(`reminderTime${bloc.short}`).value) || 0"
                  :reminderType="bloc.type"
                  @delete="(rem) =>deleteReminder(rem)"
                  :reminderBgColor="bloc.reminderBgColor"
@@ -63,11 +64,11 @@ import type {Config} from "@/dto/Config";
 import DateView from "@/components/DateView.vue";
 import dayjs from "dayjs";
 import {
+  type maxTimeUpdate,
   type ReminderBloc,
   type ReminderConfig,
   type ReminderConfigRes,
   ReminderType,
-  type ReminderUpdate
 } from "@/dto/ReminderConfig";
 import RemindersSection from "@/components/RemindersSection.vue";
 import deepEqual from "deep-equal";
@@ -178,19 +179,6 @@ export default defineComponent({
       return this.configList.find(cr => cr.key === key)! // la nouvelle clef est forcément dedans
     },
 
-    async updateReminder(method: string, reminderConfig: ReminderConfig, id?: string): Promise<void> {
-      return axios.request({ method, url: `/reminders/config${id ? '/' + id : ''}`, data: reminderConfig })
-        .then(res => {
-          const index = this.remindersConfigs.findIndex(re => isReminderConfigRes(re) && re.id == id)
-          if (index !== -1)
-            this.remindersConfigs.splice(index,1, res.data as ReminderConfigRes)
-          else
-            this.remindersConfigs.push(res.data as ReminderConfigRes)
-
-          this.remindersConfigs.sort((a, b) => a.hours > b.hours ? -1 : 1)
-        }).catch(() => toastError(`Erreur lors de ${(method === "post" ? "l'insertion" : "la modification")} d'un reminder.`))
-    },
-
     deleteReminder(rem: ReminderConfigRes) {
       const type = rem.type.toLowerCase()
       if (!confirm(`Le rappel ${type} de ${rem.hours}h sera supprimé. Voulez vous continuer ?`))
@@ -198,7 +186,7 @@ export default defineComponent({
 
       axios.delete(`/reminders/config/${rem.id}`)
         .then(() => { // on supprime de la liste des reminders
-          const index = this.remindersConfigs.findIndex(re => re.id === rem.id)
+          const index = this.remindersConfigs.findIndex(re => isReminderConfigRes(re) && re.id === rem.id)
           if (index > -1) this.remindersConfigs.splice(index, 1)
           toastSuccess(`Suppression d'un rappel ${type}`)
         }).catch(() => {
@@ -206,33 +194,63 @@ export default defineComponent({
         })
     },
 
-    remindersManager(update: ReminderUpdate, reminderConfigType: ReminderType) {
-      // Centralise la gestion des rappels
-
+    updateMaxTime(update: maxTimeUpdate, reminderConfigType: ReminderType) {
       // Mise à jour du temps maximal
       const configKey: string = `reminderTime${getShorterType(reminderConfigType)}`
       const configTime: Config = this.getConfigByKey(configKey)
 
-      let hasChanges: boolean = this.updateMaxTime(update, reminderConfigType, configKey, configTime)
+      if (update.reminderTime === update.oldReminderTime || update.reminderTime < 0) {
+        toastWarning("Aucune modification.")
+        return
+      }
+
+      axios.put('/config', [{
+        key: configKey,
+        value: `${update.reminderTime}`
+      }]).then(() => {
+        toastSuccess(`Modification du temps maximal ${reminderConfigType}`)
+        // Mise à jour dans la configList
+        configTime.value = `${update.reminderTime}`
+      }).catch(() => {
+        toastError(`Erreur lors de la modification du temps maximal ${reminderConfigType.toLowerCase()}`)
+      })
+    },
+
+    remindersManager(update: any, reminderConfigType: ReminderType) {
+      // Centralise la gestion des rappels
+      const configKey: string = `reminderTime${getShorterType(reminderConfigType)}`
+      const configTime: Config = this.getConfigByKey(configKey)
 
       // Mise à jour / ajout des rappels
       const requestsModifs: Promise<any>[] = this.updateReminders(update, configTime)
-      if (requestsModifs.length !== 0) hasChanges = true
+      if (requestsModifs.length === 0)
+        toastWarning('Aucune modification.')
 
       if (requestsModifs.length > 0)
         Promise.allSettled(requestsModifs).then(() => {
           toastSuccess(`Modification de ${requestsModifs.length} rappels ${reminderConfigType.toLowerCase()}`)
         })
-
-      if (requestsModifs.length === 0 && !hasChanges)
-        toastWarning('Aucune modification')
     },
 
-    hasChanges(remindConfig: ReminderConfigRes): boolean {
-      // Vérifie qu'une config de rappel a été modifié
-      let oldRemindConfig: ReminderConfigRes | undefined
-      oldRemindConfig = this.remindersConfigs.find(re => isReminderConfigRes(re) && re.id === remindConfig.id) as ReminderConfigRes
-      return oldRemindConfig ? !deepEqual(oldRemindConfig, remindConfig) : false
+    isValid(remind: ReminderConfig, configTime: Config, otherReminds: ReminderConfig[]): boolean {
+      /**
+       * Check if the reminder Config is valid, that means:
+       * - maxTime > hour config > 0
+       * - at least one template is filled
+       * - no other config with the same hour (by status)
+       * - if it's an update of an old one, it should have some changes
+       */
+      if (remind.hours < 0 || remind.hours > toInt(configTime.value) || (remind.templateSms === "" && remind.templateMail === ""))
+        return false
+
+      for (const rem of otherReminds) {
+        if (rem.hours === remind.hours) return false
+      }
+
+      if (!isReminderConfigRes(remind)) return true
+
+      const oldRemindConfig = this.remindersConfigs.find(re => isReminderConfigRes(re) && re.id === remind.id)
+      return oldRemindConfig ? !deepEqual(oldRemindConfig, remind) : true
     },
 
     updatePass() {
@@ -253,7 +271,6 @@ export default defineComponent({
       if (!confirm("Voulez vous mettre à jour la configuration des billets ?"))
         return
 
-
       axios.put('/config', configsToUpdate).then(() => {
         toastSuccess('Modification des configurations des billets')
       }).catch(() => {
@@ -261,41 +278,33 @@ export default defineComponent({
       })
     },
 
-    updateMaxTime(update: ReminderUpdate, reminderConfigType: String, configKey: string, configTime: Config): boolean {
-      if (update.reminderTime === update.oldReminderTime || update.reminderTime < 0) {
-        return false;
-      }
-      axios.put('/config', [{
-        key: configKey,
-        value: `${update.reminderTime}`
-      }]).then(() => {
-        toastSuccess(`Modification du temps maximal ${reminderConfigType}`)
-        // Mise à jour dans la configList
-        configTime.value = `${update.reminderTime}`
-      }).catch(() => {
-        toastError(`Erreur lors de la modification du temps maximal ${reminderConfigType.toLowerCase()}`)
-      })
-      return true
-    },
-
-    updateReminders(update: ReminderUpdate, configTime: Config): Promise<any>[] {
+    updateReminders(configs: ReminderConfig[], configTime: Config): Promise<any>[] {
       const requestsModifs: Promise<any>[] = []
-      update.reminders.forEach((remind, index) => {
-        if (isReminderConfigRes(remind)) {
-          // Mise à jour d'un reminderConfig existant
-          const {id, ...remindWithoutId} = remind
-          if (this.hasChanges(remind) && remind.hours >= 0 && remind.hours < toInt(configTime.value)
-              && (remind.templateSms !== "" || remind.templateMail !== ""))
-            requestsModifs.push(this.updateReminder('put', remindWithoutId, id))
-        } else {
-          // Création d'un nouveau reminderConfig
-          if (remind.hours >= 0 && remind.hours <= toInt(configTime.value)
-              && (remind.templateSms !== "" || remind.templateMail !== "")) {
-            requestsModifs.push(this.updateReminder('post', remind))
-          } else {
-            toastError(`Erreur dans le formulaire du rappel ${index + 1}`)
-          }
+      configs.forEach((remind, index) => {
+        const {id, ...remindWithoutId} = remind as ReminderConfigRes
+
+        const url = "/reminders/config" + (id !== undefined ? `/${id}` : '')
+        const method = id !== undefined ? "put" : "post"
+
+        const otherConfigs = configs.filter(c => c !== remind)
+        if (!this.isValid(remind, configTime, otherConfigs)) {
+          // don't show toast error if it is an old config without changes
+          if (id === undefined) toastError(`Erreur dans le formulaire du rappel ${index + 1}`)
+          return
         }
+
+        requestsModifs.push(axios.request({ method: method, url: url, data: remindWithoutId })
+            .then(res => {
+              if (id === undefined) // if it is a new config, add it
+                this.remindersConfigs.push(res.data as ReminderConfigRes)
+              else { // otherwise, we must replace the old one with the same id
+                const index = this.remindersConfigs.findIndex(re => isReminderConfigRes(re) && re.id == id)
+                if (index !== -1)
+                  this.remindersConfigs.splice(index,1, res.data as ReminderConfigRes)
+              }
+
+              this.remindersConfigs.sort((a, b) => a.hours > b.hours ? -1 : 1)
+            }).catch(() => toastError(`Erreur lors de ${(method === "post" ? "l'insertion" : "la modification")} d'un reminder.`)))
       })
       return requestsModifs
     }

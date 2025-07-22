@@ -5,14 +5,35 @@ export interface Person {
     email: string
     telephone: string
     pass: string
-    kids?: string
-    _status: PersonStatus
+    status: PersonStatus
+    groupId: string
+    payed: boolean,
+    checked: boolean
+}
+
+export interface ReferentInfos {
+    personId: string,
+    registrationDate: string,
+    smsStatus: string,
+    nbSmsSent: number,
+    lastSmsSentDate: string,
+    smsError: string,
+    token: string,
+    nbTokenTries: number
+}
+
+export interface ParticipationInfos {
+    personId: string
+    smsStatus?: string
+    nbSmsSent: number
+    smsError?: string
+    notificationConfirmSentDate?: string
+    confirmationDate?: string
 }
 
 export enum PersonStatus {
     REGISTERED = "REGISTERED",
     PARTICIPANT = "PARTICIPANT",
     ATTENDEE = "ATTENDEE",
-    ATTENDEE_FULL = "ATTENDEE_FULL"
 }
 

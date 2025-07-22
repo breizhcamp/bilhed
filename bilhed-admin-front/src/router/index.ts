@@ -4,6 +4,7 @@ import ParticipantView from '@/views/ParticipantView.vue'
 import RegisteredView from '@/views/RegisteredView.vue'
 import {createRouter, createWebHashHistory} from 'vue-router'
 import PersonView from "@/views/PersonView.vue";
+import GroupView from "@/views/GroupView.vue";
 
 const routes = [
   { path: '/', redirect: '/registered' },
@@ -13,7 +14,7 @@ const routes = [
     component: RegisteredView
   },{
     path: '/participants',
-    name: 'persons',
+    name: 'participants',
     component: ParticipantView
   },{
     path: '/attendees',
@@ -27,6 +28,10 @@ const routes = [
     path: '/person/:id',
     name: 'person',
     component: PersonView
+  }, {
+    path: '/group/:id',
+    name: 'group',
+    component: GroupView
   }
 ];
 

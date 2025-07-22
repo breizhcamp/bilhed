@@ -4,14 +4,13 @@
 
     <span class="d-inline-block float-end">
       <button type="button" class="btn btn-primary" v-on:click="draw()" :disabled="loading">Draw</button>
-<!--      <button type="button" class="btn btn-primary ms-2" v-on:click="notify()" :disabled="loading">Notif. success</button>-->
     </span>
   </h1>
 
   <div class="mb-3">
-    <ParticipantsFilter :filter="filter" @filter="(f) => load(f)"/>
+    <PersonsFilter :filter="filter" @filter="(f) => load(f)"/>
 
-    <table class="table table-striped table-hover">
+    <table class="table table-hover table-borderless">
       <thead>
       <tr>
         <th scope="col"><input type="checkbox" v-model="allChecked"></th>
@@ -26,21 +25,33 @@
       </tr>
       </thead>
       <tbody>
-      <tr v-for="p in participants" :key="p.id" @click.exact="p.checked = !p.checked" @click.shift="checkBetween(p)">
-        <td><input type="checkbox" v-model="p.checked"></td>
-        <td><router-link :to="`/person/${p.id}`" class="nav-link text-decoration-underline">{{ p.lastname }}</router-link></td>
-        <td>{{ p.firstname }}</td>
-        <td>{{ p.email }}</td>
-        <td>{{ p.telephone }}</td>
-        <td><Pass :pass="p.pass"/></td>
-        <td>{{ p.drawOrder }}</td>
-        <td><DateView :date="getLimitDate(p.notificationConfirmSentDate)" format="DD/MM HH:mm" sup=""/></td>
-        <td>
-          <button type="button" class="btn btn-link btn-sm" title="Notify success" @click="notifyOne(p.id, 'success')" :disabled="loading"><BiSendCheck/></button>
-          <button type="button" class="btn btn-link btn-sm" title="Notify waiting" @click="notifyOne(p.id, 'waiting')" :disabled="loading"><BiSendExclamation/></button>
-          <button type="button" class="btn btn-link btn-sm" title="Notify failed" @click="notifyOne(p.id, 'failed')" :disabled="loading"><BiSendX/></button>
-        </td>
-      </tr>
+      <template v-for="(g, i) in groups" :key="g.group.id">
+        <tr v-for="member in g.members" :key="member.id" :class="{ 'table-secondary': i % 2 === 0 }"
+            @click.exact="g.group.groupPayment && g.group.referentId === member.id ? checkGroup(g.group.id, !member.checked) : checkPerson(g.group.groupPayment, member)"
+            @click.shift="checkBetween(member)"
+            >
+
+          <td><input type="checkbox" v-model="member.checked" :disabled="g.group.groupPayment && g.group.referentId !== member.id"
+                     @change="g.group.referentId === member.id ? checkGroup(g.group.id, member.checked) : null"></td>
+
+          <td>{{ member.lastname }}</td>
+          <td>{{ member.firstname }}</td>
+          <td class="break-email">{{ member.email }}</td>
+          <td>{{ member.telephone }}</td>
+          <td><Pass :pass="member.pass"/></td>
+          <td>{{ g.group.drawOrder }}</td>
+          <td><DateView :date="getLimitDate(g.group, member.id)" format="DD/MM HH:mm" sup=""/></td>
+          <td class="d-flex align-items-center justify-content-end">
+            <template v-if="g.group.groupPayment && g.group.referentId === member.id">
+              <button type="button" class="btn btn-link btn-sm text-dark" title="Notify success" @click="notifyOne(member.id, 'success')" :disabled="loading"><BiSendCheck/></button>
+              <button type="button" class="btn btn-link btn-sm text-dark" title="Notify waiting" @click="notifyOne(member.id, 'waiting')" :disabled="loading"><BiSendExclamation/></button>
+              <button type="button" class="btn btn-link btn-sm text-dark" title="Notify failed" @click="notifyOne(member.id, 'failed')" :disabled="loading"><BiSendX/></button>
+            </template>
+            <router-link :to="`/person/${member.id}`" class="nav-link ms-2"><BiPencil/></router-link>
+            <router-link :to="`/group/${g.group.id}`" class="nav-link ms-2"><BiPeople/></router-link>
+          </td>
+        </tr>
+      </template>
       </tbody>
     </table>
 
@@ -56,7 +67,7 @@
           <button type="button" class="btn btn-outline-primary me-1" @click="levelUp('attendee')" :disabled="loading"><BiArrowUp/> Level Up to attendee</button>
           <button type="button" class="btn btn-outline-warning me-1" @click="levelUp('release')" :disabled="loading"><BiArrowUp/> Level Up to release</button>
 
-          <div class="d-inline-block ms-3" v-if="checked.length > 0">{{ checked.length }}/{{ participants.length }}</div>
+          <div class="d-inline-block ms-3" v-if="checked.length > 0">{{ checked.length }}/{{ groups.reduce((acc, g) => acc + g.members.length, 0) }}</div>
         </div>
       </div>
     </nav>
@@ -66,38 +77,43 @@
 <script lang="ts">
 /// <reference types="vite-svg-loader" />
 
-import DateView from '@/components/DateView.vue'
-import type {Participant} from '@/dto/Participant'
 import axios from 'axios'
 import BiSendCheck from 'bootstrap-icons/icons/send-check.svg?component'
 import BiSendExclamation from 'bootstrap-icons/icons/send-exclamation.svg?component'
 import BiSendX from 'bootstrap-icons/icons/send-x.svg?component'
 import BiArrowUp from 'bootstrap-icons/icons/arrow-bar-up.svg?component'
-import { defineComponent } from 'vue'
+import BiPencil from "bootstrap-icons/icons/pencil.svg?component";
+import BiPeople from "bootstrap-icons/icons/people.svg?component";
+import {defineComponent} from 'vue'
 import Pass from '@/components/Pass.vue'
-import ParticipantsFilter from '@/components/ParticipantsFilter.vue'
-import type {ParticipantFilter} from '@/dto/ParticipantFilter'
+import PersonsFilter from '@/components/PersonsFilter.vue'
+import type {PersonFilter} from '@/dto/PersonFilter'
 import dayjs from "dayjs";
 import type {Config} from "@/dto/Config";
 import {toastError, toastSuccess, toastWarning, toInt} from "@/utils/ReminderUtils";
+import type {Group, GroupCompleteParticipant} from "@/dto/Group";
+import {type ParticipationInfos, type Person, PersonStatus} from "@/dto/Person";
+import DateView from "@/components/DateView.vue";
+import {getSortedGroups} from "@/utils/Global";
 
 export default defineComponent({
   name: "ParticipantView",
-  components: {ParticipantsFilter, Pass, DateView, BiSendCheck, BiSendExclamation, BiSendX, BiArrowUp },
+  components: {DateView, PersonsFilter, Pass, BiSendCheck, BiSendExclamation, BiSendX, BiArrowUp, BiPencil, BiPeople},
 
   data() {
     return {
-      participants: [] as Participant[],
       allChecked: false,
       loading: false,
-      filter: {} as ParticipantFilter,
-      reminderTimePar: {} as Config
+      filter: { status: PersonStatus.PARTICIPANT} as PersonFilter,
+      reminderTimePar: {} as Config,
+      groups: [] as GroupCompleteParticipant[],
+      partInfos: [] as ParticipationInfos[]
     }
   },
 
   computed: {
-    checked(): Participant[] {
-      return this.participants.filter((r) => r.checked)
+    checked(): Person[] {
+      return this.groups.flatMap(g => g.members.filter(m => m.checked))
     }
   },
 
@@ -107,32 +123,45 @@ export default defineComponent({
 
   watch: {
     allChecked() {
-      this.participants.forEach((r) => r.checked = this.allChecked)
+      this.groups.forEach((g) => g.members.forEach(m => m.checked = this.allChecked))
     }
   },
 
   methods: {
-    checkBetween(p: Participant) {
-      const first = this.participants.findIndex((r) => r.checked)
-      const clicked = this.participants.findIndex((r) => r.id === p.id)
+    checkBetween(p: Person) {
+      const firstMemberId: string | undefined = this.groups.find(g => g.members.some(m => m.checked))?.members.find(m => m.checked)?.id
+      const first = this.groups.findIndex(g => g.members.some(m => m.checked))
+      const clicked = this.groups.findIndex(g => g.members.some(m => m.id === p.id))
       if (first === -1) {
         p.checked = !p.checked
       } else {
         const min = Math.min(first, clicked)
         const max = Math.max(first, clicked)
         for (let i = min; i <= max; i++) {
-          this.participants[i].checked = !p.checked
+          this.groups[i].members.forEach((m => {
+            // to not re-update the first one
+            if (i !== first || !firstMemberId || m.id !== firstMemberId) {
+              m.checked = !m.checked
+            }
+          }))
         }
       }
     },
 
-    load(filter?: ParticipantFilter) {
-      const method = filter ? 'post' : 'get'
-      const url = filter ? '/participants/filter' : '/participants'
+    load(formFilter?: PersonFilter) {
+      axios.post("/groups/participant/complete", formFilter ?? this.filter)
+          .then(response => {
+            const sortedGroups = getSortedGroups(response.data)
+            this.groups = sortedGroups as GroupCompleteParticipant[]
 
-      axios.request({ method, url, data: filter }).then((response) => {
-        this.participants = response.data
-      })
+            if (sortedGroups.length > 0 && sortedGroups[0].group.drawOrder != null) {
+              const ids = sortedGroups.map(e => e.group.id)
+              return axios.post("/participations/groups", ids).then(res => {
+                this.partInfos = res.data
+              })
+            }
+          })
+          .catch(err => console.error(err))
 
       axios.get('/config/reminderTimePar').then(res => {
         this.reminderTimePar = res.data
@@ -144,7 +173,7 @@ export default defineComponent({
         return
 
       this.loading = true
-      axios.post('/participants/draw').then(() => {
+      axios.post('/groups/draw').then(() => {
         this.load()
         toastSuccess("Le tirage au sort a bien été effectué.")
       }).catch(() => {
@@ -172,20 +201,11 @@ export default defineComponent({
         return
 
       this.loading = true
-      axios.post('/participants/notif/' + type, ids).then(() => {
+      axios.post('/notifs/' + type, ids).then(() => {
         this.load()
-        toastSuccess(`La notification a bien été envoyée (${ids.length}} personnes).`)
+        toastSuccess(`La notification a bien été envoyée (${ids.length} personnes).`)
       }).catch(() => {
         toastError("Une erreur s'est produite lors de l'envoi des notifications.")
-      }).finally(() => {
-        this.loading = false
-      })
-    },
-
-    notifyAll() {
-      this.loading = true
-      axios.post('/participants/notif').then(() => {
-        this.load()
       }).finally(() => {
         this.loading = false
       })
@@ -202,7 +222,7 @@ export default defineComponent({
         return
 
       this.loading = true
-      axios.post('/participants/levelUp/' + level, ids).then(() => {
+      axios.post('/notifs/levelUp/' + level, ids).then(() => {
         this.load()
         toastSuccess(`Le statut a bien été modifié (${ids.length} personnes).`)
       }).catch(() => {
@@ -213,14 +233,41 @@ export default defineComponent({
     },
 
     getSelected: function () {
-      return this.participants.filter((p) => p.checked).map((p) => p.id)
+      return this.groups.flatMap(g => {
+        if (!g.group.groupPayment) {
+          return g.members.filter(m => m.checked).map(m => m.id)
+        } else {
+          return g.members
+              .filter(m => m.checked && m.id === g.group.referentId)
+              .map(m => m.id)
+        }
+      })
     },
 
-    getLimitDate(confSentDate: string | undefined): string {
-      if (!confSentDate) {
-        return ''
+    checkGroup(groupId: string, checked: boolean) {
+      const group = this.groups.find(g => g.group.id === groupId)
+      if (group) group.members.forEach(m => m.checked = checked)
+    },
+
+    checkPerson(groupPayment: boolean, member: Person) {
+      if (!groupPayment) {
+        member.checked = !member.checked
       }
-      let date = dayjs(confSentDate)
+    },
+
+    getLimitDate(group: Group, memberId: string): string {
+      const isReferent = group.referentId === memberId
+
+      let infos: ParticipationInfos | undefined = undefined;
+      if (!group.groupPayment && !isReferent) {
+        infos = this.partInfos.find(p => p.personId === memberId)
+      } else {
+        infos = this.partInfos.find(p => p.personId === group.referentId)
+      }
+
+      if (!infos || !infos.notificationConfirmSentDate) return ''
+
+      let date = dayjs(infos.notificationConfirmSentDate)
       date = date.add(toInt(this.reminderTimePar.value), 'hour')
       return date.toString()
     }

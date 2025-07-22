@@ -1,84 +1,129 @@
 <template>
   <h1>
-    Registered
-
-    <span class="d-inline-block float-end">
-      <button type="button" class="btn btn-primary" v-on:click="importModal = true">Import</button>
-    </span>
+    Inscrits
   </h1>
 
-  <div class="mb-3">
-    <table class="table table-striped table-hover">
-      <thead>
-        <tr>
-          <th scope="col"><input type="checkbox" v-model="allChecked"></th>
-          <th scope="col">Lastname</th>
-          <th scope="col">Firstname</th>
-          <th scope="col">Email</th>
-          <th scope="col">Telephone</th>
-          <th scope="col">Pass</th>
-          <th scope="col">Reg date</th>
-          <th scope="col"></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="r in registered" :key="r.id">
-          <td><input type="checkbox" v-model="r.checked"></td>
-          <td><router-link :to="`/person/${r.id}`" class="nav-link text-decoration-underline">{{ r.lastname }}</router-link></td>
-          <td>{{ r.firstname }}</td>
-          <td>{{ r.email }}</td>
-          <td>{{ r.telephone }}</td>
-          <td><Pass :pass="r.pass"/></td>
-          <td><DateView :date="r.registrationDate"/></td>
-          <td>
-            <button type="button" class="btn btn-link btn-sm" title="Send SMS reminder" @click="sendReminder(r.id, 'sms')" :disabled="loading"><BiChatText/></button>
-            <button type="button" class="btn btn-link btn-sm ms-1" title="Send email reminder" @click="sendReminder(r.id, 'email')" :disabled="loading"><BiEnvelope/></button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+  <div class="d-flex align-items-center p-2 fw-bold mb-2">
+    <div class="form-check me-3">
+      <input type="checkbox" class="form-check-input" v-model="allChecked" />
+    </div>
+    <div class="flex-grow-1">
+      <div class="row">
+        <div class="col-md-auto"><i class="bi col-md-auto bi-dash"></i></div>
+        <div class="col-md-1">Nom</div>
+        <div class="col-md-1">Prénom</div>
+        <div class="col-md-3">Email</div>
+        <div style="width: 15%">Téléphone</div>
+        <div class="col-md-1">Pass</div>
+        <div class="col-md-3">Date inscription</div>
+      </div>
+    </div>
+    <div class="form-check me-1">
+      Actions
+    </div>
+  </div>
+
+  <div class="accordion mb-3" id="groupAccordion">
+    <div v-for="(g, i) in groupsWithRef" :key="g.group.id" :class="['accordion-item', { 'bg-body-secondary': i % 2 === 0 }]">
+      <div class="d-flex align-items-center p-2">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" :id="`checkbox${g.group.id}`" v-model="g.referent!.checked" @change="checkGroup(g.group.id, g.referent!.checked)" />
+        </div>
+
+        <button
+            type="button"
+            class="btn flex-grow-1 text-start me-2"
+            :class="{ 'no-pointer-events': g.members.length === 0 }"
+            :data-bs-toggle="g.members.length > 0 ? 'collapse' : null"
+            :data-bs-target="`#collapseG${g.group.id}`"
+            aria-expanded="false"
+            :aria-controls="`collapseG${g.group.id}`"
+            @click="g.members.length > 0 ? animateChevron(`chevron-${g.group.id}`) : null"
+        >
+          <span class="row">
+            <i :class="g.members.length > 0 ? 'bi-chevron-down' : 'bi-dash'" class="bi transition-icon col-md-auto" :id="`chevron-${g.group.id}`"></i>
+            <span class="col-md-1">{{ g.referent!.lastname }}</span>
+            <span class="col-md-1">{{ g.referent!.firstname }}</span>
+            <span class="col-md-3 break-email">{{ g.referent!.email }}</span>
+            <span class="col-md-2">{{ g.referent!.telephone }}</span>
+            <span class="col-md-1"><Pass :pass="g.referent!.pass"/></span>
+            <span class="col-md-3"><DateView :date="g.referentInfos.registrationDate" format="DD/MM HH:mm"/></span>
+          </span>
+        </button>
+        <div class="d-flex">
+          <button type="button" class="btn btn-link btn-sm icon-small" title="Send SMS reminder" @click="sendReminder(g.referent!.id, 'sms')" :disabled="loading"><BiChatText/></button>
+          <button type="button" class="btn btn-link btn-sm ms-2 icon-small" title="Send email reminder" @click="sendReminder(g.referent!.id, 'email')" :disabled="loading"><BiEnvelope/></button>
+          <router-link :to="`/person/${g.referent!.id}`" class="nav-link ms-2 d-flex align-items-center icon-small"><BiPencil/></router-link>
+          <router-link :to="`/group/${g.group.id}`" class="nav-link ms-2 d-flex align-items-center icon-small"><BiPeople/></router-link>
+        </div>
+      </div>
+
+      <div
+          :id="`collapseG${g.group.id}`"
+          class="accordion-collapse collapse"
+          :aria-labelledby="`headingG${g.group.id}`"
+      >
+        <div class="accordion-body py-1">
+
+          <table class="table table-sm table-transparent">
+            <thead>
+            <tr>
+              <th scope="col">Nom</th>
+              <th scope="col">Prénom</th>
+              <th scope="col">Email</th>
+              <th scope="col" v-if="!g.group.groupPayment">Téléphone</th>
+              <th scope="col"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="comp in g.members" :key="comp.id">
+              <td style="width: 20%">{{ comp.lastname }}</td>
+              <td style="width: 20%">{{ comp.firstname }}</td>
+              <td style="width: 20%" class="break-email">{{ comp.email }}</td>
+              <td style="width: 20%" v-if="!g.group.groupPayment">{{ comp.telephone }}</td>
+              <td style="width: 20%" class="p-0 align-middle text-end">
+                <router-link :to="`/person/${comp.id}`" class="nav-link ms-1 icon-small"><BiPencil/></router-link>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="mb-3">
     <button type="button" class="btn btn-primary" v-on:click="levelUp()" :disabled="loading">Level up to participant</button>
   </div>
 
-  <ModalForm v-model:open="importModal" :loading="loading" title="Import" @save="importCsv()">
-    <div class="mb-3">
-      Format (with header): lastname, firstname, email, telephone
-    </div>
 
-    <div class="mb-3">
-      <label for="file" class="form-label">File</label>
-      <input type="file" class="form-control" id="file" accept="text/csv" @change="onFileSelected($event)">
-    </div>
-  </ModalForm>
 </template>
 
 <script lang="ts">
 /// <reference types="vite-svg-loader" />
 
-import type { Registered } from '@/dto/Registered';
-import { defineComponent } from 'vue'
+import {defineComponent} from 'vue'
 import axios from 'axios'
 import DateView from '@/components/DateView.vue'
-import ModalForm from '@/components/ModalForm.vue'
 import BiChatText from 'bootstrap-icons/icons/chat-text.svg?component'
 import BiEnvelope from 'bootstrap-icons/icons/envelope.svg?component'
+import BiPencil from 'bootstrap-icons/icons/pencil.svg?component'
+import BiPeople from "bootstrap-icons/icons/people.svg?component";
 import Pass from "@/components/Pass.vue";
 import {toastError, toastSuccess, toastWarning} from "@/utils/ReminderUtils";
+import type {GroupCompleteParticipant, GroupCompleteParticipantWithRef} from "@/dto/Group";
+import {PersonStatus} from "@/dto/Person";
+import {animateChevron} from "@/utils/Global";
 
 export default defineComponent({
   name: "RegisteredView",
-  components: {Pass, ModalForm, DateView, BiChatText, BiEnvelope },
+  components: {Pass, DateView, BiChatText, BiEnvelope, BiPencil, BiPeople},
 
   data() {
     return {
-      registered: [] as Registered[],
-      importModal: false,
       loading: false,
-      file: null as File | null,
       allChecked: false,
+      groups: [] as GroupCompleteParticipant[]
     }
   },
 
@@ -88,14 +133,26 @@ export default defineComponent({
 
   watch: {
     allChecked() {
-      this.registered.forEach((r) => r.checked = this.allChecked)
+      this.groups.forEach((g) => g.members.forEach(m => m.checked = this.allChecked))
+    }
+  },
+
+  computed: {
+    groupsWithRef(): GroupCompleteParticipantWithRef[] {
+      // ref should/could not be null in this page
+      return this.groups.map(gc => {
+        const referent = gc.members.find(m => m.id === gc.group.referentId) || null;
+        const companions = gc.members.filter(m => m.id !== gc.group.referentId)
+        return {...gc, referent: referent, members: companions};
+      })
     }
   },
 
   methods: {
+    animateChevron,
     load() {
-      axios.get('/registered').then((response) => {
-        this.registered = response.data
+      axios.post('/groups/participant/complete', {status: PersonStatus.REGISTERED}).then( response => {
+        this.groups = response.data
       })
     },
 
@@ -105,73 +162,44 @@ export default defineComponent({
       // @ts-ignore
       data[type] = true
 
-      axios.post(`/registered/${id}/reminder`, data).then(() => {
+      axios.post(`/notifs/registered/${id}/reminder`, data).then(() => {
         this.load()
-      }).finally(() => {
-        this.loading = false
-      })
-    },
-
-    onFileSelected(event: Event) {
-      const target = event.target as HTMLInputElement
-      this.file = target.files?.item(0) ?? null
-    },
-
-    importCsv() {
-      if (!this.file) {
-        return
-      }
-
-      this.loading = true
-
-      const formData = new FormData()
-      formData.append('file', this.file)
-
-      axios.post('/registered/import', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      }).then(() => {
-        this.importModal = false
-        this.load()
-        toastSuccess("L'import a bien été effectué.")
-      }).catch(() => {
-        this.importModal = false
-        toastError()
       }).finally(() => {
         this.loading = false
       })
     },
 
     levelUp() {
-      const ids = this.registered.filter((r) => r.checked).map((r) => r.id)
+      // select only referent Ids
+      const ids = this.groups.flatMap(g => g.members.filter(m => m.checked && m.id === g.group.referentId)).map(m => m.id);
+
       if (ids.length === 0) {
-        toastWarning("Aucun inscrit sélectionné")
+        toastWarning("Aucun groupe sélectionné")
         return
       }
 
-      if (!confirm(`Voulez allez changer le statut de ${ids.length} personnes en Participant, voulez vous continuer ?`))
+      if (!confirm(`Voulez allez changer le statut de ${ids.length} groupes en Participant, voulez vous continuer ?`))
         return
 
       this.loading = true
-      axios.post('/registered/levelUp', ids).then(() => {
+      axios.post('/notifs/levelUp/participant', ids).then(() => {
         this.load()
-        toastSuccess(`Le statut a bien été modifié (${ids.length} personnes).`)
+        toastSuccess(`Le statut a bien été modifié (${ids.length} groupes).`)
       }).catch(() => {
         toastError("Une erreur s'est produite lors du changement de statut.")
       }).finally(() => {
         this.loading = false
       })
+    },
+
+    checkGroup(groupId: string, checked: boolean) {
+      const group = this.groups.find(g => g.group.id === groupId)
+      if (group) group.members.forEach(m => m.checked = checked)
     }
   }
 })
 </script>
 
 <style scoped>
-button.btn-sm {
-  padding: 0;
-  color: #212529;
-  line-height: 0;
-  vertical-align: text-top;
-}
+
 </style>
