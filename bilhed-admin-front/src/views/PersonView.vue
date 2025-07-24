@@ -194,10 +194,12 @@ export default defineComponent({
       if (!confirm(`Voulez vous modifier les contacts de ${this.person.firstname} ${this.person.lastname} ?`))
         return
 
+      this.loading = true
       axios.put(`/persons/${this.person.id}`, {
         email: this.person.email,
         telephone: this.person.telephone
       }).then(() => toastSuccess("Le changement a bien été effectué")).catch(this.displayError)
+        .finally(() => this.loading = false)
     },
 
     displayError(err: any) {

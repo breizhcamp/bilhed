@@ -34,7 +34,7 @@
           </div>
         </div>
       </div>
-      <input class="btn btn-primary btn-sm" type="submit" value="Enregistrer" />
+      <input class="btn btn-primary btn-sm" type="submit" value="Enregistrer" :disabled="loading"/>
     </form>
   </section>
 
@@ -119,7 +119,8 @@ export default defineComponent({
       remindersConfigs: [] as ReminderConfig[],
       templateMailList: [] as String[],
       templateSmsList: [] as String[],
-      reminderBlocks
+      reminderBlocks,
+      loading: false
     }
   },
 
@@ -184,6 +185,7 @@ export default defineComponent({
       if (!confirm(`Le rappel ${type} de ${rem.hours}h sera supprimé. Voulez vous continuer ?`))
         return
 
+      this.loading = true
       axios.delete(`/reminders/config/${rem.id}`)
         .then(() => { // on supprime de la liste des reminders
           const index = this.remindersConfigs.findIndex(re => isReminderConfigRes(re) && re.id === rem.id)
@@ -191,7 +193,7 @@ export default defineComponent({
           toastSuccess(`Suppression d'un rappel ${type}`)
         }).catch(() => {
           toastError(`Erreur lors de la suppression d'un rappel ${type}`)
-        })
+        }).finally(() => this.loading = false)
     },
 
     updateMaxTime(update: maxTimeUpdate, reminderConfigType: ReminderType) {
@@ -204,6 +206,7 @@ export default defineComponent({
         return
       }
 
+      this.loading = true
       axios.put('/config', [{
         key: configKey,
         value: `${update.reminderTime}`
@@ -213,7 +216,7 @@ export default defineComponent({
         configTime.value = `${update.reminderTime}`
       }).catch(() => {
         toastError(`Erreur lors de la modification du temps maximal ${reminderConfigType.toLowerCase()}`)
-      })
+      }).finally(() => this.loading = false)
     },
 
     remindersManager(update: any, reminderConfigType: ReminderType) {
@@ -223,13 +226,15 @@ export default defineComponent({
 
       // Mise à jour / ajout des rappels
       const requestsModifs: Promise<any>[] = this.updateReminders(update, configTime)
-      if (requestsModifs.length === 0)
+      if (requestsModifs.length === 0) {
         toastWarning('Aucune modification.')
+        return
+      }
 
-      if (requestsModifs.length > 0)
-        Promise.allSettled(requestsModifs).then(() => {
-          toastSuccess(`Modification de ${requestsModifs.length} rappels ${reminderConfigType.toLowerCase()}`)
-        })
+      this.loading = true
+      Promise.allSettled(requestsModifs).then(() => {
+        toastSuccess(`Modification de ${requestsModifs.length} rappels ${reminderConfigType.toLowerCase()}`)
+      }).finally(() => this.loading = false)
     },
 
     isValid(remind: ReminderConfig, configTime: Config, otherReminds: ReminderConfig[]): boolean {
@@ -271,11 +276,12 @@ export default defineComponent({
       if (!confirm("Voulez vous mettre à jour la configuration des billets ?"))
         return
 
+      this.loading = true
       axios.put('/config', configsToUpdate).then(() => {
         toastSuccess('Modification des configurations des billets')
       }).catch(() => {
         toastError('Erreur lors de la modification des configurations des billets')
-      })
+      }).finally(() => this.loading = false)
     },
 
     updateReminders(configs: ReminderConfig[], configTime: Config): Promise<any>[] {

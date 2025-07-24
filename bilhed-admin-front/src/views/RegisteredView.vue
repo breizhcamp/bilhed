@@ -164,9 +164,10 @@ export default defineComponent({
 
       axios.post(`/notifs/registered/${id}/reminder`, data).then(() => {
         this.load()
+        toastSuccess(`Notification ${type} envoyée.`)
       }).finally(() => {
         this.loading = false
-      })
+      }).catch(() => toastError(`Erreur lors de l'envoi de la notification ${type}.`))
     },
 
     levelUp() {

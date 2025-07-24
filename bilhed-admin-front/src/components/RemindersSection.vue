@@ -7,7 +7,7 @@
           <input type="number" class="form-control" :id="`time${rType}`" v-model="rTime" min="0">
           <span class="input-group-text">heures</span>
         </div>
-        <button type="submit" class="btn btn-primary btn-sm">Enregistrer</button>
+        <button type="submit" class="btn btn-primary btn-sm" :disabled="loading">Enregistrer</button>
       </div>
     </div>
     <p class="m-0">Les rappels sont envoyés X heures avant la fin du temps maximal</p>
@@ -50,6 +50,7 @@
     </template>
     <button type="button" class="btn btn-sm btn-block shadow rounded mb-4"
             :style="{ backgroundColor: reminderBgColor }"
+            :disabled="loading"
             v-if="reminderTime !== 0"
             @click="addReminder" style="width: 100%">Ajouter un rappel</button>
     <button v-if="reminderTime !== 0" type="submit" class="btn btn-primary btn-sm">Enregistrer</button>
@@ -67,7 +68,8 @@ export default defineComponent({
     reminders: { type: Array as PropType<ReminderConfig[]>, required: true},
     reminderTime: { type: Number, required: true},
     reminderType: { type: String as PropType<ReminderType>, required: true},
-    reminderBgColor: { type: String, required: true }
+    reminderBgColor: { type: String, required: true },
+    loading: { type: Boolean, required: true }
   },
   emits: ['reminder', 'delete', 'maxTime'],
   inject: ["templateMailList", "templateSmsList"],

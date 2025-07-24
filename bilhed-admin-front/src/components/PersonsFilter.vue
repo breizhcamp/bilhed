@@ -24,9 +24,18 @@
       </select>
     </div>
 
-    <div class="col-12">
+    <div class="col-12" v-if="status === PersonStatus.PARTICIPANT">
       <label class="form-label" for="pass">Drawn</label>
       <select class="form-select" id="pass" v-model="f.drawn">
+        <option :value="undefined"></option>
+        <option value="true">Yes</option>
+        <option value="false">No</option>
+      </select>
+    </div>
+
+    <div class="col-12" v-if="status === PersonStatus.ATTENDEE">
+      <label class="form-label" for="pass">Payed</label>
+      <select class="form-select" id="pass" v-model="f.payed">
         <option :value="undefined"></option>
         <option value="true">Yes</option>
         <option value="false">No</option>
@@ -44,13 +53,20 @@
 import type {PropType} from 'vue'
 import {defineComponent} from 'vue'
 import type {PersonFilter} from '@/dto/PersonFilter'
+import {PersonStatus} from "@/dto/Person";
 
 
 export default defineComponent({
   name: "PersonsFilter",
+  computed: {
+    PersonStatus() {
+      return PersonStatus
+    }
+  },
 
   props: {
     filter: { type: Object as PropType<PersonFilter>, required: true },
+    status: { type: String as PropType<PersonStatus>, required: true },
   },
   emits: ['filter'],
 

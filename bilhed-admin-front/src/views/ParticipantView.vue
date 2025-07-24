@@ -8,7 +8,7 @@
   </h1>
 
   <div class="mb-3">
-    <PersonsFilter :filter="filter" @filter="(f) => load(f)"/>
+    <PersonsFilter :filter="filter" @filter="(f) => load(f)" :status="PersonStatus.PARTICIPANT"/>
 
     <table class="table table-hover table-borderless">
       <thead>
@@ -42,7 +42,7 @@
           <td>{{ g.group.drawOrder }}</td>
           <td><DateView :date="getLimitDate(g.group, member.id)" format="DD/MM HH:mm" sup=""/></td>
           <td class="d-flex align-items-center justify-content-end">
-            <template v-if="g.group.groupPayment && g.group.referentId === member.id">
+            <template v-if="g.group.groupPayment && g.group.referentId === member.id && g.group.drawOrder !== undefined">
               <button type="button" class="btn btn-link btn-sm text-dark" title="Notify success" @click="notifyOne(member.id, 'success')" :disabled="loading"><BiSendCheck/></button>
               <button type="button" class="btn btn-link btn-sm text-dark" title="Notify waiting" @click="notifyOne(member.id, 'waiting')" :disabled="loading"><BiSendExclamation/></button>
               <button type="button" class="btn btn-link btn-sm text-dark" title="Notify failed" @click="notifyOne(member.id, 'failed')" :disabled="loading"><BiSendX/></button>
@@ -58,11 +58,13 @@
     <nav class="navbar sticky-bottom bg-light">
       <div class="container-fluid">
         <div>
-          <button type="button" class="btn btn-primary me-1" @click="notifySel('success')" :disabled="loading"><BiSendCheck/> Notify success</button>
-          <button type="button" class="btn btn-warning me-1" @click="notifySel('waiting')" :disabled="loading"><BiSendExclamation/> Notify waiting</button>
-          <button type="button" class="btn btn-outline-danger me-4" @click="notifySel('failed')" :disabled="loading"><BiSendX/> Notify failed</button>
+          <template v-if="groups[0].group.drawOrder !== undefined">
+            <button type="button" class="btn btn-primary me-1" @click="notifySel('success')" :disabled="loading"><BiSendCheck/> Notify success</button>
+            <button type="button" class="btn btn-warning me-1" @click="notifySel('waiting')" :disabled="loading"><BiSendExclamation/> Notify waiting</button>
+            <button type="button" class="btn btn-outline-danger me-4" @click="notifySel('failed')" :disabled="loading"><BiSendX/> Notify failed</button>
 
-          <button type="button" class="btn btn-outline-primary me-4" @click="notifySel('success/reminder')" :disabled="loading"><BiSendCheck/> Remind success</button>
+            <button type="button" class="btn btn-outline-primary me-4" @click="notifySel('success/reminder')" :disabled="loading"><BiSendCheck/> Remind success</button>
+          </template>
 
           <button type="button" class="btn btn-outline-primary me-1" @click="levelUp('attendee')" :disabled="loading"><BiArrowUp/> Level Up to attendee</button>
           <button type="button" class="btn btn-outline-warning me-1" @click="levelUp('release')" :disabled="loading"><BiArrowUp/> Level Up to release</button>
@@ -112,6 +114,9 @@ export default defineComponent({
   },
 
   computed: {
+    PersonStatus() {
+      return PersonStatus
+    },
     checked(): Person[] {
       return this.groups.flatMap(g => g.members.filter(m => m.checked))
     }

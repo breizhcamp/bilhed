@@ -8,7 +8,7 @@
   </h1>
 
   <div class="mb-3">
-    <AttendeesFilter :filter="filter" @filter="(f) => load(f)"/>
+    <PersonsFilter :filter="filter" @filter="(f) => load(f)" :status="PersonStatus.ATTENDEE"/>
 
     <div class="d-flex align-items-center p-2 fw-bold mb-2">
       <div class="form-check me-3">
@@ -153,7 +153,6 @@
 <script lang="ts">
 /// <reference types="vite-svg-loader" />
 
-import AttendeesFilter from '@/components/AttendeesFilter.vue';
 import DateView from '@/components/DateView.vue'
 import Pass from '@/components/Pass.vue'
 import axios from 'axios'
@@ -172,10 +171,12 @@ import type {PersonFilter} from "@/dto/PersonFilter";
 import {animateChevron, getBoolStr, getSortedGroups} from "@/utils/Global";
 import type {GroupCompleteAttendee, GroupCompleteAttendeeWithRef} from "@/dto/Group";
 import {type Person, PersonStatus} from "@/dto/Person";
+import PersonsFilter from "@/components/PersonsFilter.vue";
 
 export default defineComponent({
   name: "ParticipantView",
-  components: {AttendeesFilter, Pass, DateView, BiSendCheck, BiArrowUp, BiEnvelope, BiPencil, BiChatText, BiPeople},
+  components: {
+    PersonsFilter, Pass, DateView, BiSendCheck, BiArrowUp, BiEnvelope, BiPencil, BiChatText, BiPeople},
 
   data() {
     return {
@@ -188,6 +189,9 @@ export default defineComponent({
   },
 
   computed: {
+    PersonStatus() {
+      return PersonStatus
+    },
     checked(): Person[] {
       return this.groups.flatMap(g => g.members.filter(m => m.checked))
     },
