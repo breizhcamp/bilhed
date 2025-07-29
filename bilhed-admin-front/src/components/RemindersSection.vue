@@ -22,8 +22,8 @@
             <label class="form-label fw-bold mb-0" :for="`remind${rType}-${i+1}`">Relance {{ i+1 }}</label>
             <button type="button" class="btn btn-danger rounded-circle"
                     @click="() => deleteReminder(item, i)"
-                    style="--bs-btn-padding-y: .1rem; --bs-btn-padding-x: .3rem; --bs-btn-font-size: .75rem;">
-              <i class="bi bi-trash"></i>
+                    style="--bs-btn-padding-y: .2rem; --bs-btn-padding-x: .3rem; --bs-btn-font-size: .75rem;">
+              <BiTrash />
             </button>
           </div>
           <div class="input-group input-group-sm">
@@ -61,6 +61,7 @@
 import {defineComponent, type PropType} from "vue";
 import {type maxTimeUpdate, type ReminderConfig, ReminderType} from "@/dto/ReminderConfig";
 import {getShorterType, isReminderConfigRes} from "@/utils/ReminderUtils";
+import BiTrash from "bootstrap-icons/icons/trash.svg?component";
 
 export default defineComponent({
   name: "RemindersSection",
@@ -73,6 +74,7 @@ export default defineComponent({
   },
   emits: ['reminder', 'delete', 'maxTime'],
   inject: ["templateMailList", "templateSmsList"],
+  components: {BiTrash},
 
   data() {
     return {

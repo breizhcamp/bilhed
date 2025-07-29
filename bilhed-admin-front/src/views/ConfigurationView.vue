@@ -52,6 +52,7 @@
                  @delete="(rem) =>deleteReminder(rem)"
                  :reminderBgColor="bloc.reminderBgColor"
                  :key="'section' + bloc.type"
+                 :loading="loading"
       />
     </div>
   </section>

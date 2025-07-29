@@ -133,8 +133,8 @@
               <h4>Membre {{ i+1 }}</h4>
               <button type="button" class="btn btn-danger rounded-circle" title="Supprimer le membre"
                       @click="() => deleteComp(i)"
-                      style="--bs-btn-padding-y: .1rem; --bs-btn-padding-x: .3rem; --bs-btn-font-size: .75rem;">
-                <i class="bi bi-trash"></i>
+                      style="--bs-btn-padding-y: .2rem; --bs-btn-padding-x: .3rem; --bs-btn-font-size: .75rem;">
+                <BiTrash />
               </button>
             </div>
             <div class="mb-3 row">
@@ -198,10 +198,11 @@ import dayjs from 'dayjs';
 import {defineComponent} from 'vue'
 import axios from 'axios'
 import type {PersonReq, ReferentReq} from "@/dto/Person";
+import BiTrash from "bootstrap-icons/icons/trash.svg?component";
 
 export default defineComponent({
   name: "RegisterView",
-  components: {DateView, ClosedMessage},
+  components: {DateView, ClosedMessage, BiTrash},
 
   data() {
     return {
