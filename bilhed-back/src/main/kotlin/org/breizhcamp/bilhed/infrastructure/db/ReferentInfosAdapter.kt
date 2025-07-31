@@ -11,6 +11,7 @@ import org.breizhcamp.bilhed.infrastructure.db.repos.PersonRepo
 import org.breizhcamp.bilhed.infrastructure.db.repos.ReferentInfosRepo
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
+import java.time.ZonedDateTime
 import java.util.*
 
 @Component
@@ -38,11 +39,19 @@ class ReferentInfosAdapter(
         return referentInfosRepo.findAllById(ids).map { it.toReferentInfos() }
     }
 
-    override fun updateSms(id: UUID, smsStatus: SmsStatus, error: String?) {
+    override fun updateSms(
+        id: UUID,
+        smsStatus: SmsStatus,
+        error: String?,
+        nbSmsSent: Int?,
+        lastSmsSentDate: ZonedDateTime?
+    ) {
         val refInfos = referentInfosRepo.findByIdOrNull(id) ?: throw EntityNotFoundException("Referent Infos with id [$id] not found.")
         refInfos.apply {
             registrationSmsStatus = smsStatus
             registrationSmsError = error
+            if (nbSmsSent != null) registrationNbSmsSent = nbSmsSent
+            if (lastSmsSentDate != null) registrationLastSmsSentDate = lastSmsSentDate
         }
     }
 

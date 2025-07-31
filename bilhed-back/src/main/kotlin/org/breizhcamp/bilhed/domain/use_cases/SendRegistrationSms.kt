@@ -36,13 +36,6 @@ class SendRegistrationSms(
 
         Thread.sleep(1000)
 
-        val newRefInfos = refInfos.copy(
-            smsStatus = SmsStatus.SENDING,
-            nbSmsSent = refInfos.nbSmsSent + 1,
-            lastSmsSentDate = ZonedDateTime.now(),
-            token = refInfos.token
-        )
-
         val sms = Sms(
             id = refInfos.personId,
             phone = ref.telephone,
@@ -51,7 +44,7 @@ class SendRegistrationSms(
         )
 
         sendNotification.sendSms(sms, ReminderOrigin.MANUAL)
-        referentInfosPort.save(newRefInfos)
+        referentInfosPort.updateSms(id = refInfos.personId, smsStatus = SmsStatus.SENDING, nbSmsSent = refInfos.nbSmsSent +1, lastSmsSentDate = ZonedDateTime.now())
         return ref
     }
 }
