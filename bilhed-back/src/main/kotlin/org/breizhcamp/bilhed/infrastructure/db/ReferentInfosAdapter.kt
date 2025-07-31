@@ -1,11 +1,13 @@
 package org.breizhcamp.bilhed.infrastructure.db
 
 import jakarta.persistence.EntityNotFoundException
+import org.breizhcamp.bilhed.domain.entities.PersonStatus
 import org.breizhcamp.bilhed.domain.entities.ReferentInfos
 import org.breizhcamp.bilhed.domain.entities.SmsStatus
 import org.breizhcamp.bilhed.domain.use_cases.ports.ReferentInfosPort
 import org.breizhcamp.bilhed.infrastructure.db.mappers.toDB
 import org.breizhcamp.bilhed.infrastructure.db.mappers.toReferentInfos
+import org.breizhcamp.bilhed.infrastructure.db.repos.PersonRepo
 import org.breizhcamp.bilhed.infrastructure.db.repos.ReferentInfosRepo
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
@@ -13,14 +15,15 @@ import java.util.*
 
 @Component
 class ReferentInfosAdapter(
-    val referentInfosRepo: ReferentInfosRepo
+    val referentInfosRepo: ReferentInfosRepo,
+    val personRepo: PersonRepo
 ): ReferentInfosPort {
-    override fun list(): List<ReferentInfos> {
-        return referentInfosRepo.findAll().map { it.toReferentInfos() }
+    override fun list(status: PersonStatus): List<ReferentInfos> {
+        return referentInfosRepo.findAllByStatus(status.toDB()).map { it.toReferentInfos() }
     }
 
     override fun save(infos: ReferentInfos) {
-        referentInfosRepo.save(infos.toDB())
+        referentInfosRepo.save(infos.toDB(personRepo.getReferenceById(infos.personId)))
     }
 
     override fun get(id: UUID): ReferentInfos {

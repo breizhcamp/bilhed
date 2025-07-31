@@ -1,10 +1,11 @@
 package org.breizhcamp.bilhed.infrastructure.db.mappers
 
 import org.breizhcamp.bilhed.domain.entities.ReferentInfos
+import org.breizhcamp.bilhed.infrastructure.db.model.PersonDB
 import org.breizhcamp.bilhed.infrastructure.db.model.ReferentInfosDB
 
-fun ReferentInfos.toDB() = ReferentInfosDB(
-    personId = personId,
+fun ReferentInfos.toDB(person: PersonDB) = ReferentInfosDB(
+    person = person,
     registrationDate = registrationDate,
     registrationSmsStatus = smsStatus,
     registrationNbSmsSent = nbSmsSent,
@@ -15,7 +16,7 @@ fun ReferentInfos.toDB() = ReferentInfosDB(
 )
 
 fun ReferentInfosDB.toReferentInfos() = ReferentInfos(
-    personId = personId,
+    personId = person.id,
     registrationDate = registrationDate,
     smsStatus = registrationSmsStatus,
     nbSmsSent = registrationNbSmsSent,

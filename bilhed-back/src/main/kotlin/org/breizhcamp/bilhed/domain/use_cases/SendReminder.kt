@@ -58,7 +58,7 @@ class SendReminder (
         val maxTime = configPort.get("reminderTimeReg").value.toLong()
 
         val reminderConfigs = reminderConfigPort.listByType("REGISTERED")
-        var registers = referentInfosPort.list()
+        var registers = referentInfosPort.list(PersonStatus.REGISTERED)
         // On filtre ceux dont la deadline est dépassée (car ils ne sont pas RELEASED).
         registers = registers.filter { it.registrationDate.plusHours(maxTime).isAfter(now) }
 

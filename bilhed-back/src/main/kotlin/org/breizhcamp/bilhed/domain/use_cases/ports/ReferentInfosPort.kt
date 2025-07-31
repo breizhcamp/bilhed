@@ -1,12 +1,13 @@
 package org.breizhcamp.bilhed.domain.use_cases.ports
 
+import org.breizhcamp.bilhed.domain.entities.PersonStatus
 import org.breizhcamp.bilhed.domain.entities.ReferentInfos
 import org.breizhcamp.bilhed.domain.entities.SmsStatus
 import java.util.UUID
 
 interface ReferentInfosPort {
 
-    fun list(): List<ReferentInfos>
+    fun list(status: PersonStatus): List<ReferentInfos>
 
     fun save(infos: ReferentInfos)
 
