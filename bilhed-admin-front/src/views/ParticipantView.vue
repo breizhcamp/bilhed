@@ -32,7 +32,7 @@
             >
 
           <td><input type="checkbox" v-model="member.checked" :disabled="g.group.groupPayment && g.group.referentId !== member.id"
-                     @change="g.group.referentId === member.id ? checkGroup(g.group.id, member.checked) : null"></td>
+                     @change="g.group.groupPayment && g.group.referentId === member.id ? checkGroup(g.group.id, member.checked) : null"></td>
 
           <td>{{ member.lastname }}</td>
           <td>{{ member.firstname }}</td>
