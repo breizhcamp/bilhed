@@ -5,8 +5,11 @@ data class GroupRegisterReq(
     val groupPayment: Boolean,
     val companions: List<CompanionRegisterReq>
 ) {
-    fun validate(groupPayment: Boolean) {
-        referent.validate(groupPayment, true)
-        companions.forEach { it.validate(groupPayment) }
+    fun validate(groupPayment: Boolean): Boolean {
+        // GroupPayment is TRUE for a single Person
+        val gPayment = if (companions.isEmpty()) true else groupPayment
+        referent.validate(gPayment, true)
+        companions.forEach { it.validate(gPayment) }
+        return gPayment
     }
 }

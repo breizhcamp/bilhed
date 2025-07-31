@@ -2,7 +2,10 @@ package org.breizhcamp.bilhed.application.rest
 
 import jakarta.persistence.EntityNotFoundException
 import org.breizhcamp.bilhed.application.dto.*
-import org.breizhcamp.bilhed.domain.entities.*
+import org.breizhcamp.bilhed.domain.entities.Group
+import org.breizhcamp.bilhed.domain.entities.PassType
+import org.breizhcamp.bilhed.domain.entities.Person
+import org.breizhcamp.bilhed.domain.entities.PersonStatus
 import org.breizhcamp.bilhed.domain.use_cases.PersonCrud
 import org.breizhcamp.bilhed.domain.use_cases.ReferentInfosCrud
 import org.breizhcamp.bilhed.domain.use_cases.Registration
@@ -20,9 +23,9 @@ class RegisterCtrl(
 
     @PostMapping
     fun register(@RequestBody req: GroupRegisterReq): RegisterRes {
-        req.validate(req.groupPayment)
+        val gPayment = req.validate(req.groupPayment)
         val referentId = UUID.randomUUID()
-        val group = registration.registerGroup(req.toGroup(referentId))
+        val group = registration.registerGroup(Group(id = UUID.randomUUID(), referentId = referentId, groupPayment = gPayment))
 
         val members = listOf(req.referent.toPerson(group.id, referentId)) + req.companions.map { it.toPerson(group.id, req.referent.pass) }
         registration.registerMembers(referentId, members)
@@ -79,6 +82,4 @@ class RegisterCtrl(
         pass,
         groupId
     )
-
-    private fun GroupRegisterReq.toGroup(referentId: UUID, groupId: UUID = UUID.randomUUID()) = Group(groupId, referentId, groupPayment)
 }
