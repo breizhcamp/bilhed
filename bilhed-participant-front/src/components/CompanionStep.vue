@@ -1,6 +1,12 @@
 <template>
   <div class="row justify-content-center">
     <div class="col-md-6">
+      <div class="my-2">
+        <button type="button" class="btn btn-outline-dark rounded d-flex align-items-center"
+                @click="backToRef" :disabled="loading">
+          <BiArrowLeftCircle class="me-2"/>
+          Revenir au référent</button>
+      </div>
       <h2 class="mb-4">Membres du groupe</h2>
       <div class="alert alert-primary" role="alert">
        Le groupe est constitué du référent et d'accompagnants <br> <b>Inutile de mettre le référent en accompagnant !</b>
@@ -76,6 +82,7 @@
             <button type="button" class="btn btn-danger rounded-circle" title="Supprimer l'accompagnant"
                     @click="() => deleteComp(i)"
                     :disabled="loading"
+                    v-if="i !== 0"
                     style="--bs-btn-padding-y: .2rem; --bs-btn-padding-x: .3rem; --bs-btn-font-size: .75rem;">
               <BiTrash />
             </button>
@@ -119,7 +126,7 @@
           </div>
         </div>
 
-        <button type="button" class="btn btn-sm btn-block btn-primary shadow rounded mb-4 addPerson"
+        <button type="button" class="btn btn-sm btn-block btn-primary shadow rounded mb-4"
                 @click="addCompanion" style="width: 100%" :disabled="loading">Ajouter un accompagnant</button>
 
         <div class="row text-center mb-3">
@@ -136,11 +143,12 @@
 import {defineComponent, type PropType} from 'vue'
 import BiTrash from 'bootstrap-icons/icons/trash.svg?component'
 import type {PersonReq, ReferentReq} from "@/dto/Person";
+import BiArrowLeftCircle from 'bootstrap-icons/icons/arrow-left-circle.svg?component'
 
 export default defineComponent({
   name: "CompanionStep",
-  components: {BiTrash},
-  emits: ["saveComp"],
+  components: {BiTrash, BiArrowLeftCircle},
+  emits: ["saveComp", "backToRef"],
   props: {
     referent: { type: Object as PropType<ReferentReq>, required: true},
     loading: { type: Boolean, required: true},
@@ -159,7 +167,7 @@ export default defineComponent({
     },
 
     deleteComp(index: number) {
-      this.companions.splice(index, 1)
+      if(index !== 0) this.companions.splice(index, 1)
     },
 
     getPassString(pass: string) {
@@ -170,6 +178,10 @@ export default defineComponent({
 
     save() {
       this.$emit("saveComp", {comp: this.companions, groupPayment: this.groupPayment})
+    },
+
+    backToRef() {
+      this.$emit("backToRef");
     }
   }
 })

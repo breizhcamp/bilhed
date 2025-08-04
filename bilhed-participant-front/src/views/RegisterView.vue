@@ -6,15 +6,18 @@
   </div>
 
   <ReferentStep v-if="!showMembers"
+      :referent="referent"
       :loading="loading"
       :close-date="config.closeDate"
+      :group-registration="groupReg"
       @save-ref="r => saveReferent(r)"
   />
 
-  <CompanionStep v-if="groupReg"
+  <CompanionStep v-if="groupReg && showMembers"
       :referent="referent"
       :loading="loading"
       @save-comp="comp => saveGroup(comp.groupPayment, comp.comp)"
+      @back-to-ref="showMembers = false"
   />
   <div class="row text-center">
     <p class="small"><router-link to="/data-usage" target="_blank">Utilisation des données personnelles</router-link></p>
@@ -72,8 +75,10 @@ export default defineComponent({
 
       if (!this.groupReg)
         this.saveGroup(false, [])
-      else
+      else {
         this.showMembers = true
+        window.scrollTo(0, 0)
+      }
     },
 
     saveGroup(groupPayment: boolean, companions: PersonReq[]) {

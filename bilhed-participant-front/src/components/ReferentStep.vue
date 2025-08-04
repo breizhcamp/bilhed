@@ -53,7 +53,8 @@
           </fieldset>
           <hr>
 
-          <h2 v-if="groupReg" class="mb-4">Informations du référent</h2>
+          <h2 v-if="groupReg" class="mb-1">Informations du référent</h2>
+          <p v-if="groupReg" class="mb-4"><i>Le référent sera le seul interlocuteur du groupe pour <b>l'inscription</b> au tirage au sort.</i></p>
           <div class="mb-3 row">
             <label for="refLastname" class="col-sm-3 col-form-label">Nom {{ groupReg ? 'référent' : '' }}</label>
             <div class="col-sm-9">
@@ -124,7 +125,7 @@
 import ClosedMessage from '@/components/ClosedMessage.vue';
 import DateView from '@/components/DateView.vue';
 import dayjs from 'dayjs';
-import {defineComponent} from 'vue'
+import {defineComponent, type PropType} from 'vue'
 import type {ReferentReq} from "@/dto/Person";
 
 export default defineComponent({
@@ -133,13 +134,15 @@ export default defineComponent({
   emits: ['saveRef'],
   props: {
     loading: { type: Boolean, required: true },
-    closeDate: { type: String, required: true },
+    closeDate: { type: String, required: true, default: '' },
+    referent: { type: Object as PropType<ReferentReq>, required: true },
+    groupRegistration: { type: Boolean, required: true },
   },
 
   data() {
     return {
-      r: {} as ReferentReq,
-      groupReg: false
+      r: this.referent,
+      groupReg: this.groupRegistration
     }
   },
 
