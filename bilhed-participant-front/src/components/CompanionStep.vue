@@ -153,7 +153,7 @@ export default defineComponent({
   props: {
     referent: { type: Object as PropType<PersonReq>, required: true},
     loading: { type: Boolean, required: true},
-    pass: { type: Number as PropType<PassType>, required: true },
+    pass: { type: String as PropType<PassType>, required: true },
   },
 
   data() {

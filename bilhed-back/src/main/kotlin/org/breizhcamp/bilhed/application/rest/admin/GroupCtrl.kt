@@ -113,6 +113,7 @@ class GroupCtrl(
 fun Group.toDto() = GroupDTO(
     id = this.id,
     referentId = this.referentId,
+    pass = this.pass,
     groupPayment = this.groupPayment,
     drawOrder = this.drawOrder,
 )

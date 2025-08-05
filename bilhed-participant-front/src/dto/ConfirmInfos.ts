@@ -18,7 +18,7 @@ export interface AttendeeData {
 }
 
 export enum PassType {
-  NONE,
-  TWO_DAYS,
-  THREE_DAYS,
+  NONE = "NONE",
+  TWO_DAYS = "TWO_DAYS",
+  THREE_DAYS = "THREE_DAYS",
 }

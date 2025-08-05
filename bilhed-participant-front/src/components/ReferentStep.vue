@@ -138,7 +138,7 @@ export default defineComponent({
     closeDate: { type: String, required: true, default: '' },
     referent: { type: Object as PropType<PersonReq>, required: true },
     groupRegistration: { type: Boolean, required: true },
-    pass: { type: Number as PropType<PassType>, required: true },
+    pass: { type: String as PropType<PassType>, required: true },
   },
 
   data() {
