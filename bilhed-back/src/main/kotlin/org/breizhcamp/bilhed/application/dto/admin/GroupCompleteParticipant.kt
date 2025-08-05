@@ -1,10 +1,10 @@
 package org.breizhcamp.bilhed.application.dto.admin
 
 import org.breizhcamp.bilhed.application.dto.PersonDTO
-import org.breizhcamp.bilhed.application.dto.ReferentInfosDTO
+import org.breizhcamp.bilhed.application.dto.RegistrationInfosDTO
 
 data class GroupCompleteParticipant(
     val group: GroupDTO,
-    val referentInfos: ReferentInfosDTO,
+    val registrationInfos: RegistrationInfosDTO,
     val members: List<PersonDTO>
 )

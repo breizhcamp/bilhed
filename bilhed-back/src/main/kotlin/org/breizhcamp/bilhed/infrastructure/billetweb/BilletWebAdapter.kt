@@ -5,6 +5,7 @@ import jakarta.annotation.PostConstruct
 import jakarta.persistence.EntityNotFoundException
 import mu.KotlinLogging
 import org.breizhcamp.bilhed.config.BilhedBackConfig
+import org.breizhcamp.bilhed.domain.entities.PassType
 import org.breizhcamp.bilhed.domain.entities.Person
 import org.breizhcamp.bilhed.domain.entities.Ticket
 import org.breizhcamp.bilhed.domain.entities.TicketExportData
@@ -46,14 +47,14 @@ class BilletWebAdapter(
         logger.info { "[BilletWeb] Using BilletWeb for ticket creation" }
     }
 
-    private fun getCreateReq(participants: List<Person>): CreateReq {
+    private fun getCreateReq(participants: List<Person>, pass: PassType): CreateReq {
         val products = participants.map {
             CreateProduct(
-                ticket = requireNotNull(config.billetWeb.passNames[it.pass]) { "No BilletWeb pass name found for pass type [${it.pass}]" },
+                ticket = requireNotNull(config.billetWeb.passNames[pass]) { "No BilletWeb pass name found for pass type [${pass}]" },
                 name = it.lastname,
                 firstname = it.firstname,
                 email = it.email,
-                price = requireNotNull(config.billetWeb.passPrices[it.pass]) { "No BilletWeb pass price found for pass type [${it.pass}]" },
+                price = requireNotNull(config.billetWeb.passPrices[pass]) { "No BilletWeb pass price found for pass type [${pass}]" },
             )
         }
         val cmd = CreateCmd(participants.first().lastname, participants.first().firstname,
@@ -61,11 +62,11 @@ class BilletWebAdapter(
         return CreateReq(cmd)
     }
 
-    override fun create(participants: List<Person>): List<Ticket> {
+    override fun create(participants: List<Person>, pass: PassType): List<Ticket> {
         val eventId = requireNotNull(config.billetWeb.eventId) { "Erreur config, impossible de créer de Billet sans eventId" }
 
         logger.info { "[BilletWeb] Create ticket for [${participants.size}] participants: " + participants.joinToString { "${it.id}: ${it.lastname} ${it.firstname}" } }
-        val createRes = billetWebClient.create(eventId, getCreateReq(participants)).firstOrNull()
+        val createRes = billetWebClient.create(eventId, getCreateReq(participants, pass)).firstOrNull()
             ?: throw IllegalStateException("Impossible de créer la commande BilletWeb, merci de contacter l'équipe")
 
         val productsId = createRes.products.map { it.toString() }

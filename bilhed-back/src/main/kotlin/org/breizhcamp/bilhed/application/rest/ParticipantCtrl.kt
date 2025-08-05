@@ -2,9 +2,11 @@ package org.breizhcamp.bilhed.application.rest
 
 import jakarta.persistence.EntityNotFoundException
 import mu.KotlinLogging
-import org.breizhcamp.bilhed.application.dto.*
+import org.breizhcamp.bilhed.application.dto.ConfirmRes
+import org.breizhcamp.bilhed.application.dto.ErrorRes
+import org.breizhcamp.bilhed.application.dto.ParticipantConfirmInfoRes
+import org.breizhcamp.bilhed.application.dto.ParticipantConfirmReq
 import org.breizhcamp.bilhed.domain.entities.AttendeeData
-import org.breizhcamp.bilhed.domain.entities.Person
 import org.breizhcamp.bilhed.domain.entities.ParticipantConfirmInfo
 import org.breizhcamp.bilhed.domain.entities.Ticket
 import org.breizhcamp.bilhed.domain.use_cases.ParticipantConfirm
@@ -54,20 +56,10 @@ private fun ParticipantConfirmReq.toData() = AttendeeData(
 )
 
 private fun ParticipantConfirmInfo.toDTO() = ParticipantConfirmInfoRes(
-    members = members.map { it.toDTO() },
-    confirmationLimitDate = confirmationLimitDate
-)
-
-private fun Person.toDTO() = PersonDTO(
-    id = id,
-    lastname = lastname,
-    firstname = firstname,
-    status = status,
-    telephone = telephone,
-    email = email,
+    members = members.map { it.toDto() },
+    confirmationLimitDate = confirmationLimitDate,
+    refId = refId,
     pass = pass,
-    groupId = groupId,
-    payed = payed
 )
 
 private fun Ticket.toConfirmRes() = ConfirmRes(payUrl, payed)

@@ -4,14 +4,13 @@ export interface Person {
     firstname: string
     email: string
     telephone: string
-    pass: string
     status: PersonStatus
     groupId: string
     payed: boolean,
     checked: boolean
 }
 
-export interface ReferentInfos {
+export interface RegistrationInfos {
     personId: string,
     registrationDate: string,
     smsStatus: string,

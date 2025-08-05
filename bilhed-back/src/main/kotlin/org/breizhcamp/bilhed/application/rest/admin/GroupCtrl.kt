@@ -1,17 +1,17 @@
 package org.breizhcamp.bilhed.application.rest.admin
 
-import org.breizhcamp.bilhed.application.dto.ReferentInfosDTO
+import org.breizhcamp.bilhed.application.dto.RegistrationInfosDTO
 import org.breizhcamp.bilhed.application.dto.admin.GroupCompleteAttendee
 import org.breizhcamp.bilhed.application.dto.admin.GroupCompleteParticipant
 import org.breizhcamp.bilhed.application.dto.admin.GroupDTO
 import org.breizhcamp.bilhed.domain.entities.Group
 import org.breizhcamp.bilhed.domain.entities.ParticipationInfos
 import org.breizhcamp.bilhed.domain.entities.PersonFilter
-import org.breizhcamp.bilhed.domain.entities.ReferentInfos
+import org.breizhcamp.bilhed.domain.entities.RegistrationInfos
 import org.breizhcamp.bilhed.domain.use_cases.GroupCrud
 import org.breizhcamp.bilhed.domain.use_cases.GroupDraw
 import org.breizhcamp.bilhed.domain.use_cases.ParticipationInfosCrud
-import org.breizhcamp.bilhed.domain.use_cases.ReferentInfosCrud
+import org.breizhcamp.bilhed.domain.use_cases.RegistrationInfosCrud
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import java.util.*
@@ -20,7 +20,7 @@ import java.util.*
 @RequestMapping("/admin/groups")
 class GroupCtrl(
     val groupCrud: GroupCrud,
-    val referentInfosCrud: ReferentInfosCrud,
+    val registrationInfosCrud: RegistrationInfosCrud,
     val groupDraw: GroupDraw,
     val participationInfosCrud: ParticipationInfosCrud
 ) {
@@ -42,7 +42,7 @@ class GroupCtrl(
 
         return GroupCompleteParticipant(
             group = groupEntry.first.toDto(),
-            referentInfos = referentInfosCrud.get(ref.id).toDto(),
+            registrationInfos = registrationInfosCrud.get(ref.id).toDto(),
             members = groupEntry.second.map { it.toDto() }
         )
     }
@@ -58,17 +58,17 @@ class GroupCtrl(
             people.find { it.id == group.referentId }?.let { group.referentId to it }
         }.toMap()
 
-        val refInfosMap = referentInfosCrud.get(referentMap.keys.toList())
+        val regInfosMap = registrationInfosCrud.get(referentMap.keys.toList())
             .associateBy { it.personId }
 
         return groupEntries.map { (group, members) ->
             // it may be that the referent has already paid for his place but not the others if payment is separate
             // so we need to retrieve the ref info from the referentId
-            val referentInfos = refInfosMap[group.referentId] ?: referentInfosCrud.get(group.referentId)
+            val registrationInfos = regInfosMap[group.referentId] ?: registrationInfosCrud.get(group.referentId)
 
             GroupCompleteParticipant(
                 group = group.toDto(),
-                referentInfos = referentInfos.toDto(),
+                registrationInfos = registrationInfos.toDto(),
                 members = members.map { it.toDto() }
             )
         }
@@ -117,7 +117,7 @@ fun Group.toDto() = GroupDTO(
     drawOrder = this.drawOrder,
 )
 
-fun ReferentInfos.toDto() = ReferentInfosDTO(
+fun RegistrationInfos.toDto() = RegistrationInfosDTO(
     personId = personId,
     registrationDate = registrationDate,
     smsStatus = smsStatus,

@@ -38,7 +38,7 @@
           <td>{{ member.firstname }}</td>
           <td class="break-email">{{ member.email }}</td>
           <td>{{ member.telephone }}</td>
-          <td><Pass :pass="member.pass"/></td>
+          <td>{{ getPassString(g.group.pass) }}</td>
           <td>{{ g.group.drawOrder }}</td>
           <td><DateView :date="getLimitDate(g.group, member.id)" format="DD/MM HH:mm" sup=""/></td>
           <td class="d-flex align-items-center justify-content-end">
@@ -87,7 +87,6 @@ import BiArrowUp from 'bootstrap-icons/icons/arrow-bar-up.svg?component'
 import BiPencil from "bootstrap-icons/icons/pencil.svg?component";
 import BiPeople from "bootstrap-icons/icons/people.svg?component";
 import {defineComponent} from 'vue'
-import Pass from '@/components/Pass.vue'
 import PersonsFilter from '@/components/PersonsFilter.vue'
 import type {PersonFilter} from '@/dto/PersonFilter'
 import dayjs from "dayjs";
@@ -96,11 +95,11 @@ import {toastError, toastSuccess, toastWarning, toInt} from "@/utils/ReminderUti
 import type {Group, GroupCompleteParticipant} from "@/dto/Group";
 import {type ParticipationInfos, type Person, PersonStatus} from "@/dto/Person";
 import DateView from "@/components/DateView.vue";
-import {getSortedGroups} from "@/utils/Global";
+import {getPassString, getSortedGroups} from "@/utils/Global";
 
 export default defineComponent({
   name: "ParticipantView",
-  components: {DateView, PersonsFilter, Pass, BiSendCheck, BiSendExclamation, BiSendX, BiArrowUp, BiPencil, BiPeople},
+  components: {DateView, PersonsFilter, BiSendCheck, BiSendExclamation, BiSendX, BiArrowUp, BiPencil, BiPeople},
 
   data() {
     return {
@@ -137,6 +136,7 @@ export default defineComponent({
   },
 
   methods: {
+    getPassString,
     checkBetween(p: Person) {
       const firstMemberId: string | undefined = this.groups.find(g => g.members.some(m => m.checked))?.members.find(m => m.checked)?.id
       const first = this.groups.findIndex(g => g.members.some(m => m.checked))

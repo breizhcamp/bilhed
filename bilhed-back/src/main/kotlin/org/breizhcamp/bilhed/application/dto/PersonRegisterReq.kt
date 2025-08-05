@@ -1,6 +1,6 @@
 package org.breizhcamp.bilhed.application.dto
 
-open class CompanionRegisterReq(
+open class PersonRegisterReq(
     val lastname: String,
     val firstname: String,
     var telephone: String?,

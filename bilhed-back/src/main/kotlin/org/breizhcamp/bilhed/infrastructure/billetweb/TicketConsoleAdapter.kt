@@ -3,6 +3,7 @@ package org.breizhcamp.bilhed.infrastructure.billetweb
 import jakarta.annotation.PostConstruct
 import mu.KotlinLogging
 import org.breizhcamp.bilhed.config.BilhedBackConfig
+import org.breizhcamp.bilhed.domain.entities.PassType
 import org.breizhcamp.bilhed.domain.entities.Person
 import org.breizhcamp.bilhed.domain.entities.Ticket
 import org.breizhcamp.bilhed.domain.entities.TicketExportData
@@ -24,9 +25,9 @@ class TicketConsoleAdapter(
         logger.info { "[TicketConsole] Using console for ticket creation" }
     }
 
-    override fun create(participants: List<Person>): List<Ticket> {
+    override fun create(participants: List<Person>, pass: PassType): List<Ticket> {
         return participants.map {
-            logger.info { "[TicketConsole] Create ticket for participant [${it.id}] / [${it.lastname}] [${it.firstname}]" }
+            logger.info { "[TicketConsole] Create ticket for participant [${it.id}] / [${it.lastname}] [${it.firstname}] with pass [${pass}" }
             Ticket(generatePayUrl(), false)
         }
     }

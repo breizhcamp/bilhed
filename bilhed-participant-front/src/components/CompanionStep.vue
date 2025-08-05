@@ -40,7 +40,7 @@
         <div class="mb-3 row">
           <p class="mb-0 col-sm-3 align-self-center">Pass </p>
           <div class="col-sm-9 align-content-center">
-            <p class="mb-0">{{ getPassString(referent.pass) }}</p>
+            <p class="mb-0">{{ getPassString(pass) }}</p>
           </div>
         </div>
 
@@ -111,7 +111,7 @@
           <div class="mb-2 row">
             <p class="col-sm-3">Pass </p>
             <div class="col-sm-9 align-content-center">
-              <p>{{ getPassString(referent.pass) }}</p>
+              <p>{{ getPassString(pass) }}</p>
             </div>
           </div>
 
@@ -142,16 +142,18 @@
 <script lang="ts">
 import {defineComponent, type PropType} from 'vue'
 import BiTrash from 'bootstrap-icons/icons/trash.svg?component'
-import type {PersonReq, ReferentReq} from "@/dto/Person";
+import type {PersonReq} from "@/dto/Person";
 import BiArrowLeftCircle from 'bootstrap-icons/icons/arrow-left-circle.svg?component'
+import {PassType} from "@/dto/ConfirmInfos";
 
 export default defineComponent({
   name: "CompanionStep",
   components: {BiTrash, BiArrowLeftCircle},
   emits: ["saveComp", "backToRef"],
   props: {
-    referent: { type: Object as PropType<ReferentReq>, required: true},
+    referent: { type: Object as PropType<PersonReq>, required: true},
     loading: { type: Boolean, required: true},
+    pass: { type: Number as PropType<PassType>, required: true },
   },
 
   data() {
@@ -170,9 +172,9 @@ export default defineComponent({
       if(index !== 0) this.companions.splice(index, 1)
     },
 
-    getPassString(pass: string) {
-      if (pass === "TWO_DAYS") return "2j"
-      if (pass === "THREE_DAYS") return "3j"
+    getPassString(pass: PassType) {
+      if (pass === PassType.TWO_DAYS) return "2j"
+      if (pass === PassType.THREE_DAYS) return "3j"
       return "UNKNOWN"
     },
 

@@ -5,7 +5,7 @@ import org.breizhcamp.bilhed.domain.entities.Mail
 import org.breizhcamp.bilhed.domain.entities.ReminderOrigin
 import org.breizhcamp.bilhed.domain.entities.Sms
 import org.breizhcamp.bilhed.domain.use_cases.ports.PersonPort
-import org.breizhcamp.bilhed.domain.use_cases.ports.ReferentInfosPort
+import org.breizhcamp.bilhed.domain.use_cases.ports.RegistrationInfosPort
 import org.breizhcamp.bilhed.domain.use_cases.ports.UrlShortenerPort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -19,7 +19,7 @@ class RegisteredReminder(
     private val personPort: PersonPort,
     private val urlShortenerPort: UrlShortenerPort,
     private val sendNotification: SendNotification,
-    private val referentInfosPort: ReferentInfosPort
+    private val registrationInfosPort: RegistrationInfosPort
 ) {
 
     @Transactional
@@ -27,9 +27,9 @@ class RegisteredReminder(
         if (smsTemplate.isBlank() && emailTemplate.isBlank()) return
 
         val ref = personPort.get(id)
-        val refInfos = referentInfosPort.get(id)
+        val regInfos = registrationInfosPort.get(id)
 
-        referentInfosPort.resetSmsCount(id)
+        registrationInfosPort.resetSmsCount(id)
         val link = "${config.participantFrontUrl}/#/${ref.id}"
 
         if (!emailTemplate.isBlank()) {
@@ -44,7 +44,7 @@ class RegisteredReminder(
 
         if (!smsTemplate.isBlank()) {
             val shortLink = urlShortenerPort.shorten(link, config.registerCloseDate)
-            val smsModel = mapOf("link" to shortLink, "token" to refInfos.token)
+            val smsModel = mapOf("link" to shortLink, "token" to regInfos.token)
             if (ref.telephone != null)
                 sendNotification.sendSms(Sms(ref.id, ref.telephone, smsTemplate, smsModel), origin)
         }

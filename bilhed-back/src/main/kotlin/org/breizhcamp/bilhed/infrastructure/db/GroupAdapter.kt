@@ -71,8 +71,8 @@ class GroupAdapter (
 
     override fun listIdsWithNoDraw(): Map<PassType, List<UUID>> {
         return groupRepo.listGroupWithNoDraw()
-            .distinctBy { it.group.id to it.pass }
-            .groupBy({ it.pass }, { it.group.id })
+            .distinctBy { it.group.id to it.group.pass }
+            .groupBy({ it.group.pass }, { it.group.id })
     }
 
     override fun updateDrawOrder(id: UUID, drawOrder: Int) {

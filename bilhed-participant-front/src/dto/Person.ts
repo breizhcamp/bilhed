@@ -5,10 +5,6 @@ export interface PersonReq {
     telephone?: string
 }
 
-export interface ReferentReq extends PersonReq {
-    pass: string,
-}
-
-export interface Person extends ReferentReq {
+export interface Person extends PersonReq {
     id: string,
 }

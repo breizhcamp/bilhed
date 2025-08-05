@@ -1,9 +1,12 @@
 package org.breizhcamp.bilhed.application.dto
 
+import org.breizhcamp.bilhed.domain.entities.PassType
+
 data class GroupRegisterReq(
-    val referent: ReferentRegisterReq,
+    val referent: PersonRegisterReq,
     val groupPayment: Boolean,
-    val companions: List<CompanionRegisterReq>
+    val companions: List<PersonRegisterReq>,
+    val pass: PassType
 ) {
     fun validate(groupPayment: Boolean): Boolean {
         // GroupPayment is TRUE for a single Person

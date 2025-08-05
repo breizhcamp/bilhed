@@ -10,12 +10,14 @@
       :loading="loading"
       :close-date="config.closeDate"
       :group-registration="groupReg"
+      :pass="pass"
       @save-ref="r => saveReferent(r)"
   />
 
   <CompanionStep v-if="groupReg && showMembers"
       :referent="referent"
       :loading="loading"
+      :pass="pass"
       @save-comp="comp => saveGroup(comp.groupPayment, comp.comp)"
       @back-to-ref="showMembers = false"
   />
@@ -26,11 +28,12 @@
 
 <script lang="ts">
 import {defineComponent} from 'vue'
-import type {PersonReq, ReferentReq} from "@/dto/Person";
+import type {PersonReq} from "@/dto/Person";
 import ReferentStep from "@/components/ReferentStep.vue";
 import type {Config} from "@/dto/config";
 import axios from "axios";
 import CompanionStep from "@/components/CompanionStep.vue";
+import {PassType} from "@/dto/ConfirmInfos";
 
 export default defineComponent({
   name: "RegisterView",
@@ -41,12 +44,13 @@ export default defineComponent({
 
   data() {
     return {
-      referent: {} as ReferentReq,
+      referent: {} as PersonReq,
       error: "",
       loading: false,
       config: {} as Config,
       groupReg: false,
-      showMembers: false
+      showMembers: false,
+      pass: PassType.NONE
     }
   },
 
@@ -64,14 +68,13 @@ export default defineComponent({
         this.error = "Une erreur est survenue, merci de réessayer dans quelques instants"
       }
 
-      let element = this.$refs['error'] as HTMLElement
-      let top = element.offsetTop
-      window.scrollTo(0, top)
+      window.scrollTo(0, 0)
     },
 
-    saveReferent(ref: {ref: ReferentReq, groupReg: boolean}) {
-      this.referent = ref.ref
-      this.groupReg = ref.groupReg
+    saveReferent(infos: {ref: PersonReq, groupReg: boolean, pass: PassType}) {
+      this.referent = infos.ref
+      this.groupReg = infos.groupReg
+      this.pass = infos.pass
 
       if (!this.groupReg)
         this.saveGroup(false, [])
@@ -86,6 +89,7 @@ export default defineComponent({
         referent: this.referent,
         groupPayment: groupPayment,
         companions: companions,
+        pass: this.pass
       };
 
       this.loading = true

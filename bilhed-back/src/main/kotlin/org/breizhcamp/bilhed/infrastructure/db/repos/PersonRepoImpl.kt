@@ -26,7 +26,7 @@ class PersonRepoImpl: QuerydslRepositorySupport(PersonDB::class.java), PersonRep
         filter.lastname?.let { query.where(p.lastname.likeIgnoreCase("%$it%")) }
         filter.firstname?.let { query.where(p.firstname.likeIgnoreCase("%$it%")) }
         filter.email?.let { query.where(p.email.likeIgnoreCase("%$it%")) }
-        filter.pass?.let { query.where(p.pass.eq(it)) }
+        filter.pass?.let { query.where(p.group.pass.eq(it)) }
         filter.payed?.let { query.where(p.payed.eq(it)) }
         filter.groupId?.let { query.where(p.group.id.eq(it)) }
         filter.status?.let { query.where(p.status.eq(it.toDB()))}

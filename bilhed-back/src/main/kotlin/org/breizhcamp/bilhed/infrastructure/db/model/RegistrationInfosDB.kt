@@ -13,8 +13,8 @@ import org.breizhcamp.bilhed.domain.entities.SmsStatus
 import java.time.ZonedDateTime
 import java.util.UUID
 
-@Entity @Table(name = "referent_infos")
-data class ReferentInfosDB(
+@Entity @Table(name = "registration_infos")
+data class RegistrationInfosDB(
 
     @Id
     val personId: UUID? = null,

@@ -24,11 +24,11 @@ interface PersonRepo: JpaRepository<PersonDB, UUID>, PersonRepoCustom {
     fun countByEmailOrTelephone(email: String, telephone: String?): Int
     fun countByEmail(email: String): Int
 
-    @Query("select p.pass, count(p) from PersonDB p where p.id in ( " +
+    @Query("select p.group.pass, count(p) from PersonDB p where p.id in ( " +
             "    select pi.person " +
             "    from ParticipationInfosDB pi " +
             "    where pi.participantConfirmationDate is not null ) " +
-            "group by p.pass")
+            "group by p.group.pass")
     fun countAlreadyNotif(): List<Pair<PassType, Int>>
 
     @Modifying
@@ -48,8 +48,4 @@ interface PersonRepo: JpaRepository<PersonDB, UUID>, PersonRepoCustom {
     @Query("SELECT p FROM PersonDB p WHERE p.group.id in (" +
             "  select g.id FROM GroupDB g WHERE g.referentId = :referentId ) ")
     fun getMembersBy(referentId: UUID): List<PersonDB>
-
-    @Modifying
-    @Query("UPDATE PersonDB p SET p.status = :newStatus WHERE p.group.id = :groupId")
-    fun levelUpGroupTo(groupId: UUID, newStatus: PersonDBStatus)
 }

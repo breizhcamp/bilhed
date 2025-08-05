@@ -45,10 +45,10 @@
         <div class="col">Pass</div>
       </div>
       <div class="row">
-        <div class="col"><DateView :date="group.referentInfos.registrationDate" /></div>
+        <div class="col"><DateView :date="group.registrationInfos.registrationDate" /></div>
         <div class="col">{{ group.group.drawOrder ?? 'Non tiré' }}</div>
         <div class="col">{{ getBoolStr(group.group.groupPayment) }}</div>
-        <div class="col"><Pass :pass="group.members[0].pass"/></div>
+        <div class="col">{{ getPassString(group.group.pass) }}</div>
       </div>
     </div>
 
@@ -67,12 +67,12 @@
         <div class="col">Nb essais token</div>
       </div>
       <div class="row">
-        <div class="col">{{ group.referentInfos.smsStatus }}</div>
-        <div class="col">{{ group.referentInfos.nbSmsSent }}</div>
-        <div class="col"><DateView :date="group.referentInfos.lastSmsSentDate" sup=""/></div>
-        <div class="col">{{ group.referentInfos.smsError }}</div>
-        <div class="col">{{ group.referentInfos.token }}</div>
-        <div class="col">{{ group.referentInfos.nbTokenTries }}</div>
+        <div class="col">{{ group.registrationInfos.smsStatus }}</div>
+        <div class="col">{{ group.registrationInfos.nbSmsSent }}</div>
+        <div class="col"><DateView :date="group.registrationInfos.lastSmsSentDate" sup=""/></div>
+        <div class="col">{{ group.registrationInfos.smsError }}</div>
+        <div class="col">{{ group.registrationInfos.token }}</div>
+        <div class="col">{{ group.registrationInfos.nbTokenTries }}</div>
       </div>
     </div>
   </section>
@@ -104,17 +104,16 @@
 
 <script lang="ts">
 import {defineComponent} from 'vue'
-import Pass from "@/components/Pass.vue";
 import type {GroupCompleteParticipant} from "@/dto/Group";
 import axios from "axios";
 import DateView from "@/components/DateView.vue";
-import {getBoolStr} from "@/utils/Global";
+import {getBoolStr, getPassString} from "@/utils/Global";
 import BiPencil from "bootstrap-icons/icons/pencil.svg?component";
 import type {ParticipationInfos} from "@/dto/Person";
 
 export default defineComponent({
   name: "GroupView",
-  components: {DateView, Pass, BiPencil},
+  components: {DateView, BiPencil},
 
   data() {
     return {
@@ -130,6 +129,7 @@ export default defineComponent({
   },
 
   methods: {
+    getPassString,
     getBoolStr,
     load() {
       axios.get(`/groups/${this.$route.params.id}/complete`).then(groupRes => {

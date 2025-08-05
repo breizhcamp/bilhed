@@ -59,7 +59,7 @@
                 <span class="col-md-1">{{ g.referent!.firstname }}</span>
                 <span class="col-md-2 break-email">{{ g.referent!.email }}</span>
                 <span class="col-md-2">{{ g.referent!.telephone }}</span>
-                <span class="col-md-auto"><Pass :pass="g.referent!.pass"/> &emsp;</span>
+                <span class="col-md-auto">{{ getPassString(g.group.pass) }}</span>
                 <span class="col-md-2"><DateView format="DD/MM HH:mm" sup="" :date="g.participationInfos.find(p => p.personId === g.referent!.id)?.confirmationDate"/></span>
                 <span class="col-md-2"><DateView format="DD/MM HH:mm" sup="" :date="getLimitDate(g.participationInfos.find(p => p.personId === g.referent!.id)?.confirmationDate)"/></span>
                 <span class="col-md-auto">{{ getBoolStr(g.referent!.payed) }}</span>
@@ -119,7 +119,7 @@
                 <span class="col-md-1">{{ m.firstname }}</span>
                 <span class="col-md-2 break-email">{{ m.email }}</span>
                 <span class="col-md-2">{{ m.telephone }}</span>
-                <span class="col-md-auto"><Pass :pass="m.pass"/> &emsp;</span>
+                <span class="col-md-auto">{{ getPassString(g.group.pass) }}</span>
                 <span class="col-md-2"><DateView format="DD/MM HH:mm" sup="" :date="g.participationInfos.find(p => p.personId === m.id)?.confirmationDate"/></span>
                 <span class="col-md-2"><DateView format="DD/MM HH:mm" sup="" :date="getLimitDate(g.participationInfos.find(p => p.personId === m.id)?.confirmationDate)"/></span>
                 <span class="col-md-auto">{{ getBoolStr(m.payed) }}</span>
@@ -154,7 +154,6 @@
 /// <reference types="vite-svg-loader" />
 
 import DateView from '@/components/DateView.vue'
-import Pass from '@/components/Pass.vue'
 import axios from 'axios'
 import BiArrowUp from 'bootstrap-icons/icons/arrow-bar-up.svg?component'
 import BiSendCheck from 'bootstrap-icons/icons/send-check.svg?component'
@@ -168,7 +167,7 @@ import {toastError, toastSuccess, toastWarning, toInt} from "@/utils/ReminderUti
 import type {Config} from "@/dto/Config";
 import dayjs from "dayjs";
 import type {PersonFilter} from "@/dto/PersonFilter";
-import {animateChevron, getBoolStr, getSortedGroups} from "@/utils/Global";
+import {animateChevron, getBoolStr, getPassString, getSortedGroups} from "@/utils/Global";
 import type {GroupCompleteAttendee, GroupCompleteAttendeeWithRef} from "@/dto/Group";
 import {type Person, PersonStatus} from "@/dto/Person";
 import PersonsFilter from "@/components/PersonsFilter.vue";
@@ -176,7 +175,7 @@ import PersonsFilter from "@/components/PersonsFilter.vue";
 export default defineComponent({
   name: "ParticipantView",
   components: {
-    PersonsFilter, Pass, DateView, BiSendCheck, BiArrowUp, BiEnvelope, BiPencil, BiChatText, BiPeople},
+    PersonsFilter, DateView, BiSendCheck, BiArrowUp, BiEnvelope, BiPencil, BiChatText, BiPeople},
 
   data() {
     return {
@@ -220,6 +219,7 @@ export default defineComponent({
   },
 
   methods: {
+    getPassString,
     getBoolStr,
     animateChevron,
     checkBetween(p: Person) {

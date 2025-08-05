@@ -26,7 +26,7 @@
         <td>{{ person.status }}</td>
         <td><input class="form-control form-control-sm" type="text" id="mail" v-model="person.email" /></td>
         <td><input class="form-control form-control-sm" type="text" id="phone" v-model="person.telephone" /></td>
-        <td><Pass :pass="person.pass"/></td>
+        <td>{{ getPassString(group.pass) }}</td>
         <td>{{ getBoolStr(person.payed) }}</td>
         <td>
           <button type="button" class="btn btn-primary btn-sm" title="Modify Person" @click="updatePerson()">Modifier</button>
@@ -137,12 +137,12 @@ import BiArrowUp from 'bootstrap-icons/icons/arrow-bar-up.svg?component'
 import BiChatText from 'bootstrap-icons/icons/chat-text.svg?component'
 import BiEnvelope from 'bootstrap-icons/icons/envelope.svg?component'
 import {type Person, PersonStatus} from "@/dto/Person";
-import Pass from "@/components/Pass.vue";
 import DateView from "@/components/DateView.vue";
 import {toastSuccess, toastWarning} from "@/utils/ReminderUtils";
 import type {Reminder} from "@/dto/Reminder";
-import {getBoolStr} from "@/utils/Global";
+import {getBoolStr, getPassString} from "@/utils/Global";
 import type {AttendeeData} from "@/dto/Attendee";
+import type {Group} from "@/dto/Group";
 
 export default defineComponent({
   name: "PersonView",
@@ -151,7 +151,7 @@ export default defineComponent({
       return PersonStatus
     },
   },
-  components: {DateView, Pass, BiChatText, BiSendCheck, BiSendX, BiArrowUp, BiSendExclamation, BiEnvelope},
+  components: {DateView, BiChatText, BiSendCheck, BiSendX, BiArrowUp, BiSendExclamation, BiEnvelope},
 
   data() {
     return {
@@ -160,7 +160,8 @@ export default defineComponent({
       error: "",
       reminders: [] as Reminder[],
       loading: false,
-      attendeeData: {} as AttendeeData
+      attendeeData: {} as AttendeeData,
+      group: {} as Group
     }
   },
 
@@ -169,11 +170,16 @@ export default defineComponent({
   },
 
   methods: {
+    getPassString,
     getBoolStr,
     load() {
       axios.get(`/persons/${this.$route.params.id}`).then(personRes => {
         this.person = personRes.data
         this.personFromDB = {...this.person}
+        axios.get(`/groups/${personRes.data.groupId}`).then(g => {
+          this.group = g.data
+        })
+
         if (personRes.data.status === PersonStatus.ATTENDEE) {
           axios.get(`/attendees/${this.$route.params.id}/data`).then(dataRes => {
             this.attendeeData = dataRes.data

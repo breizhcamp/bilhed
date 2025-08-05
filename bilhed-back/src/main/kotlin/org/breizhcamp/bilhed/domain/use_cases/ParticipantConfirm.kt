@@ -25,26 +25,30 @@ class ParticipantConfirm(
     fun getConfirmInfos(persId: UUID): ParticipantConfirmInfo {
         val group = groupPort.getBy(persId)
         val members = personPort.getMembersByGroup(group.id)
-        val pair = members.partition { it.id == group.referentId }
+        val ref = members.find { it.id == group.referentId } ?: throw IllegalArgumentException("Referent with id ${group.referentId} not found")
 
         if (group.drawOrder == null)
             throw IllegalArgumentException("Vous n'avez pas été tiré au sort")
 
-        if (group.groupPayment && pair.first.single().id != persId) // paiement groupé, pas ref
+        if (group.groupPayment && ref.id != persId) // paiement groupé, pas ref
             throw IllegalArgumentException("Ce participant ne doit pas confirmer.")
 
         val limitDate = getLimitDate(partInfosPort.get(persId))
 
         if (group.groupPayment) // paiement groupé, ref
             return ParticipantConfirmInfo(
-                pair.first + pair.second,
-                limitDate,
+                members = members,
+                refId = ref.id,
+                confirmationLimitDate = limitDate,
+                pass = group.pass,
             )
 
         // paiement séparé
         return ParticipantConfirmInfo(
-            listOf(members.find { it.id == persId }!!),
-            limitDate,
+            members = listOf(members.find { it.id == persId }!!),
+            refId = ref.id,
+            confirmationLimitDate = limitDate,
+            pass = group.pass,
         )
 
     }
@@ -113,7 +117,7 @@ class ParticipantConfirm(
         val membersSorted = members.sortedByDescending { it.id == group.referentId }
 
         logger.info { "Create tickets for [${membersSorted.size}] participants" }
-        val tickets = ticketPort.create(membersSorted)
+        val tickets = ticketPort.create(membersSorted, group.pass)
         logger.info { "[${tickets.size}] tickets created for [${membersSorted.size}] participants" }
 
         return tickets

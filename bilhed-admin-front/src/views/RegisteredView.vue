@@ -46,8 +46,8 @@
             <span class="col-md-1">{{ g.referent!.firstname }}</span>
             <span class="col-md-3 break-email">{{ g.referent!.email }}</span>
             <span class="col-md-2">{{ g.referent!.telephone }}</span>
-            <span class="col-md-1"><Pass :pass="g.referent!.pass"/></span>
-            <span class="col-md-3"><DateView :date="g.referentInfos.registrationDate" format="DD/MM HH:mm"/></span>
+            <span class="col-md-1">{{ getPassString(g.group.pass) }}</span>
+            <span class="col-md-3"><DateView :date="g.registrationInfos.registrationDate" format="DD/MM HH:mm"/></span>
           </span>
         </button>
         <div class="d-flex">
@@ -109,15 +109,14 @@ import BiChatText from 'bootstrap-icons/icons/chat-text.svg?component'
 import BiEnvelope from 'bootstrap-icons/icons/envelope.svg?component'
 import BiPencil from 'bootstrap-icons/icons/pencil.svg?component'
 import BiPeople from "bootstrap-icons/icons/people.svg?component";
-import Pass from "@/components/Pass.vue";
 import {toastError, toastSuccess, toastWarning} from "@/utils/ReminderUtils";
 import type {GroupCompleteParticipant, GroupCompleteParticipantWithRef} from "@/dto/Group";
 import {PersonStatus} from "@/dto/Person";
-import {animateChevron} from "@/utils/Global";
+import {animateChevron, getPassString} from "@/utils/Global";
 
 export default defineComponent({
   name: "RegisteredView",
-  components: {Pass, DateView, BiChatText, BiEnvelope, BiPencil, BiPeople},
+  components: {DateView, BiChatText, BiEnvelope, BiPencil, BiPeople},
 
   data() {
     return {
@@ -149,6 +148,7 @@ export default defineComponent({
   },
 
   methods: {
+    getPassString,
     animateChevron,
     load() {
       axios.post('/groups/participant/complete', {status: PersonStatus.REGISTERED}).then( response => {

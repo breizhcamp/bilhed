@@ -4,7 +4,7 @@ import org.apache.commons.lang3.RandomStringUtils
 import java.time.ZonedDateTime
 import java.util.*
 
-data class ReferentInfos (
+data class RegistrationInfos (
     val personId: UUID,
     val registrationDate: ZonedDateTime = ZonedDateTime.now(),
 

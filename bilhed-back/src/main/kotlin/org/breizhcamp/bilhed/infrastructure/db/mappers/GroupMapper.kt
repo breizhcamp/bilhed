@@ -6,6 +6,7 @@ import org.breizhcamp.bilhed.infrastructure.db.model.GroupDB
 fun Group.toDB() = GroupDB(
     id = this.id,
     referentId = this.referentId,
+    pass = this.pass,
     groupPayment = this.groupPayment,
     drawOrder = this.drawOrder,
 )
@@ -13,6 +14,7 @@ fun Group.toDB() = GroupDB(
 fun GroupDB.toGroup() = Group(
     id = this.id,
     referentId = this.referentId,
+    pass = this.pass,
     groupPayment = this.groupPayment,
     drawOrder = this.drawOrder,
 )

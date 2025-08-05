@@ -3,11 +3,10 @@ package org.breizhcamp.bilhed.application.rest
 import jakarta.persistence.EntityNotFoundException
 import org.breizhcamp.bilhed.application.dto.*
 import org.breizhcamp.bilhed.domain.entities.Group
-import org.breizhcamp.bilhed.domain.entities.PassType
 import org.breizhcamp.bilhed.domain.entities.Person
 import org.breizhcamp.bilhed.domain.entities.PersonStatus
 import org.breizhcamp.bilhed.domain.use_cases.PersonCrud
-import org.breizhcamp.bilhed.domain.use_cases.ReferentInfosCrud
+import org.breizhcamp.bilhed.domain.use_cases.RegistrationInfosCrud
 import org.breizhcamp.bilhed.domain.use_cases.Registration
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
@@ -18,16 +17,16 @@ import java.util.*
 class RegisterCtrl(
     private val registration: Registration,
     private val personCrud: PersonCrud,
-    private val referentInfosCrud: ReferentInfosCrud,
+    private val registrationInfosCrud: RegistrationInfosCrud,
 ) {
 
     @PostMapping
     fun register(@RequestBody req: GroupRegisterReq): RegisterRes {
         val gPayment = req.validate(req.groupPayment)
         val referentId = UUID.randomUUID()
-        val group = registration.registerGroup(Group(id = UUID.randomUUID(), referentId = referentId, groupPayment = gPayment))
+        val group = registration.registerGroup(Group(id = UUID.randomUUID(), referentId = referentId, groupPayment = gPayment, pass = req.pass))
 
-        val members = listOf(req.referent.toPerson(group.id, referentId)) + req.companions.map { it.toPerson(group.id, req.referent.pass) }
+        val members = listOf(req.referent.toPerson(id = referentId, groupId = group.id)) + req.companions.map { it.toPerson(groupId = group.id ) }
         registration.registerMembers(referentId, members)
 
         return RegisterRes(referentId)
@@ -36,8 +35,8 @@ class RegisterCtrl(
     @GetMapping("/{id}")
     fun getRegisterState(@PathVariable id: UUID): RegisterStateRes {
         val pers = personCrud.get(id)
-        val refInfos = referentInfosCrud.get(id)
-        return RegisterStateRes(pers.localPhone(), refInfos.nbSmsSent)
+        val regInfos = registrationInfosCrud.get(id)
+        return RegisterStateRes(pers.localPhone(), regInfos.nbSmsSent)
     }
 
     @PostMapping("/{id}") @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -61,25 +60,13 @@ class RegisterCtrl(
     @ExceptionHandler(IllegalArgumentException::class) @ResponseStatus(HttpStatus.BAD_REQUEST)
     fun handleIAE(e: IllegalArgumentException) = ErrorRes(e.message ?: "Une erreur est survenue")
 
-    private fun CompanionRegisterReq.toPerson(groupId: UUID, pass: PassType, id: UUID = UUID.randomUUID()) = Person(
+    private fun PersonRegisterReq.toPerson(groupId: UUID, id: UUID = UUID.randomUUID()) = Person(
         id,
         lastname.trim(),
         firstname.trim(),
         PersonStatus.REGISTERED,
         internationalPhone() ,
         email,
-        pass,
-        groupId
-    )
-
-    private fun ReferentRegisterReq.toPerson(groupId: UUID, id: UUID) = Person(
-        id,
-        lastname.trim(),
-        firstname.trim(),
-        PersonStatus.REGISTERED,
-        internationalPhone(),
-        email,
-        pass,
         groupId
     )
 }

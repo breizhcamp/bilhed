@@ -90,14 +90,14 @@
             <legend class="col-sm-3 col-form-label">Billet souhaité</legend>
             <div class="col-sm-9">
               <div class="form-check">
-                <input class="form-check-input" type="radio" name="pass" id="pass2j" value="TWO_DAYS" :disabled="loading" required v-model="r.pass">
+                <input class="form-check-input" type="radio" name="pass" id="pass2j" :value="PassType.TWO_DAYS" :disabled="loading" required v-model="p">
                 <label class="form-check-label" for="pass2j">
                   2 jours / 75 € <small>(jeudi 27 et vendredi 28 juin)</small>
                 </label>
               </div>
 
               <div class="form-check">
-                <input class="form-check-input" type="radio" name="pass" id="pass3j" value="THREE_DAYS" :disabled="loading" required v-model="r.pass">
+                <input class="form-check-input" type="radio" name="pass" id="pass3j" :value="PassType.THREE_DAYS" :disabled="loading" required v-model="p">
                 <label class="form-check-label" for="pass3j">
                   3 jours / 90 € <small>(mercredi 26, jeudi 27 et vendredi 28 juin)</small>
                 </label>
@@ -126,7 +126,8 @@ import ClosedMessage from '@/components/ClosedMessage.vue';
 import DateView from '@/components/DateView.vue';
 import dayjs from 'dayjs';
 import {defineComponent, type PropType} from 'vue'
-import type {ReferentReq} from "@/dto/Person";
+import type {PersonReq} from "@/dto/Person";
+import {PassType} from "@/dto/ConfirmInfos";
 
 export default defineComponent({
   name: "ReferentStep",
@@ -135,18 +136,23 @@ export default defineComponent({
   props: {
     loading: { type: Boolean, required: true },
     closeDate: { type: String, required: true, default: '' },
-    referent: { type: Object as PropType<ReferentReq>, required: true },
+    referent: { type: Object as PropType<PersonReq>, required: true },
     groupRegistration: { type: Boolean, required: true },
+    pass: { type: Number as PropType<PassType>, required: true },
   },
 
   data() {
     return {
       r: this.referent,
-      groupReg: this.groupRegistration
+      groupReg: this.groupRegistration,
+      p: this.pass
     }
   },
 
   computed: {
+    PassType() {
+      return PassType
+    },
     isOpen() {
       return this.closeDate && dayjs(this.closeDate).isAfter(dayjs())
     }
@@ -154,7 +160,7 @@ export default defineComponent({
 
   methods: {
     save() {
-      this.$emit('saveRef', {ref: this.r, groupReg: this.groupReg})
+      this.$emit('saveRef', {ref: this.r, groupReg: this.groupReg, pass: this.p})
     },
   }
 })

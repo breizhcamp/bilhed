@@ -1,10 +1,17 @@
-import type {ParticipationInfos, Person, ReferentInfos} from "@/dto/Person";
+import type {ParticipationInfos, Person, RegistrationInfos} from "@/dto/Person";
 
 export interface Group {
     id: string,
     referentId: string,
+    pass: PassType
     groupPayment: boolean,
     drawOrder?: number
+}
+
+export enum PassType {
+    NONE,
+    TWO_DAYS,
+    THREE_DAYS,
 }
 
 export interface GroupComplete {
@@ -13,7 +20,7 @@ export interface GroupComplete {
 }
 
 export interface GroupCompleteParticipant extends GroupComplete {
-    referentInfos: ReferentInfos,
+    registrationInfos: RegistrationInfos,
 }
 
 export interface GroupCompleteAttendee extends GroupComplete{

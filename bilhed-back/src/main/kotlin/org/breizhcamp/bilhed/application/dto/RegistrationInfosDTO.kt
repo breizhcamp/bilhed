@@ -4,7 +4,7 @@ import org.breizhcamp.bilhed.domain.entities.SmsStatus
 import java.time.ZonedDateTime
 import java.util.*
 
-data class ReferentInfosDTO(
+data class RegistrationInfosDTO(
     val personId: UUID,
     val registrationDate: ZonedDateTime,
 

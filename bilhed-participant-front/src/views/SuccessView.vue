@@ -13,8 +13,8 @@
 
         <p class="mt-4 mb-4">
           Vous aviez choisi un pass
-          <span v-if="ref.pass === 'TWO_DAYS'"><strong>2 jours</strong> (jeudi 27 et vendredi 28 juin)</span>
-            <span v-else-if="ref.pass === 'THREE_DAYS'"><strong>3 jours</strong> (mercredi 26, jeudi 27 et vendredi 28 juin)</span>
+          <span v-if="confirmInfos.pass === PassType.TWO_DAYS"><strong>2 jours</strong> (jeudi 27 et vendredi 28 juin)</span>
+            <span v-else-if="confirmInfos.pass === PassType.THREE_DAYS"><strong>3 jours</strong> (mercredi 26, jeudi 27 et vendredi 28 juin)</span>
           lors de votre inscription à la loterie.
         </p>
 
@@ -216,7 +216,7 @@
 import type {ConfirmRes} from '@/dto/ConfirmRes';
 import type {PersonDataTicket} from '@/dto/PersonDataTicket';
 import {defineComponent} from 'vue'
-import type {AttendeeData, ConfirmInfos} from '@/dto/ConfirmInfos'
+import {type AttendeeData, type ConfirmInfos, PassType} from '@/dto/ConfirmInfos'
 import DateView from '@/components/DateView.vue'
 import type {AxiosResponse} from 'axios'
 import axios from 'axios'
@@ -241,6 +241,9 @@ export default defineComponent({
   },
 
   computed: {
+    PassType() {
+      return PassType
+    },
     id() { return this.$route.params.id },
   },
 
@@ -264,7 +267,7 @@ export default defineComponent({
       return axios.get('/participants/' + this.id)
           .then(res => {
             this.confirmInfos = res.data
-            this.ref = res.data.members[0]
+            this.ref = res.data.members.find((m: Person) => m.id === res.data.refId)
             for (const member of res.data.members)
               this.attendeeData.push({ id: member.id })
           })
