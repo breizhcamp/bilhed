@@ -1,6 +1,7 @@
 package org.breizhcamp.bilhed.application.rest
 
 import jakarta.persistence.EntityNotFoundException
+import jakarta.transaction.Transactional
 import org.breizhcamp.bilhed.application.dto.*
 import org.breizhcamp.bilhed.domain.entities.Group
 import org.breizhcamp.bilhed.domain.entities.Person
@@ -20,6 +21,7 @@ class RegisterCtrl(
     private val registrationInfosCrud: RegistrationInfosCrud,
 ) {
 
+    @Transactional
     @PostMapping
     fun register(@RequestBody req: GroupRegisterReq): RegisterRes {
         val gPayment = req.validate(req.groupPayment)
