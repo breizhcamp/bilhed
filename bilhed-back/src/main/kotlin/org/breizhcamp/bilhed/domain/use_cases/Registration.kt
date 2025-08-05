@@ -109,8 +109,9 @@ class Registration(
         }
 
         val ref = persons.find { it.id == referentId } ?: throw IllegalStateException("Referent with id $referentId not found.")
+        val group = groupPort.get(ref.groupId)
 
-        val model = mapOf("firstname" to ref.firstname, "lastname" to ref.lastname, "year" to config.breizhCampYear.toString())
+        val model = mapOf("firstname" to ref.firstname, "lastname" to ref.lastname, "year" to config.breizhCampYear.toString(), "nbPersons" to persons.size.toString(), "groupPayment" to group.groupPayment.toString(), "pass" to group.pass.label)
 
         sendNotification.sendEmail(Mail(ref.getMailAddress(), "register", model, referentId), ReminderOrigin.AUTOMATIC)
 

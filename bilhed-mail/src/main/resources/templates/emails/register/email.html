@@ -1,13 +1,27 @@
 <html lang="fr" xmlns:th="http://www.thymeleaf.org">
 <body>
-Bonjour <span th:text="${firstname}"></span>,
+<p>Bonjour <span th:text="${firstname}">Prénom</span>,</p>
 
 <p>
-  Vous avez bien été enregistré pour le tirage au sort de la billetterie du BreizhCamp <span th:text="${year}"></span>.
+  <span th:if="${nbPersons} > 1">
+      Votre groupe de <span th:text="${nbPersons}">X</span> personnes a
+  </span>
+  <span th:if="${nbPersons} == 1">
+      Vous avez
+  </span>
+  bien été enregistré avec un pass <span th:text="${pass}">X jours</span> pour le tirage au sort de la billetterie du BreizhCamp <span th:text="${year}">2025</span>.
 </p>
 
 <p>
-  Vous recevrez un SMS et un email si vous êtes tiré au sort qui vous permettra de confirmer et d'acheter votre billet.
+  <span th:if="${nbPersons} > 1 and ${!groupPayment}">
+      Chaque membre recevra un SMS et un email si votre groupe est tiré au sort qui permettra à chacun de confirmer et d'acheter son billet.
+  </span>
+  <span th:if="${nbPersons} > 1 and ${groupPayment}">
+      Vous recevrez un SMS et un email si votre groupe est tiré au sort qui vous permettra de confirmer et d'acheter les billets de tous les membres de votre groupe.
+  </span>
+  <span th:if="${nbPersons} == 1">
+      Vous recevrez un SMS et un email si vous êtes tiré au sort qui vous permettra de confirmer et d'acheter votre billet.
+  </span>
 </p>
 
 <p>
