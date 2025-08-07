@@ -11,7 +11,7 @@
         </p>
 
         <p class="text-center">
-          Si vous êtes tiré au sort, vous receverez un SMS et un e-mail pour confirmer définitivement votre participation et acheter votre billet.
+          Si vous êtes tiré au sort, vous recevrez un SMS et un e-mail pour confirmer définitivement votre participation et acheter votre billet.
         </p>
 
         <p class="text-center">

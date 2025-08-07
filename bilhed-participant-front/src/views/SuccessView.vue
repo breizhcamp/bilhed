@@ -1,14 +1,22 @@
 <template>
   <div>
     <div class="row justify-content-center">
-      <div class="col-md-12 col-lg-8 bg-light rounded-3 px-5 py-3 mb-5 mt-3" v-if="ref.firstname">
+      <div class="col-md-12 col-lg-8 bg-light rounded-3 px-5 py-3 mb-5 mt-3" v-if="person.firstname">
         <p class="lead text-center fw-bold">
-          Bonne nouvelle {{ ref.firstname }}, vous avez été sélectionné pour la billetterie du BreizhCamp !
+          Bonne nouvelle {{ person.firstname }}, {{
+            confirmInfos.members.length === 1 ? 'vous avez' : 'votre groupe a'
+          }} été sélectionné pour la billetterie du BreizhCamp !
         </p>
 
         <p class="mt-4 mb-4" v-if="!dataTicket.hasTicket">
-          Vous pouvez confirmer votre venue et acheter votre billet,
-          ou bien libérer votre place pour qu'elle soit attribuée à une autre personne si vous n'êtes plus disponible.
+          <template v-if="confirmInfos.members.length === 1">
+            Vous pouvez confirmer votre venue et acheter votre billet,
+            ou bien libérer votre place pour qu'elle soit attribuée à une autre personne si vous n'êtes plus disponible.
+          </template>
+          <template v-else>
+            Vous pouvez confirmer la venue de votre groupe et acheter vos billets,
+            ou bien libérer les {{ confirmInfos.members.length }} places pour qu'elles soient attribuées à d'autres personnes si vous n'êtes plus disponible.
+          </template>
         </p>
 
         <p class="mt-4 mb-4">
@@ -46,7 +54,7 @@
     </div>
 
 
-    <div class="row" v-if="ref.firstname && !showForm && !showCancelConfirm">
+    <div class="row" v-if="person.firstname && !showForm && !showCancelConfirm">
 
       <div class="col-md-6 text-center mb-2">
         <button class="btn btn-light btn-lg" @click="cancelConfirm()" :disabled="loading">
@@ -59,7 +67,7 @@
       <div class="col-md-6 text-center mb-2">
         <button class="btn btn-primary btn-lg" @click="confirm()" :disabled="loading">
           {{ confirmInfos.members.length > 1 ?
-            `Confirmer la venue du groupe et acheter ${confirmInfos.members.length} billets` :
+            `Confirmer la venue du groupe et acheter les ${confirmInfos.members.length} billets` :
             'Confirmer ma venue et acheter mon billet' }}
         </button>
       </div>
@@ -78,7 +86,7 @@
           <button type="button" class="btn btn-lg btn-primary" :disabled="loading" @click="cancel()">
             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" v-if="loading"></span>
             {{ confirmInfos.members.length > 1 ?
-              `Oui, je libère les ${confirmInfos.members.length} places d'autres personnes` :
+              `Oui, je libère les ${confirmInfos.members.length} places pour d'autres personnes` :
               'Oui, je libère ma place pour une autre personne' }}
           </button>
         </div>
@@ -231,7 +239,7 @@ export default defineComponent({
       confirmInfos: {} as ConfirmInfos,
       attendeeData: [] as AttendeeData[],
       dataTicket: {} as PersonDataTicket,
-      ref: {} as Person,
+      person: {} as Person, // person is ref if many members and good id, otherwise is the member of param id
       loading: false,
       showForm: false,
       showCancelConfirm: false,
@@ -267,7 +275,9 @@ export default defineComponent({
       return axios.get('/participants/' + this.id)
           .then(res => {
             this.confirmInfos = res.data
-            this.ref = res.data.members.find((m: Person) => m.id === res.data.refId)
+            this.person = res.data.members.find((m: Person) =>
+                m.id === (res.data.members.length > 1 ? res.data.refId : this.id)
+            )
             for (const member of res.data.members)
               this.attendeeData.push({ id: member.id })
           })
@@ -332,7 +342,7 @@ export default defineComponent({
       this.loading = true
 
       axios.post('/participants/' + this.id + '/cancel').then(() => {
-        this.$router.push({ name: 'released' })
+        this.$router.push({ name: 'released', state: { nbPlaces: this.confirmInfos.members.length } })
       }).catch(this.displayError)
         .finally(() => this.loading = false)
     },

@@ -11,7 +11,7 @@
         </p>
 
         <p>
-          Si vous souhaitez une <strong>facture</strong>, vous pouvez l'éditer à l'aide du lien présent en bas de l'e-mail de BilletWeb. Vous pouvez aussi annuler le billet via le lien "Gérer ma commande" si vous ne pouvez finalement pas venir.
+          Si vous souhaitez une <strong>facture</strong>, vous pouvez l'éditer à l'aide du lien présent en bas de l'e-mail de BilletWeb. Vous pouvez aussi annuler la commande via le lien "Gérer ma commande" si vous ne pouvez finalement pas venir.
         </p>
 
         <p>
