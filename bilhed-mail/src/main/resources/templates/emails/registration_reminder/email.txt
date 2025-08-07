@@ -1,8 +1,8 @@
 Bonjour [(${firstname})],
 
-Vous avez démarré votre enregistrement pour la billetterie du BreizhCamp [(${year})] mais celui-ci n'est pas terminé !
+[# th:if="${nbPersons} == 1"]Vous avez démarré votre enregistrement pour la billetterie du BreizhCamp [(${year})] mais celui-ci n'est pas terminé ![/][# th:if="${nbPersons} > 1"]Vous avez démarré l'enregistrement d'un groupe de [(${nbPersons})] personnes pour la billetterie du BreizhCamp [(${year})], mais celui-ci n'est pas terminé ![/]
 
-Pour terminer votre enregistrement, vous pouvez cliquer sur le lien suivant :
+Pour terminer l'enregistrement, vous pouvez cliquer sur le lien suivant :
 
 [(${link})]
 

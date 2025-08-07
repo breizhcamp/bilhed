@@ -26,8 +26,9 @@ class RegisteredReminder(
     fun send(id: UUID, smsTemplate: String, emailTemplate: String, origin: ReminderOrigin) {
         if (smsTemplate.isBlank() && emailTemplate.isBlank()) return
 
-        val ref = personPort.get(id)
         val regInfos = registrationInfosPort.get(id)
+        val members = personPort.getMembersBy(referentId = id)
+        val ref = members.find { it.id == id } ?: throw IllegalStateException("Referent with id $id was not found")
 
         registrationInfosPort.resetSmsCount(id)
         val link = "${config.participantFrontUrl}/#/${ref.id}"
@@ -37,7 +38,7 @@ class RegisteredReminder(
             val closeDate = dateFormatter.format(config.registerCloseDate.withZoneSameInstant(ZoneId.of("Europe/Paris")))
 
             val model = mapOf("firstname" to ref.firstname, "lastname" to ref.lastname,
-                "year" to config.breizhCampYear.toString(), "link" to link, "closeDate" to closeDate)
+                "year" to config.breizhCampYear.toString(), "nbPersons" to members.size.toString(), "link" to link, "closeDate" to closeDate)
 
             sendNotification.sendEmail(Mail(ref.getMailAddress(), emailTemplate, model, id), origin)
         }
