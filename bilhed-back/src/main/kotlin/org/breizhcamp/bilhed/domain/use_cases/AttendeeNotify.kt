@@ -4,7 +4,7 @@ import mu.KotlinLogging
 import org.breizhcamp.bilhed.config.BilhedBackConfig
 import org.breizhcamp.bilhed.domain.entities.Mail
 import org.breizhcamp.bilhed.domain.entities.Person
-import org.breizhcamp.bilhed.domain.entities.ReminderOrigin
+import org.breizhcamp.bilhed.domain.entities.NotifOrigin
 import org.breizhcamp.bilhed.domain.entities.Sms
 import org.breizhcamp.bilhed.domain.use_cases.ports.ConfigPort
 import org.breizhcamp.bilhed.domain.use_cases.ports.ParticipationInfosPort
@@ -29,7 +29,7 @@ class AttendeeNotify(
     private val participationInfosPort: ParticipationInfosPort
 ) {
 
-    fun remindPayedMail(ids: List<UUID>, origin: ReminderOrigin, template: String = "payed_reminder") {
+    fun remindPayedMail(ids: List<UUID>, origin: NotifOrigin, template: String = "payed_reminder") {
         val persons = personPort.get(ids)
         val partInfos = participationInfosPort.get(ids).associateBy { it.personId }
 
@@ -50,7 +50,7 @@ class AttendeeNotify(
         }
     }
 
-    fun remindPayedSms(ids: List<UUID>, origin: ReminderOrigin, template: String = "payed_reminder") {
+    fun remindPayedSms(ids: List<UUID>, origin: NotifOrigin, template: String = "payed_reminder") {
         val persons = personPort.get(ids)
         val partInfos = participationInfosPort.get(ids).associateBy { it.personId }
 

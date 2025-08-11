@@ -4,10 +4,10 @@ import jakarta.persistence.EntityNotFoundException
 import org.breizhcamp.bilhed.application.dto.ErrorRes
 import org.breizhcamp.bilhed.application.dto.PersonDTO
 import org.breizhcamp.bilhed.application.dto.admin.UpdateContactReq
-import org.breizhcamp.bilhed.domain.entities.Reminder
+import org.breizhcamp.bilhed.domain.entities.Notification
 import org.breizhcamp.bilhed.domain.use_cases.PersonCrud
 import org.breizhcamp.bilhed.domain.use_cases.Registration
-import org.breizhcamp.bilhed.domain.use_cases.ReminderCrud
+import org.breizhcamp.bilhed.domain.use_cases.NotificationCrud
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import java.util.*
@@ -15,7 +15,7 @@ import java.util.*
 @RestController("adminPersonCtrl")
 @RequestMapping("/admin/persons")
 class PersonCtrl (
-    private val reminderCrud: ReminderCrud,
+    private val notificationCrud: NotificationCrud,
     private val personCrud: PersonCrud,
     private val registration: Registration
 ) {
@@ -25,8 +25,8 @@ class PersonCtrl (
     }
 
     @GetMapping("/{id}/reminders")
-    fun getReminders(@PathVariable id: UUID): List<Reminder> {
-        return reminderCrud.listByPersonId(id)
+    fun getReminders(@PathVariable id: UUID): List<Notification> {
+        return notificationCrud.listByPersonId(id)
     }
 
     @PutMapping("/{id}")

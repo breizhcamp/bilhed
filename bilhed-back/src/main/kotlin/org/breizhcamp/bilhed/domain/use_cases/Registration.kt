@@ -113,7 +113,7 @@ class Registration(
 
         val model = mapOf("firstname" to ref.firstname, "lastname" to ref.lastname, "year" to config.breizhCampYear.toString(), "nbPersons" to persons.size.toString(), "groupPayment" to group.groupPayment.toString(), "pass" to group.pass.label)
 
-        sendNotification.sendEmail(Mail(ref.getMailAddress(), "register", model, referentId), ReminderOrigin.AUTOMATIC)
+        sendNotification.sendEmail(Mail(ref.getMailAddress(), "register", model, referentId), NotifOrigin.AUTOMATIC)
 
         logger.info { "Validated group of [${ref.lastname} ${ref.firstname}] as a participant" }
     }

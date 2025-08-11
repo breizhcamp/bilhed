@@ -9,8 +9,8 @@ import jakarta.persistence.Table
 import java.time.ZonedDateTime
 import java.util.UUID
 
-@Entity @Table(name = "reminder")
-data class ReminderDB (
+@Entity @Table(name = "notification")
+data class NotificationDB (
 
     @Id
     val id: UUID,
@@ -18,20 +18,20 @@ data class ReminderDB (
     val template: String,
 
     @Enumerated(EnumType.STRING)
-    val method: ReminderDBMethod,
+    val method: NotifDBMethod,
 
     @Column(name="person_id")
     val personId: UUID,
     val model: String,
 
     @Enumerated(EnumType.STRING)
-    val origin: ReminderDBOrigin
+    val origin: NotifDBOrigin
 )
 
-enum class ReminderDBMethod {
+enum class NotifDBMethod {
     SMS, MAIL
 }
 
-enum class ReminderDBOrigin {
+enum class NotifDBOrigin {
     AUTOMATIC, MANUAL
 }

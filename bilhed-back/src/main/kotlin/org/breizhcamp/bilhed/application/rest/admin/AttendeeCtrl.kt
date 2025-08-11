@@ -5,7 +5,7 @@ import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVPrinter
 import org.breizhcamp.bilhed.application.dto.admin.AttendeeDataDTO
 import org.breizhcamp.bilhed.domain.entities.AttendeeData
-import org.breizhcamp.bilhed.domain.entities.ReminderOrigin
+import org.breizhcamp.bilhed.domain.entities.NotifOrigin
 import org.breizhcamp.bilhed.domain.entities.TicketExportData
 import org.breizhcamp.bilhed.domain.use_cases.AttendeeDataCrud
 import org.breizhcamp.bilhed.domain.use_cases.AttendeeNotify
@@ -27,12 +27,12 @@ class AttendeeCtrl(
 ) {
     @PostMapping("/notif/payed/reminder/mail") @ResponseStatus(HttpStatus.NO_CONTENT)
     fun payedReminderMail(@RequestBody ids: List<UUID>) {
-        attendeeNotify.remindPayedMail(ids, ReminderOrigin.MANUAL)
+        attendeeNotify.remindPayedMail(ids, NotifOrigin.MANUAL)
     }
 
     @PostMapping("/notif/payed/reminder/sms") @ResponseStatus(HttpStatus.NO_CONTENT)
     fun payedReminderSms(@RequestBody ids: List<UUID>) {
-        attendeeNotify.remindPayedSms(ids, ReminderOrigin.MANUAL)
+        attendeeNotify.remindPayedSms(ids, NotifOrigin.MANUAL)
     }
 
     @PostMapping("/levelUp/release") @ResponseStatus(HttpStatus.NO_CONTENT)

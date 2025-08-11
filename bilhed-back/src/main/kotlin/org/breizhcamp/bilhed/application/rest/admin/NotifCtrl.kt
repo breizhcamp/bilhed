@@ -1,7 +1,7 @@
 package org.breizhcamp.bilhed.application.rest.admin
 
 import org.breizhcamp.bilhed.application.dto.admin.ReminderReq
-import org.breizhcamp.bilhed.domain.entities.ReminderOrigin
+import org.breizhcamp.bilhed.domain.entities.NotifOrigin
 import org.breizhcamp.bilhed.domain.use_cases.ParticipantConfirm
 import org.breizhcamp.bilhed.domain.use_cases.ParticipantNotify
 import org.breizhcamp.bilhed.domain.use_cases.RegisteredReminder
@@ -34,7 +34,7 @@ class NotifCtrl(
 
     @PostMapping("/success/reminder") @ResponseStatus(HttpStatus.NO_CONTENT)
     fun successReminder(@RequestBody ids: List<UUID>) {
-        participantNotify.remindSuccess(ids, ReminderOrigin.MANUAL)
+        participantNotify.remindSuccess(ids, NotifOrigin.MANUAL)
     }
 
     @PostMapping("/waiting") @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -51,6 +51,6 @@ class NotifCtrl(
     fun sendReminder(@PathVariable id: UUID, @RequestBody req: ReminderReq) {
         val smsTemplate = if (req.sms != null && req.sms) "registration_reminder" else ""
         val emailTemplate = if (req.email != null && req.email) "registration_reminder" else ""
-        registeredReminder.send(id, smsTemplate , emailTemplate, ReminderOrigin.MANUAL)
+        registeredReminder.send(id, smsTemplate , emailTemplate, NotifOrigin.MANUAL)
     }
 }

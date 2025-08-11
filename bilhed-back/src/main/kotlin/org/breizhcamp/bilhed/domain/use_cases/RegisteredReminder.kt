@@ -2,7 +2,7 @@ package org.breizhcamp.bilhed.domain.use_cases
 
 import org.breizhcamp.bilhed.config.BilhedBackConfig
 import org.breizhcamp.bilhed.domain.entities.Mail
-import org.breizhcamp.bilhed.domain.entities.ReminderOrigin
+import org.breizhcamp.bilhed.domain.entities.NotifOrigin
 import org.breizhcamp.bilhed.domain.entities.Sms
 import org.breizhcamp.bilhed.domain.use_cases.ports.PersonPort
 import org.breizhcamp.bilhed.domain.use_cases.ports.RegistrationInfosPort
@@ -23,7 +23,7 @@ class RegisteredReminder(
 ) {
 
     @Transactional
-    fun send(id: UUID, smsTemplate: String, emailTemplate: String, origin: ReminderOrigin) {
+    fun send(id: UUID, smsTemplate: String, emailTemplate: String, origin: NotifOrigin) {
         if (smsTemplate.isBlank() && emailTemplate.isBlank()) return
 
         val regInfos = registrationInfosPort.get(id)

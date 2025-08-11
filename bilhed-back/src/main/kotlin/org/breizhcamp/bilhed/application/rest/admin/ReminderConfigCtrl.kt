@@ -12,7 +12,7 @@ import java.util.*
 
 @RestController("reminderController")
 @RequestMapping("/admin/reminders")
-class ReminderCtrl (
+class ReminderConfigCtrl (
     private val reminderConfigCrud: ReminderConfigCrud,
 ) {
 

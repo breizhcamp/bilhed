@@ -10,7 +10,7 @@ import java.util.*
 
 @Service
 class SendReminder (
-    private val reminderPort: ReminderPort,
+    private val notificationPort: NotificationPort,
     private val reminderConfigPort: ReminderConfigPort,
     private val registeredReminder: RegisteredReminder,
     private val participantNotify: ParticipantNotify,
@@ -22,7 +22,7 @@ class SendReminder (
     private val personPort: PersonPort,
 ) {
 
-    private fun areConditionsMet(deadline: ZonedDateTime, reminderConfigs: List<ReminderConfig>, now: ZonedDateTime, notif: Reminder?): ReminderConfig? {
+    private fun areConditionsMet(deadline: ZonedDateTime, reminderConfigs: List<ReminderConfig>, now: ZonedDateTime, notif: Notification?): ReminderConfig? {
         val (prevRemConfig, nextRemDate) = reminderConfigs
             .map { it to deadline.minusHours(it.hours.toLong()) } // map en config -> date
             .partition { (_, configDate) -> configDate.isBefore(now) } // separe en deux listes : passées et futures
@@ -48,8 +48,8 @@ class SendReminder (
         return prevRemConfig
     }
 
-    private fun getNotifications(ids: List<UUID>):  Map<UUID, Reminder> {
-        val notificationsList = reminderPort.findLatestReminderPerPerson(ids)
+    private fun getNotifications(ids: List<UUID>):  Map<UUID, Notification> {
+        val notificationsList = notificationPort.findLatestReminderPerPerson(ids)
         return notificationsList.associateBy { it.personId }
     }
 
@@ -72,7 +72,7 @@ class SendReminder (
                 reg.personId,
                 prevRemConfig.templateSms,
                 prevRemConfig.templateMail,
-                ReminderOrigin.AUTOMATIC
+                NotifOrigin.AUTOMATIC
             )
         }
     }
@@ -90,7 +90,7 @@ class SendReminder (
             if (deadline == null) continue // tirage au sort pas encore effectué
             val prevRemConfig = areConditionsMet(deadline, reminderConfigs, now, notifications[par.personId]) ?: break
 
-            participantNotify.remindSuccess(listOf(par.personId), ReminderOrigin.AUTOMATIC, prevRemConfig.templateMail)
+            participantNotify.remindSuccess(listOf(par.personId), NotifOrigin.AUTOMATIC, prevRemConfig.templateMail)
         }
     }
 
@@ -112,10 +112,10 @@ class SendReminder (
             val prevRemConfig = areConditionsMet(deadline, reminderConfigs, now, notifications[att.id]) ?: continue
 
             if (prevRemConfig.templateMail.isNotBlank())
-                attendeeNotify.remindPayedMail(listOf(att.id), ReminderOrigin.AUTOMATIC, prevRemConfig.templateMail)
+                attendeeNotify.remindPayedMail(listOf(att.id), NotifOrigin.AUTOMATIC, prevRemConfig.templateMail)
 
             if (prevRemConfig.templateSms.isNotBlank())
-                attendeeNotify.remindPayedSms(listOf(att.id), ReminderOrigin.AUTOMATIC, prevRemConfig.templateSms)
+                attendeeNotify.remindPayedSms(listOf(att.id), NotifOrigin.AUTOMATIC, prevRemConfig.templateSms)
         }
     }
 }

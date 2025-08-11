@@ -4,6 +4,7 @@ import mu.KotlinLogging
 import org.breizhcamp.bilhed.config.BilhedBackConfig
 import org.breizhcamp.bilhed.domain.entities.*
 import org.breizhcamp.bilhed.domain.use_cases.ports.ConfigPort
+import org.breizhcamp.bilhed.domain.use_cases.ports.GroupPort
 import org.breizhcamp.bilhed.domain.use_cases.ports.ParticipationInfosPort
 import org.breizhcamp.bilhed.domain.use_cases.ports.PersonPort
 import org.breizhcamp.bilhed.domain.use_cases.ports.UrlShortenerPort
@@ -24,6 +25,7 @@ class ParticipantNotify(
     private val configPort: ConfigPort,
     private val sendNotification: SendNotification,
     private val participationInfosPort: ParticipationInfosPort,
+    private val groupPort: GroupPort,
 ) {
 
     /** Notify the list of [ids] that they have been drawn */
@@ -50,7 +52,7 @@ class ParticipantNotify(
         )
 
         val resSms = sendDrawSuccessSms(p, partInfos, model)
-        sendNotification.sendEmail(Mail(p.getMailAddress(), "draw_success", model, p.id), ReminderOrigin.MANUAL)
+        sendNotification.sendEmail(Mail(p.getMailAddress(), "draw_success", model, p.id), NotifOrigin.MANUAL)
 
         if (firstNotif)
             participationInfosPort.save(resSms.copy(notificationConfirmSentDate = limitDate.now))
@@ -62,7 +64,7 @@ class ParticipantNotify(
 
     fun notifyFailed(ids: List<UUID>) = notifyWaitingParticipant(ids, "draw_failed")
 
-    fun remindSuccess(ids: List<UUID>, origin: ReminderOrigin, template: String = "draw_success_reminder") = ids.forEach {
+    fun remindSuccess(ids: List<UUID>, origin: NotifOrigin, template: String = "draw_success_reminder") = ids.forEach {
         val p = personPort.get(it)
         val partInfos = participationInfosPort.get(it)
 
@@ -84,7 +86,7 @@ class ParticipantNotify(
             logger.info { "Notifying [$template] participant [${it.firstname} ${it.lastname}]" }
             val model = mapOf("firstname" to it.firstname, "lastname" to it.lastname, "year" to config.breizhCampYear.toString(),
             )
-            sendNotification.sendEmail(Mail(it.getMailAddress(), template, model, it.id), ReminderOrigin.MANUAL)
+            sendNotification.sendEmail(Mail(it.getMailAddress(), template, model, it.id), NotifOrigin.MANUAL)
         }
     }
 
@@ -119,7 +121,7 @@ class ParticipantNotify(
             phone = p.telephone!!,
             template = "draw_success",
             model = model,
-        ), ReminderOrigin.MANUAL)
+        ), NotifOrigin.MANUAL)
 
         return res
     }

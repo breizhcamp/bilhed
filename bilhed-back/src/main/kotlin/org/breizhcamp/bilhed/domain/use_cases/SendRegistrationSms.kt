@@ -3,7 +3,7 @@ package org.breizhcamp.bilhed.domain.use_cases
 import mu.KotlinLogging
 import org.breizhcamp.bilhed.domain.entities.Person
 import org.breizhcamp.bilhed.domain.entities.RegistrationInfos
-import org.breizhcamp.bilhed.domain.entities.ReminderOrigin
+import org.breizhcamp.bilhed.domain.entities.NotifOrigin
 import org.breizhcamp.bilhed.domain.entities.Sms
 import org.breizhcamp.bilhed.domain.entities.SmsStatus
 import org.breizhcamp.bilhed.domain.use_cases.ports.RegistrationInfosPort
@@ -43,7 +43,7 @@ class SendRegistrationSms(
             model = mapOf("token" to regInfos.token),
         )
 
-        sendNotification.sendSms(sms, ReminderOrigin.MANUAL)
+        sendNotification.sendSms(sms, NotifOrigin.MANUAL)
         registrationInfosPort.updateSms(id = regInfos.personId, smsStatus = SmsStatus.SENDING, nbSmsSent = regInfos.nbSmsSent +1, lastSmsSentDate = ZonedDateTime.now())
         return ref
     }

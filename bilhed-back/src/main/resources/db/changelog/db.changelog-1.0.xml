@@ -192,6 +192,8 @@
         <addForeignKeyConstraint baseTableName="billetweb" baseColumnNames="participant_id" constraintName="fk_billetweb_participant"
                                  referencedTableName="person"
                                  referencedColumnNames="id" />
+
+        <renameTable oldTableName="reminder" newTableName="notification" />
     </changeSet>
 
 </databaseChangeLog>

@@ -3,20 +3,20 @@ package org.breizhcamp.bilhed.domain.entities
 import java.time.ZonedDateTime
 import java.util.*
 
-data class Reminder (
+data class Notification (
     val id: UUID = UUID.randomUUID(),
     val reminderDate: ZonedDateTime,
     val template: String,
-    val method: ReminderMethod,
+    val method: NotifMethod,
     val personId: UUID,
     val model: Map<String, String>,
-    val origin: ReminderOrigin,
+    val origin: NotifOrigin,
 )
 
-enum class ReminderOrigin {
+enum class NotifOrigin {
     MANUAL, AUTOMATIC
 }
 
-enum class ReminderMethod {
+enum class NotifMethod {
     SMS, MAIL
 }

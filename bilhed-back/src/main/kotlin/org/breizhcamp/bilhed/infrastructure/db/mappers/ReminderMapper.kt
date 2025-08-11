@@ -2,17 +2,17 @@ package org.breizhcamp.bilhed.infrastructure.db.mappers
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.core.type.TypeReference
-import org.breizhcamp.bilhed.domain.entities.Reminder
-import org.breizhcamp.bilhed.domain.entities.ReminderMethod
-import org.breizhcamp.bilhed.domain.entities.ReminderOrigin
-import org.breizhcamp.bilhed.infrastructure.db.model.ReminderDB
-import org.breizhcamp.bilhed.infrastructure.db.model.ReminderDBMethod
-import org.breizhcamp.bilhed.infrastructure.db.model.ReminderDBOrigin
+import org.breizhcamp.bilhed.domain.entities.Notification
+import org.breizhcamp.bilhed.domain.entities.NotifMethod
+import org.breizhcamp.bilhed.domain.entities.NotifOrigin
+import org.breizhcamp.bilhed.infrastructure.db.model.NotificationDB
+import org.breizhcamp.bilhed.infrastructure.db.model.NotifDBMethod
+import org.breizhcamp.bilhed.infrastructure.db.model.NotifDBOrigin
 
 val mapper = jacksonObjectMapper()
 val typeRef = object : TypeReference<Map<String, String>>() {}
 
-fun Reminder.toDB() = ReminderDB(
+fun Notification.toDB() = NotificationDB(
     id = this.id,
     reminderDate = this.reminderDate,
     template = this.template,
@@ -22,20 +22,20 @@ fun Reminder.toDB() = ReminderDB(
     origin = this.origin.toDB()
 )
 
-fun ReminderDB.toReminder() = Reminder(
+fun NotificationDB.toNotification() = Notification(
     id = this.id,
     reminderDate = this.reminderDate,
     template = this.template,
-    method = this.method.toReminderMethod(),
+    method = this.method.toNotifMethod(),
     personId = this.personId,
     model = mapper.readValue(this.model, typeRef),
-    origin = this.origin.toReminderOrigin()
+    origin = this.origin.toNotifOrigin()
 )
 
-fun ReminderDBOrigin.toReminderOrigin() = ReminderOrigin.valueOf(this.name)
+fun NotifDBOrigin.toNotifOrigin() = NotifOrigin.valueOf(this.name)
 
-fun ReminderOrigin.toDB() = ReminderDBOrigin.valueOf(this.name)
+fun NotifOrigin.toDB() = NotifDBOrigin.valueOf(this.name)
 
-fun ReminderDBMethod.toReminderMethod() = ReminderMethod.valueOf(this.name)
+fun NotifDBMethod.toNotifMethod() = NotifMethod.valueOf(this.name)
 
-fun ReminderMethod.toDB() = ReminderDBMethod.valueOf(this.name)
+fun NotifMethod.toDB() = NotifDBMethod.valueOf(this.name)
