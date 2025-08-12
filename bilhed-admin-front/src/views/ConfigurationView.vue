@@ -63,7 +63,6 @@ import {defineComponent} from "vue";
 import axios from "axios";
 import type {Config} from "@/dto/Config";
 import DateView from "@/components/DateView.vue";
-import dayjs from "dayjs";
 import {
   type maxTimeUpdate,
   type ReminderBloc,
@@ -141,9 +140,6 @@ export default defineComponent({
     load() {
       axios.get('/config').then((response) => {
         this.configList = [...response.data]
-        this.configList.push({key: "bcOpenDate",
-          value: dayjs(this.getConfigByKey("bcCloseDate")?.value).subtract(2, 'day').format('YYYY-MM-DDTHH:mm:ssZ')})
-
         this.configListFromDb = this.configList.map(item => ({...item}))
 
         const templatesMail = this.getConfigByKey("reminderTemplateMail").value
