@@ -45,10 +45,13 @@ class ParticipantNotify(
         val partInfos = if (firstNotif) ParticipationInfos(p.id) else participationInfosPort.get(p.id)
         val limitDate = getLimitDate(p = partInfos, resetNotifDate = true)
 
+        val group = groupPort.extendedGroupBy(groupId = p.groupId)
         val shortLink = urlShortenerPort.shorten(getConfirmSuccessLink(p), config.breizhCampCloseDate)
         val model = mapOf(
             "firstname" to p.firstname, "lastname" to p.lastname, "year" to config.breizhCampYear.toString(),
-            "link" to shortLink, "limit_date" to limitDate.str, "delay" to limitDate.delayStr
+            "link" to shortLink, "limit_date" to limitDate.str, "delay" to limitDate.delayStr,
+            "nbPersons" to group.second.size.toString(), "groupPayment" to group.first.groupPayment.toString(),
+            "passDate" to getPassDate(group = group.first)
         )
 
         val resSms = sendDrawSuccessSms(p, partInfos, model)
@@ -60,6 +63,21 @@ class ParticipantNotify(
             participationInfosPort.updateNotification(resSms.personId, limitDate.now)
     }
 
+    private fun getPassDate(group: Group): String {
+        var passDate = "pass ${group.pass.label} du ${getMailStringDate(config.breizhCampOpenDate, "dd")} au "
+
+        passDate += when(group.pass) {
+            PassType.TWO_DAYS -> getMailStringDate(config.breizhCampCloseDate.minusDays(1), "dd MMMM")
+            PassType.THREE_DAYS -> getMailStringDate(config.breizhCampCloseDate, "dd MMMM")
+        }
+        return passDate
+    }
+
+    private fun getMailStringDate(date: ZonedDateTime, format: String): String {
+        val dateFormatter = DateTimeFormatter.ofPattern(format)
+        return dateFormatter.format(date.withZoneSameInstant(ZoneId.of("Europe/Paris")))
+    }
+
     fun notifyWaiting(ids: List<UUID>) = notifyWaitingParticipant(ids, "draw_waiting")
 
     fun notifyFailed(ids: List<UUID>) = notifyWaitingParticipant(ids, "draw_failed")
@@ -67,12 +85,17 @@ class ParticipantNotify(
     fun remindSuccess(ids: List<UUID>, origin: NotifOrigin, template: String = "draw_success_reminder") = ids.forEach {
         val p = personPort.get(it)
         val partInfos = participationInfosPort.get(it)
+        val group = groupPort.extendedGroupBy(groupId = p.groupId)
+        val shortLink = urlShortenerPort.shorten(getConfirmSuccessLink(p), config.breizhCampCloseDate)
 
         try {
             logger.info { "Reminding success participant to confirm the ticket [${p.firstname} ${p.lastname}]" }
             val limitDate = getLimitDate(partInfos)
             val model = mapOf("firstname" to p.firstname, "lastname" to p.lastname, "year" to config.breizhCampYear.toString(),
-                "link" to getConfirmSuccessLink(p), "limit_date" to formatDate(limitDate.date))
+                "link" to shortLink, "limit_date" to formatDate(limitDate.date),
+                "nbPersons" to group.second.size.toString(), "groupPayment" to group.first.groupPayment.toString(),
+                "passDate" to getPassDate(group = group.first)
+            )
             sendNotification.sendEmail(Mail(p.getMailAddress(), template, model, it), origin)
 
         } catch (e: Exception) {
@@ -83,8 +106,10 @@ class ParticipantNotify(
     private fun notifyWaitingParticipant(ids: List<UUID>, template: String) {
         val persons = personPort.get(ids)
         persons.forEach {
+            val group = groupPort.extendedGroupBy(groupId = it.groupId)
             logger.info { "Notifying [$template] participant [${it.firstname} ${it.lastname}]" }
             val model = mapOf("firstname" to it.firstname, "lastname" to it.lastname, "year" to config.breizhCampYear.toString(),
+                "nbPersons" to group.second.size.toString(), "groupPayment" to group.first.groupPayment.toString()
             )
             sendNotification.sendEmail(Mail(it.getMailAddress(), template, model, it.id), NotifOrigin.MANUAL)
         }

@@ -3,16 +3,34 @@
 Bonjour <span th:text="${firstname}"></span>,
 
 <p>
-  Vous avez été retenu pour la billetterie du BreizhCamp <span th:text="${year}"></span> mais votre billet reste à confirmer !
+  <span th:if="${!groupPayment} or ${nbPersons} == 1">
+    Vous avez été retenu·e pour la billetterie du BreizhCamp <span th:text="${year}"></span>, avec un <span th:text="${passDate}"></span>, mais votre billet reste à confirmer !
+  </span>
+  <span th:if="${groupPayment} and ${nbPersons} > 1">
+    Votre groupe de <span th:text="${nbPersons}"></span> personnes a été retenu pour la billetterie du BreizhCamp <span th:text="${year}"></span>, avec un <span th:text="${passDate}"></span>, mais vos billets restent à confirmer !
+  </span>
 </p>
 
 <p>
-  Vous avez jusqu'à <b><span th:text="${limit_date}"></span></b>, pour confirmer ou libérer votre place
+  Vous avez jusqu'à <b><span th:text="${limit_date}"></span></b>, pour confirmer ou libérer
+  <span th:if="${!groupPayment} or ${nbPersons} == 1">
+    votre place
+  </span>
+  <span th:if="${groupPayment} and ${nbPersons} > 1">
+    vos places
+  </span>
   en suivant ce lien : <a th:href="${link}"><span th:text="${link}"></span></a>
 </p>
 
 <p>
-  Passé ce délai, la place sera remise en jeu pour les personnes en liste d'attente.
+  Passé ce délai,
+  <span th:if="${!groupPayment} or ${nbPersons} == 1">
+    la place sera remise
+  </span>
+  <span th:if="${groupPayment} and ${nbPersons} > 1">
+    les places seront remises
+  </span>
+  en jeu pour les personnes en liste d'attente.
 </p>
 
 <p>

@@ -3,7 +3,14 @@
 Bonjour <span th:text="${firstname}"></span>,
 
 <p>
-  Suite à la sélection des billets pour la billetterie du BreizhCamp <span th:text="${year}"></span>, vous êtes actuellement en liste d'attente.
+  Suite à la sélection des billets pour la billetterie du BreizhCamp <span th:text="${year}"></span>,
+  <span th:if="${!groupPayment} or ${nbPersons} == 1">
+    vous êtes
+  </span>
+  <span th:if="${groupPayment} and ${nbPersons} > 1">
+    votre groupe de <span th:text="${nbPersons}"></span> est
+  </span>
+  actuellement en liste d'attente.
 </p>
 
 <p>
