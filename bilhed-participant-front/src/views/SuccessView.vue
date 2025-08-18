@@ -307,6 +307,7 @@ export default defineComponent({
       if (this.dataTicket.hasPayed) {
         this.$router.push({name: 'ticket'})
       } else if (res.data.payUrl) {
+        localStorage.setItem("personId", this.id.toString())
         window.location.href = res.data.payUrl
       } else {
         this.error = "Une erreur est survenue, merci de contacter l'équipe pour finaliser la commande (pas d'URL de paiement avec un ticket non payé)"
@@ -351,6 +352,7 @@ export default defineComponent({
       if (res.data.payed) {
         this.$router.push({ name: 'ticket' })
       } else if (res.data.payUrl) {
+        localStorage.setItem("personId", this.id.toString())
         window.location.href = res.data.payUrl
       } else {
         this.error = "Une erreur est survenue lors de la récupération de l'URL de paiement, contactez l'équipe pour finaliser le paiement"

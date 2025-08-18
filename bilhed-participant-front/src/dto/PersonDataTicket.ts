@@ -4,3 +4,8 @@ export interface PersonDataTicket {
   hasPayed: Boolean,
   payUrl?: string,
 }
+
+export interface EndInfo {
+  groupPayment: Boolean,
+  nbMembers: number,
+}

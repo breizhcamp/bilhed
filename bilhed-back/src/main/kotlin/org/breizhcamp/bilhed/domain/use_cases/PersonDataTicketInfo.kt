@@ -1,9 +1,11 @@
 package org.breizhcamp.bilhed.domain.use_cases
 
 import jakarta.persistence.EntityNotFoundException
+import org.breizhcamp.bilhed.domain.entities.EndInfo
 import org.breizhcamp.bilhed.domain.entities.PersonDataTicket
 import org.breizhcamp.bilhed.domain.entities.PersonStatus
 import org.breizhcamp.bilhed.domain.use_cases.ports.AttendeeDataPort
+import org.breizhcamp.bilhed.domain.use_cases.ports.GroupPort
 import org.breizhcamp.bilhed.domain.use_cases.ports.PersonPort
 import org.breizhcamp.bilhed.domain.use_cases.ports.TicketPort
 import org.springframework.stereotype.Service
@@ -14,6 +16,7 @@ class PersonDataTicketInfo(
     private val attendeeDataPort: AttendeeDataPort,
     private val ticketPort: TicketPort,
     private val personPort: PersonPort,
+    private val groupPort: GroupPort,
 ) {
 
     /** Retrieve some infos about the person attendee data and ticket status */
@@ -36,6 +39,16 @@ class PersonDataTicketInfo(
         }
 
         return PersonDataTicket(hasData, hasTicket, payed, payUrl)
+    }
+
+    fun getEndInfos(id: UUID): EndInfo {
+        val person = personPort.get(id = id)
+        val extendedGroup = groupPort.extendedGroupBy(groupId = person.groupId)
+
+        return EndInfo(
+            groupPayment = extendedGroup.first.groupPayment,
+            nbMembers = extendedGroup.second.size
+        )
     }
 
 }
