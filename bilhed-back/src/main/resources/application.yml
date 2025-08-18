@@ -13,9 +13,9 @@ spring:
 bilhed.back:
   participantFrontUrl: https://billets.breizhcamp.org
 
-  passNumber:
-    TWO_DAYS: 170
-    THREE_DAYS: 160
+  #passNumber:
+    #TWO_DAYS: 170
+    #THREE_DAYS: 160
 
   bihan:
     url: https://bzh.camp
@@ -28,9 +28,9 @@ bilhed.back:
       TWO_DAYS: "Billet > Pass 2 jours"
       THREE_DAYS: "Billet > Pass 3 jours"
 
-    passPrices:
-      TWO_DAYS: 75.00
-      THREE_DAYS: 90.00
+    #passPrices:
+      #TWO_DAYS: 75.00
+      #THREE_DAYS: 90.00
 
   templates:
     mail:

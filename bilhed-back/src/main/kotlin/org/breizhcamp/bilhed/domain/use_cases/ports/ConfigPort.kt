@@ -1,6 +1,8 @@
 package org.breizhcamp.bilhed.domain.use_cases.ports
 
 import org.breizhcamp.bilhed.domain.entities.Config
+import org.breizhcamp.bilhed.domain.entities.PassType
+import java.math.BigDecimal
 
 interface ConfigPort {
 
@@ -13,4 +15,6 @@ interface ConfigPort {
     fun update(config: Config)
 
     fun delete(key: String)
+
+    fun getPassPrices(): Map<PassType, BigDecimal>
 }

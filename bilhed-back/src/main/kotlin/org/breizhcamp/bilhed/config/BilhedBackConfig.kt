@@ -13,8 +13,6 @@ data class BilhedBackConfig(
     val breizhCampOpenDate: ZonedDateTime,
     val breizhCampCloseDate: ZonedDateTime,
 
-    val passNumber: Map<PassType, Int>,
-
     val bihan: BihanConfig,
     val billetWeb: BilletWeb,
 
@@ -34,7 +32,6 @@ data class BilletWeb(
     val apiKey: String?,
 
     val passNames: Map<PassType, String>,
-    val passPrices: Map<PassType, BigDecimal>,
 )
 
 data class Templates(

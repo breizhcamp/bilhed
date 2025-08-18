@@ -9,6 +9,7 @@ import org.breizhcamp.bilhed.domain.entities.PassType
 import org.breizhcamp.bilhed.domain.entities.Person
 import org.breizhcamp.bilhed.domain.entities.Ticket
 import org.breizhcamp.bilhed.domain.entities.TicketExportData
+import org.breizhcamp.bilhed.domain.use_cases.ports.ConfigPort
 import org.breizhcamp.bilhed.domain.use_cases.ports.TicketPort
 import org.breizhcamp.bilhed.infrastructure.billetweb.dto.CreateCmd
 import org.breizhcamp.bilhed.infrastructure.billetweb.dto.CreateProduct
@@ -38,6 +39,7 @@ class BilletWebAdapter(
     private val config: BilhedBackConfig,
     private val objectMapper: ObjectMapper,
     private val billetWebRepo: BilletWebRepo,
+    private val configPort: ConfigPort
 ): TicketPort {
 
     private val billetWebClient = createClient()
@@ -48,13 +50,14 @@ class BilletWebAdapter(
     }
 
     private fun getCreateReq(participants: List<Person>, pass: PassType): CreateReq {
+        val passPrices = configPort.getPassPrices()
         val products = participants.map {
             CreateProduct(
                 ticket = requireNotNull(config.billetWeb.passNames[pass]) { "No BilletWeb pass name found for pass type [${pass}]" },
                 name = it.lastname,
                 firstname = it.firstname,
                 email = it.email,
-                price = requireNotNull(config.billetWeb.passPrices[pass]) { "No BilletWeb pass price found for pass type [${pass}]" },
+                price = requireNotNull(passPrices[pass]) { "No BilletWeb pass price found for pass type [${pass}]" },
             )
         }
         val cmd = CreateCmd(participants.first().lastname, participants.first().firstname,
