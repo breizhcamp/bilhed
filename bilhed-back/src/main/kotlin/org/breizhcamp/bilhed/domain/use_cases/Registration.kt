@@ -26,7 +26,29 @@ class Registration(
     private val registrationInfosPort: RegistrationInfosPort
 ) {
 
-    fun registerGroup(group: Group): Group {
+    private fun PersonRegister.toPerson(id: UUID = UUID.randomUUID(), groupId: UUID) = Person(
+        id = id,
+        lastname = this.lastname,
+        firstname = this.firstname,
+        status = PersonStatus.REGISTERED,
+        telephone = this.telephone,
+        email = this.email,
+        groupId = groupId,
+        payed = false
+    )
+
+    @Transactional
+    fun register(ref: PersonRegister, groupPayment: Boolean, companions: List<PersonRegister>, pass: PassType): UUID {
+        val referentId = UUID.randomUUID()
+        val groupId = registerGroup(Group(id = UUID.randomUUID(), referentId = referentId, groupPayment = groupPayment, pass = pass))
+
+        val members = listOf(ref.toPerson(id = referentId, groupId = groupId)) + companions.map { it.toPerson(groupId = groupId ) }
+        registerMembers(referentId, members)
+
+        return referentId
+    }
+
+    fun registerGroup(group: Group): UUID {
         if (config.registerCloseDate.isBefore(ZonedDateTime.now())) {
             throw IllegalArgumentException("Les inscriptions sont closes.")
         }
@@ -37,7 +59,7 @@ class Registration(
         logger.info { "Creating new group with referent ID [${group.referentId}]" }
         groupPort.save(group)
         logger.info { "New group created" }
-        return group
+        return group.id
     }
 
     fun registerMembers(refId: UUID, persons: List<Person>) {

@@ -8,7 +8,7 @@ data class GroupRegisterReq(
     val companions: List<PersonRegisterReq>,
     val pass: PassType
 ) {
-    fun validate(groupPayment: Boolean): Boolean {
+    fun validate(): Boolean {
         // GroupPayment is TRUE for a single Person
         val gPayment = if (companions.isEmpty()) true else groupPayment
         referent.validate(gPayment, true)

@@ -3,12 +3,10 @@ package org.breizhcamp.bilhed.application.rest
 import jakarta.persistence.EntityNotFoundException
 import jakarta.transaction.Transactional
 import org.breizhcamp.bilhed.application.dto.*
-import org.breizhcamp.bilhed.domain.entities.Group
-import org.breizhcamp.bilhed.domain.entities.Person
-import org.breizhcamp.bilhed.domain.entities.PersonStatus
+import org.breizhcamp.bilhed.domain.entities.PersonRegister
 import org.breizhcamp.bilhed.domain.use_cases.PersonCrud
-import org.breizhcamp.bilhed.domain.use_cases.RegistrationInfosCrud
 import org.breizhcamp.bilhed.domain.use_cases.Registration
+import org.breizhcamp.bilhed.domain.use_cases.RegistrationInfosCrud
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import java.util.*
@@ -24,12 +22,14 @@ class RegisterCtrl(
     @Transactional
     @PostMapping
     fun register(@RequestBody req: GroupRegisterReq): RegisterRes {
-        val gPayment = req.validate(req.groupPayment)
-        val referentId = UUID.randomUUID()
-        val group = registration.registerGroup(Group(id = UUID.randomUUID(), referentId = referentId, groupPayment = gPayment, pass = req.pass))
+        val gPayment = req.validate()
 
-        val members = listOf(req.referent.toPerson(id = referentId, groupId = group.id)) + req.companions.map { it.toPerson(groupId = group.id ) }
-        registration.registerMembers(referentId, members)
+        val referentId = registration.register(
+            ref = req.referent.toPersonRegister(),
+            groupPayment = gPayment,
+            companions = req.companions.map { it.toPersonRegister() },
+            pass = req.pass,
+        )
 
         return RegisterRes(referentId)
     }
@@ -62,13 +62,10 @@ class RegisterCtrl(
     @ExceptionHandler(IllegalArgumentException::class) @ResponseStatus(HttpStatus.BAD_REQUEST)
     fun handleIAE(e: IllegalArgumentException) = ErrorRes(e.message ?: "Une erreur est survenue")
 
-    private fun PersonRegisterReq.toPerson(groupId: UUID, id: UUID = UUID.randomUUID()) = Person(
-        id,
-        lastname.trim(),
-        firstname.trim(),
-        PersonStatus.REGISTERED,
-        internationalPhone() ,
-        email,
-        groupId
+    private fun PersonRegisterReq.toPersonRegister() = PersonRegister(
+        lastname = this.lastname,
+        firstname = this.firstname,
+        telephone = internationalPhone(),
+        email = this.email,
     )
 }
