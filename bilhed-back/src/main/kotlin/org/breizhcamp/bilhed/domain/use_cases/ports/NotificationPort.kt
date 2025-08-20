@@ -7,7 +7,7 @@ interface NotificationPort {
 
     fun save(notification: Notification)
 
-    fun listByPersonId(personId: UUID): List<Notification>
+    fun listBy(personId: UUID): List<Notification>
 
     fun findLatestReminderPerPerson(personIds: List<UUID>): List<Notification>
 }

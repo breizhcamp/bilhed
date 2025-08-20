@@ -10,6 +10,6 @@ class NotificationCrud (
     private val notificationPort : NotificationPort
 ) {
     fun listByPersonId(id: UUID): List<Notification> {
-        return notificationPort.listByPersonId(id)
+        return notificationPort.listBy(id)
     }
 }

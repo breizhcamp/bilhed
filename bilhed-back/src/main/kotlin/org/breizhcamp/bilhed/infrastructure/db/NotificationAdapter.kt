@@ -16,7 +16,7 @@ class NotificationAdapter (
         notificationRepo.save(notification.toDB())
     }
 
-    override fun listByPersonId(personId: UUID): List<Notification> {
+    override fun listBy(personId: UUID): List<Notification> {
         return notificationRepo.findByPersonId(personId).map { it.toNotification() }
     }
 

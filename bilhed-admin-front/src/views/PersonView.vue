@@ -60,7 +60,7 @@
       </tbody>
     </table>
   </section>
-  <section v-if="reminders.length > 0">
+  <section v-if="notifs.length > 0">
 <!--    reminders-->
     <h2>Historique des notifications</h2>
     <table class="table table-striped table-borderless mb-4">
@@ -81,7 +81,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="reminder in reminders" :key="reminder.id">
+        <tr v-for="reminder in notifs" :key="reminder.id">
           <td><DateView :date="reminder.reminderDate" /></td>
           <td>{{ reminder.template }}</td>
           <td>{{ reminder.method }}</td>
@@ -158,7 +158,7 @@ export default defineComponent({
       person: {} as Person,
       personFromDB: {} as Person,
       error: "",
-      reminders: [] as Reminder[],
+      notifs: [] as Reminder[],
       loading: false,
       attendeeData: {} as AttendeeData,
       group: {} as Group
@@ -173,21 +173,13 @@ export default defineComponent({
     getPassString,
     getBoolStr,
     load() {
-      axios.get(`/persons/${this.$route.params.id}`).then(personRes => {
-        this.person = personRes.data
+      axios.get(`/persons/${this.$route.params.id}/complete`).then(personRes => {
+        this.person = personRes.data.person
         this.personFromDB = {...this.person}
-        axios.get(`/groups/${personRes.data.groupId}`).then(g => {
-          this.group = g.data
-        })
 
-        if (personRes.data.status === PersonStatus.ATTENDEE) {
-          axios.get(`/attendees/${this.$route.params.id}/data`).then(dataRes => {
-            this.attendeeData = dataRes.data
-          })
-        }
-      })
-      axios.get(`/persons/${this.$route.params.id}/reminders`).then(rem => {
-        this.reminders = rem.data
+        this.group = personRes.data.group
+        this.attendeeData = personRes.data.attendeeData
+        this.notifs = personRes.data.notifs
       })
     },
 
