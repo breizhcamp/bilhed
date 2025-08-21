@@ -59,10 +59,6 @@ class PersonAdapter(
         return personRepo.findAllById(ids).map { it.toPerson() }
     }
 
-    override fun setPayed(ids: List<UUID>) {
-        return personRepo.setPayed(ids)
-    }
-
     override fun getCompanions(groupId: UUID, referentId: UUID): List<Person> {
         return personRepo.getCompanions(groupId, referentId).map { it.toPerson() }
     }

@@ -17,7 +17,7 @@ class SendNotification(
     @Transactional
     fun sendSms(sms: Sms, origin: NotifOrigin) {
         notificationPort.save(Notification(
-            reminderDate = ZonedDateTime.now(),
+            date = ZonedDateTime.now(),
             template = sms.template,
             method =  NotifMethod.SMS,
             personId = sms.id,
@@ -30,7 +30,7 @@ class SendNotification(
     @Transactional
     fun sendEmail(mail: Mail, origin: NotifOrigin) {
         notificationPort.save(Notification(
-            reminderDate = ZonedDateTime.now(),
+            date = ZonedDateTime.now(),
             template = mail.template,
             method =  NotifMethod.MAIL,
             personId = mail.personId,

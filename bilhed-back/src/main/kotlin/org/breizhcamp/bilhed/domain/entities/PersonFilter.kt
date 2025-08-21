@@ -8,7 +8,6 @@ class PersonFilter (
     val firstname: String? = null,
     val email: String? = null,
     val pass: PassType? = null,
-    val payed: Boolean? = null,
     val groupId: UUID? = null,
     val drawn: Boolean? = null,
 )

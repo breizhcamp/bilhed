@@ -25,8 +25,6 @@ interface PersonPort {
 
     fun get(ids: List<UUID>): List<Person>
 
-    fun setPayed(ids: List<UUID>)
-
     fun getCompanions(groupId: UUID, referentId: UUID): List<Person>
 
     fun getMembersByGroup(id: UUID): List<Person>

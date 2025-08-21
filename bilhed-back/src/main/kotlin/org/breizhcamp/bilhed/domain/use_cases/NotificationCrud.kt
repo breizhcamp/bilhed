@@ -9,7 +9,7 @@ import java.util.UUID
 class NotificationCrud (
     private val notificationPort : NotificationPort
 ) {
-    fun listByPersonId(id: UUID): List<Notification> {
-        return notificationPort.listBy(id)
+    fun listBy(personId: UUID): List<Notification> {
+        return notificationPort.listBy(personId = personId)
     }
 }

@@ -5,7 +5,7 @@ import org.breizhcamp.bilhed.config.BilhedBackConfig
 import org.breizhcamp.bilhed.domain.entities.*
 import org.breizhcamp.bilhed.domain.use_cases.ports.ConfigPort
 import org.breizhcamp.bilhed.domain.use_cases.ports.GroupPort
-import org.breizhcamp.bilhed.domain.use_cases.ports.ParticipationInfosPort
+import org.breizhcamp.bilhed.domain.use_cases.ports.ParticipationInfoPort
 import org.breizhcamp.bilhed.domain.use_cases.ports.PersonPort
 import org.breizhcamp.bilhed.domain.use_cases.ports.UrlShortenerPort
 import org.springframework.stereotype.Service
@@ -24,7 +24,7 @@ class ParticipantNotify(
     private val urlShortenerPort: UrlShortenerPort,
     private val configPort: ConfigPort,
     private val sendNotification: SendNotification,
-    private val participationInfosPort: ParticipationInfosPort,
+    private val participationInfoPort: ParticipationInfoPort,
     private val groupPort: GroupPort,
 ) {
 
@@ -36,13 +36,13 @@ class ParticipantNotify(
          */
         for (id in ids) {
             val participant = personPort.get(id)
-            notifySuccessParticipant(participant, !participationInfosPort.existsByPersonId(id))
+            notifySuccessParticipant(participant, !participationInfoPort.existsByPersonId(id))
         }
     }
 
     private fun notifySuccessParticipant(p: Person, firstNotif: Boolean = true) {
         logger.info { "Notifying success participant to confirm the ticket [${p.firstname} ${p.lastname}]" }
-        val partInfos = if (firstNotif) ParticipationInfos(p.id) else participationInfosPort.get(p.id)
+        val partInfos = if (firstNotif) ParticipationInfos(p.id) else participationInfoPort.get(p.id)
         val limitDate = getLimitDate(p = partInfos, resetNotifDate = true)
 
         val group = groupPort.extendedGroupBy(groupId = p.groupId)
@@ -58,9 +58,9 @@ class ParticipantNotify(
         sendNotification.sendEmail(Mail(p.getMailAddress(), "draw_success", model, p.id), NotifOrigin.MANUAL)
 
         if (firstNotif)
-            participationInfosPort.save(resSms.copy(notificationConfirmSentDate = limitDate.now))
+            participationInfoPort.save(resSms.copy(notificationConfirmSentDate = limitDate.now))
         else
-            participationInfosPort.updateNotification(resSms.personId, limitDate.now)
+            participationInfoPort.updateNotification(resSms.personId, limitDate.now)
     }
 
     private fun getPassDate(group: Group): String {
@@ -84,7 +84,7 @@ class ParticipantNotify(
 
     fun remindSuccess(ids: List<UUID>, origin: NotifOrigin, template: String = "draw_success_reminder") = ids.forEach {
         val p = personPort.get(it)
-        val partInfos = participationInfosPort.get(it)
+        val partInfos = participationInfoPort.get(it)
         val group = groupPort.extendedGroupBy(groupId = p.groupId)
         val shortLink = urlShortenerPort.shorten(getConfirmSuccessLink(p), config.breizhCampCloseDate)
 
@@ -154,7 +154,7 @@ class ParticipantNotify(
     @Transactional
     fun saveSmsStatus(id: UUID, error: String?) {
         val smsStatus = if (error == null) SmsStatus.SENT else SmsStatus.ERROR
-        participationInfosPort.updateSms(id = id, smsStatus = smsStatus, error = error)
+        participationInfoPort.updateSms(id = id, smsStatus = smsStatus, error = error)
     }
 
     private data class LimitDate(val now: ZonedDateTime, val date: ZonedDateTime, val str: String, val delayStr: String)

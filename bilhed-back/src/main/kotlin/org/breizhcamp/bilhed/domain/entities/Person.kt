@@ -12,7 +12,6 @@ data class Person (
     val telephone: String?,
     val email: String,
     val groupId: UUID,
-    val payed: Boolean = false
 ) {
 
     fun getMailAddress() = listOf(MailAddress(email, "$firstname $lastname"))
@@ -29,7 +28,6 @@ data class Person (
         telephone = telephone,
         email = email,
         groupId = groupId,
-        payed = payed
     )
 }
 

@@ -5,7 +5,7 @@ import java.util.*
 
 data class Notification (
     val id: UUID = UUID.randomUUID(),
-    val reminderDate: ZonedDateTime,
+    val date: ZonedDateTime,
     val template: String,
     val method: NotifMethod,
     val personId: UUID,

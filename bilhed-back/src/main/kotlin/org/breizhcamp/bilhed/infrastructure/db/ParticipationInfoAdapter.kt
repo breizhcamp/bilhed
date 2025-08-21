@@ -4,10 +4,10 @@ import jakarta.persistence.EntityNotFoundException
 import org.breizhcamp.bilhed.domain.entities.ParticipationInfos
 import org.breizhcamp.bilhed.domain.entities.PersonStatus
 import org.breizhcamp.bilhed.domain.entities.SmsStatus
-import org.breizhcamp.bilhed.domain.use_cases.ports.ParticipationInfosPort
+import org.breizhcamp.bilhed.domain.use_cases.ports.ParticipationInfoPort
 import org.breizhcamp.bilhed.infrastructure.db.mappers.toDB
 import org.breizhcamp.bilhed.infrastructure.db.mappers.toParticipationInfos
-import org.breizhcamp.bilhed.infrastructure.db.repos.ParticipationInfosRepo
+import org.breizhcamp.bilhed.infrastructure.db.repos.ParticipationInfoRepo
 import org.breizhcamp.bilhed.infrastructure.db.repos.PersonRepo
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
@@ -15,10 +15,10 @@ import java.time.ZonedDateTime
 import java.util.*
 
 @Component
-class ParticipationInfosAdapter(
-    val partInfosRepo: ParticipationInfosRepo,
+class ParticipationInfoAdapter(
+    val partInfosRepo: ParticipationInfoRepo,
     private val personRepo: PersonRepo
-): ParticipationInfosPort {
+): ParticipationInfoPort {
     override fun get(id: UUID): ParticipationInfos {
         return partInfosRepo.findByIdOrNull(id)?.toParticipationInfos() ?: throw EntityNotFoundException("ParticipationInfos of [$id] Not Found")
     }
@@ -69,6 +69,10 @@ class ParticipationInfosAdapter(
             participantNotificationConfirmSentDate = notificationDate
         }
         partInfosRepo.save(partInfosDB)
+    }
+
+    override fun setPayed(ids: List<UUID>) {
+        partInfosRepo.setPayed(ids)
     }
 
 }

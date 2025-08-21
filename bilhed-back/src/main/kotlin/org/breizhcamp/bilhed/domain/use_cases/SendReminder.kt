@@ -18,7 +18,7 @@ class SendReminder (
     private val configPort: ConfigPort,
     private val timeService: TimeService,
     private val registrationInfosPort: RegistrationInfosPort,
-    private val participationInfosPort: ParticipationInfosPort,
+    private val participationInfoPort: ParticipationInfoPort,
     private val personPort: PersonPort,
 ) {
 
@@ -41,8 +41,8 @@ class SendReminder (
         if (prevRemConfig == null) return null
         // si date précédente config <= date précédente notif envoyé < now
         val prevRemConfigDate = deadline.minusHours(prevRemConfig.hours.toLong())
-        if (prevNotif.reminderDate.isBefore(now) && (
-                prevRemConfigDate.isBefore(prevNotif.reminderDate) || prevRemConfigDate.isEqual(prevNotif.reminderDate)
+        if (prevNotif.date.isBefore(now) && (
+                prevRemConfigDate.isBefore(prevNotif.date) || prevRemConfigDate.isEqual(prevNotif.date)
             )) return null
 
         return prevRemConfig
@@ -57,7 +57,7 @@ class SendReminder (
         val now = timeService.now()
         val maxTime = configPort.get("reminderTimeReg").value.toLong()
 
-        val reminderConfigs = reminderConfigPort.listByType("REGISTERED")
+        val reminderConfigs = reminderConfigPort.listBy("REGISTERED")
         var registers = registrationInfosPort.list(PersonStatus.REGISTERED)
         // On filtre ceux dont la deadline est dépassée (car ils ne sont pas RELEASED).
         registers = registers.filter { it.registrationDate.plusHours(maxTime).isAfter(now) }
@@ -81,8 +81,8 @@ class SendReminder (
         val now = timeService.now()
         val maxTime = configPort.get("reminderTimePar").value.toLong()
 
-        val reminderConfigs = reminderConfigPort.listByType("PARTICIPANT")
-        val participants = participationInfosPort.list(PersonStatus.PARTICIPANT)
+        val reminderConfigs = reminderConfigPort.listBy("PARTICIPANT")
+        val participants = participationInfoPort.list(PersonStatus.PARTICIPANT)
         val notifications = getNotifications(participants.map { it.personId })
 
         for (par in participants) {
@@ -98,14 +98,20 @@ class SendReminder (
         val now = timeService.now()
         val maxTime = configPort.get("reminderTimeAtt").value.toLong()
 
-        val reminderConfigs = reminderConfigPort.listByType("ATTENDEE")
-        val attendees = personPort.filter(PersonFilter(status = PersonStatus.ATTENDEE, payed = false))
-        val partInfos = participationInfosPort.get(attendees.map { it.id })
+        val reminderConfigs = reminderConfigPort.listBy("ATTENDEE")
+        val attendees = personPort.filter(PersonFilter(status = PersonStatus.ATTENDEE))
+        val partInfo = participationInfoPort.get(attendees.map { it.id })
 
-        val notifications = getNotifications(attendees.map { it.id })
+        val notPayed = partInfo
+            .filter { !it.payed }
+            .associateBy { it.personId }
 
-        for (att in attendees) {
-            val infos = partInfos.firstOrNull { it.personId == att.id } ?: continue
+        val attendeesNotPayed = attendees.filter { it.id in notPayed.keys }
+
+        val notifications = getNotifications(attendeesNotPayed.map { it.id })
+
+        for (att in attendeesNotPayed) {
+            val infos = notPayed[att.id] ?: continue
             if (infos.confirmationDate == null) continue
 
             val deadline = infos.confirmationDate.plusHours(maxTime)

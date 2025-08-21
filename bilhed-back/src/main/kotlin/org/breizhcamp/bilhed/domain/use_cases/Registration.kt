@@ -34,7 +34,6 @@ class Registration(
         telephone = this.telephone,
         email = this.email,
         groupId = groupId,
-        payed = false
     )
 
     @Transactional

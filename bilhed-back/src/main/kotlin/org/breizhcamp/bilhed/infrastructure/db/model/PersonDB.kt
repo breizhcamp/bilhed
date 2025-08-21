@@ -16,8 +16,6 @@ data class PersonDB(
     val email: String,
     val telephone: String?,
 
-    val payed: Boolean = false,
-
     @OneToOne(fetch = FetchType.LAZY)
     val group: GroupDB
 )

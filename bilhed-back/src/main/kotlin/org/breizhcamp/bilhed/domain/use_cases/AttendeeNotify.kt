@@ -7,7 +7,7 @@ import org.breizhcamp.bilhed.domain.entities.Person
 import org.breizhcamp.bilhed.domain.entities.NotifOrigin
 import org.breizhcamp.bilhed.domain.entities.Sms
 import org.breizhcamp.bilhed.domain.use_cases.ports.ConfigPort
-import org.breizhcamp.bilhed.domain.use_cases.ports.ParticipationInfosPort
+import org.breizhcamp.bilhed.domain.use_cases.ports.ParticipationInfoPort
 import org.breizhcamp.bilhed.domain.use_cases.ports.PersonPort
 import org.breizhcamp.bilhed.domain.use_cases.ports.UrlShortenerPort
 import org.springframework.stereotype.Service
@@ -26,12 +26,12 @@ class AttendeeNotify(
     private val sendNotification: SendNotification,
     private val configPort: ConfigPort,
     private val personPort: PersonPort,
-    private val participationInfosPort: ParticipationInfosPort
+    private val participationInfoPort: ParticipationInfoPort
 ) {
 
     fun remindPayedMail(ids: List<UUID>, origin: NotifOrigin, template: String = "payed_reminder") {
         val persons = personPort.get(ids)
-        val partInfos = participationInfosPort.get(ids).associateBy { it.personId }
+        val partInfos = participationInfoPort.get(ids).associateBy { it.personId }
 
         for (p in persons) {
             val notifConfirmDate = partInfos[p.id]?.confirmationDate ?: throw IllegalArgumentException("No confirmation date found")
@@ -52,7 +52,7 @@ class AttendeeNotify(
 
     fun remindPayedSms(ids: List<UUID>, origin: NotifOrigin, template: String = "payed_reminder") {
         val persons = personPort.get(ids)
-        val partInfos = participationInfosPort.get(ids).associateBy { it.personId }
+        val partInfos = participationInfoPort.get(ids).associateBy { it.personId }
 
         for (p in persons) {
             val notifConfirmDate = partInfos[p.id]?.notificationConfirmSentDate ?: throw IllegalStateException("No confirmation date found")

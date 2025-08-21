@@ -34,5 +34,6 @@ fun ParticipationInfos.toDto() = ParticipationInfosDTO(
     nbSmsSent = nbSmsSent,
     smsError = smsError,
     notificationConfirmSentDate = notificationConfirmSentDate,
-    confirmationDate = confirmationDate
+    confirmationDate = confirmationDate,
+    payed = payed
 )

@@ -87,6 +87,7 @@
         <th scope="col">Nb Sms envoyés</th>
         <th scope="col">Sms erreur</th>
         <th scope="col">Date envoi notification</th>
+        <th scope="col">Payé ?</th>
       </tr>
       </thead>
       <tbody>
@@ -96,6 +97,7 @@
         <td>{{ pi.nbSmsSent }}</td>
         <td>{{ pi.smsError }}</td>
         <td><DateView :date="pi.notificationConfirmSentDate" /></td>
+        <td>{{ getBoolStr(pi.payed) }}</td>
       </tr>
       </tbody>
     </table>

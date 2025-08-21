@@ -13,4 +13,5 @@ data class ParticipationInfosDTO (
     val notificationConfirmSentDate: ZonedDateTime? = null,
 
     val confirmationDate: ZonedDateTime? = null,
+    val payed: Boolean = false,
 )

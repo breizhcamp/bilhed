@@ -6,7 +6,6 @@ export interface Person {
     telephone: string
     status: PersonStatus
     groupId: string
-    payed: boolean,
     checked: boolean
 }
 
@@ -28,6 +27,7 @@ export interface ParticipationInfos {
     smsError?: string
     notificationConfirmSentDate?: string
     confirmationDate?: string
+    payed: boolean
 }
 
 export enum PersonStatus {

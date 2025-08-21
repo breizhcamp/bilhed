@@ -23,7 +23,7 @@ class ReleasePerson(
     private val ticketPort: TicketPort,
     private val timeService: TimeService,
     private val groupPort: GroupPort,
-    private val partInfosPort: ParticipationInfosPort,
+    private val partInfosPort: ParticipationInfoPort,
 ) {
 
     @Transactional
@@ -119,11 +119,18 @@ class ReleasePerson(
          * - have participationInfos
          * - have participationDate (place confirmed after draw)
          */
+        val groupMap = groupPort.extendedGroupList(PersonFilter(status = PersonStatus.ATTENDEE))
+        val partInfo = partInfosPort.getByGroups(groupMap.keys.map { it.id })
 
-        val groupMap = groupPort.extendedGroupList(PersonFilter(status = PersonStatus.ATTENDEE, payed = false))
-        val partInfosList = partInfosPort.getByGroups(groupMap.keys.map { it.id })
+        val notPayed = partInfo
+            .filter { !it.payed }
+            .map { it.personId }
 
-        attendeeRelease(groupMap = groupMap, partInfosList = partInfosList)
+        val groupsNotPayed: Map<Group, List<Person>> = groupMap
+            .mapValues { (_, persons) -> persons.filter { it.id !in notPayed } }
+            .filterValues { it.isNotEmpty() }
+
+        attendeeRelease(groupMap = groupsNotPayed, partInfosList = partInfo)
     }
 
     private fun shouldAttendeeBeReleased(partInfos: ParticipationInfos, reminderTime: Long, now: ZonedDateTime): Boolean {

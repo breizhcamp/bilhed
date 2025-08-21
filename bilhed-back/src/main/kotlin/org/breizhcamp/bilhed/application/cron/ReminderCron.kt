@@ -14,8 +14,8 @@ class ReminderCron (
 
     @Scheduled(fixedDelay = 1, timeUnit = TimeUnit.MINUTES, initialDelay = 1)
     fun checkReminders() {
-        //releasePerson.participantReleaseAuto()
-        //releasePerson.attendeeReleaseAuto()
+        releasePerson.participantReleaseAuto()
+        releasePerson.attendeeReleaseAuto()
 
         sendReminder.sendRegisteredReminder()
         sendReminder.sendParticipantReminder()

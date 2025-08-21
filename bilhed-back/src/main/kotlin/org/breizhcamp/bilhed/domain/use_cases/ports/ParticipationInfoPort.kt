@@ -6,7 +6,7 @@ import org.breizhcamp.bilhed.domain.entities.SmsStatus
 import java.time.ZonedDateTime
 import java.util.*
 
-interface ParticipationInfosPort {
+interface ParticipationInfoPort {
     fun get(id: UUID): ParticipationInfos
 
     fun get(ids: List<UUID>): List<ParticipationInfos>
@@ -26,4 +26,6 @@ interface ParticipationInfosPort {
     fun updateSms(id: UUID, smsStatus: SmsStatus, error: String?)
 
     fun updateNotification(id: UUID, notificationDate: ZonedDateTime)
+
+    fun setPayed(ids: List<UUID>)
 }

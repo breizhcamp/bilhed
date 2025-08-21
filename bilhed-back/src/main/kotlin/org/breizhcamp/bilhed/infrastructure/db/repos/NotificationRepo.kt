@@ -11,7 +11,7 @@ interface NotificationRepo: JpaRepository<NotificationDB, UUID> {
 
     fun findByPersonId(personId: UUID): List<NotificationDB>
   
-    @Query("select distinct on (person_id) * from notification where person_id in (:personIds) order by person_id, reminder_date DESC", nativeQuery = true)
+    @Query("select distinct on (person_id) * from notification where person_id in (:personIds) order by person_id, date DESC", nativeQuery = true)
     fun findLatestReminderPerPerson(personIds: List<UUID>): List<NotificationDB>
 
 }

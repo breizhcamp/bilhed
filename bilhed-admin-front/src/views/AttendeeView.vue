@@ -20,7 +20,7 @@
           <div class="col-md-1">Nom</div>
           <div class="col-md-1">Prénom</div>
           <div class="col-md-2">Email</div>
-          <div style="width: 15%">Téléphone</div>
+          <div style="width: 13%">Téléphone</div>
           <div class="col-md-auto">Pass</div>
           <div class="col-md-2">Date particip.</div>
           <div style="width: 15%">Date limite</div>
@@ -60,9 +60,9 @@
                 <span class="col-md-2 break-email">{{ g.referent!.email }}</span>
                 <span class="col-md-2">{{ g.referent!.telephone }}</span>
                 <span class="col-md-auto">{{ getPassString(g.group.pass) }}</span>
-                <span class="col-md-2"><DateView format="DD/MM HH:mm" sup="" :date="g.participationInfos.find(p => p.personId === g.referent!.id)?.confirmationDate"/></span>
-                <span class="col-md-2"><DateView format="DD/MM HH:mm" sup="" :date="getLimitDate(g.participationInfos.find(p => p.personId === g.referent!.id)?.confirmationDate)"/></span>
-                <span class="col-md-auto">{{ getBoolStr(g.referent!.payed) }}</span>
+                <span class="col-md-2"><DateView format="DD/MM HH:mm" sup="" :date="getPartInfos(g.group.id, g.referent!.id)?.confirmationDate"/></span>
+                <span class="col-md-2"><DateView format="DD/MM HH:mm" sup="" :date="getLimitDate(getPartInfos(g.group.id, g.referent!.id)?.confirmationDate)"/></span>
+                <span class="col-md-auto">{{ getBoolStr(getPartInfos(g.group.id, g.referent!.id)?.payed) }}</span>
               </span>
             </button>
             <div class="d-flex">
@@ -120,9 +120,9 @@
                 <span class="col-md-2 break-email">{{ m.email }}</span>
                 <span class="col-md-2">{{ m.telephone }}</span>
                 <span class="col-md-auto">{{ getPassString(g.group.pass) }}</span>
-                <span class="col-md-2"><DateView format="DD/MM HH:mm" sup="" :date="g.participationInfos.find(p => p.personId === m.id)?.confirmationDate"/></span>
-                <span class="col-md-2"><DateView format="DD/MM HH:mm" sup="" :date="getLimitDate(g.participationInfos.find(p => p.personId === m.id)?.confirmationDate)"/></span>
-                <span class="col-md-auto">{{ getBoolStr(m.payed) }}</span>
+                <span class="col-md-2"><DateView format="DD/MM HH:mm" sup="" :date="getPartInfos(g.group.id, m.id)?.confirmationDate"/></span>
+                <span class="col-md-2"><DateView format="DD/MM HH:mm" sup="" :date="getPartInfos(g.group.id, m.id)?.confirmationDate"/></span>
+                <span class="col-md-auto">{{ getBoolStr(getPartInfos(g.group.id, m.id)?.payed) }}</span>
               </span>
             </button>
             <div class="d-flex">
@@ -169,7 +169,7 @@ import dayjs from "dayjs";
 import type {PersonFilter} from "@/dto/PersonFilter";
 import {animateChevron, getBoolStr, getPassString, getSortedGroups} from "@/utils/Global";
 import type {GroupCompleteAttendee, GroupCompleteAttendeeWithRef} from "@/dto/Group";
-import {type Person, PersonStatus} from "@/dto/Person";
+import {type ParticipationInfos, type Person, PersonStatus} from "@/dto/Person";
 import PersonsFilter from "@/components/PersonsFilter.vue";
 
 export default defineComponent({
@@ -325,6 +325,12 @@ export default defineComponent({
       const group = this.groups.find(g => g.group.id === groupId)
       if (group) group.members.forEach(m => m.checked = checked)
     },
+
+    getPartInfos(groupId: string, personId: string): ParticipationInfos | undefined {
+      const group = this.groupsWithRef.find(g => g.group.id === groupId)
+      console.log(group)
+      return group?.participationInfos.find(p => p.personId === personId)
+    }
   }
 })
 </script>

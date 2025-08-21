@@ -43,9 +43,9 @@
           <td><DateView :date="getLimitDate(g.group, member.id)" format="DD/MM HH:mm" sup=""/></td>
           <td class="d-flex align-items-center justify-content-end">
             <template v-if="typeof g.group.drawOrder === 'number' && (!g.group.groupPayment || g.group.groupPayment && g.group.referentId === member.id)">
-              <button type="button" class="btn btn-link btn-sm text-dark" title="Notify success" @click="notifyOne(member.id, 'success')" :disabled="loading"><BiSendCheck/></button>
-              <button type="button" class="btn btn-link btn-sm text-dark" title="Notify waiting" @click="notifyOne(member.id, 'waiting')" :disabled="loading"><BiSendExclamation/></button>
-              <button type="button" class="btn btn-link btn-sm text-dark" title="Notify failed" @click="notifyOne(member.id, 'failed')" :disabled="loading"><BiSendX/></button>
+              <button type="button" class="btn btn-link btn-sm text-dark py-0" title="Notify success" @click="notifyOne(member.id, 'success')" :disabled="loading"><BiSendCheck/></button>
+              <button type="button" class="btn btn-link btn-sm text-dark py-0" title="Notify waiting" @click="notifyOne(member.id, 'waiting')" :disabled="loading"><BiSendExclamation/></button>
+              <button type="button" class="btn btn-link btn-sm text-dark py-0" title="Notify failed" @click="notifyOne(member.id, 'failed')" :disabled="loading"><BiSendX/></button>
             </template>
             <router-link :to="`/person/${member.id}`" class="nav-link ms-2"><BiPencil/></router-link>
             <router-link :to="`/group/${g.group.id}`" class="nav-link ms-2"><BiPeople/></router-link>

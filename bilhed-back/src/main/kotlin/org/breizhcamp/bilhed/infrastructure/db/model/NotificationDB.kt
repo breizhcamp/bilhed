@@ -14,7 +14,7 @@ data class NotificationDB (
 
     @Id
     val id: UUID,
-    val reminderDate: ZonedDateTime,
+    val date: ZonedDateTime,
     val template: String,
 
     @Enumerated(EnumType.STRING)

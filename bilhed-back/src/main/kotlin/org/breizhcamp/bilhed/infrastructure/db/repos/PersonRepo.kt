@@ -17,16 +17,12 @@ interface PersonRepo: JpaRepository<PersonDB, UUID>, PersonRepoCustom {
     @Query("select p from PersonDB p where p.status = 'ATTENDEE'")
     fun listAttendees(): List<PersonDB>
 
-    @Modifying
-    @Query("UPDATE PersonDB p SET p.payed = true WHERE p.id IN (:ids)")
-    fun setPayed(ids: List<UUID>)
-
     fun countByEmailOrTelephone(email: String, telephone: String?): Int
     fun countByEmail(email: String): Int
 
     @Query("select p.group.pass, count(p) from PersonDB p where p.id in ( " +
             "    select pi.person " +
-            "    from ParticipationInfosDB pi " +
+            "    from ParticipationInfoDB pi " +
             "    where pi.participantConfirmationDate is not null ) " +
             "group by p.group.pass")
     fun countAlreadyNotif(): List<Pair<PassType, Int>>

@@ -5,8 +5,8 @@ import org.breizhcamp.bilhed.domain.entities.SmsStatus
 import java.time.ZonedDateTime
 import java.util.UUID
 
-@Entity @Table(name = "participation_infos")
-data class ParticipationInfosDB(
+@Entity @Table(name = "participation_info")
+data class ParticipationInfoDB(
 
     @Id
     val personId: UUID? = null,
@@ -23,4 +23,6 @@ data class ParticipationInfosDB(
     var participantNotificationConfirmSentDate: ZonedDateTime? = null,
 
     var participantConfirmationDate: ZonedDateTime? = null,
+
+    val payed: Boolean = false,
 )

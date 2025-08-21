@@ -12,5 +12,4 @@ data class PersonDTO(
     val email: String,
     val telephone: String?,
     val groupId: UUID,
-    val payed: Boolean = false
 )

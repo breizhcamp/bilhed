@@ -17,7 +17,7 @@ class ParticipantConfirm(
     private val personPort: PersonPort,
     private val configPort: ConfigPort,
     private val groupPort: GroupPort,
-    private val partInfosPort: ParticipationInfosPort,
+    private val partInfosPort: ParticipationInfoPort,
     private val attendeeDataPort: AttendeeDataPort,
     private val releasePerson: ReleasePerson,
 ) {
@@ -87,9 +87,10 @@ class ParticipantConfirm(
     fun confirmOne(members: List<Person>, group: Group, attendeesReq: List<Pair<UUID, AttendeeData>>): List<Ticket> {
         // confirm one group
         val ref = members.find { it.groupId == group.id } ?: throw IllegalStateException("Referent of group [${group.id}] not found")
+        val partInfos = partInfosPort.get(ref.id)
 
         if (ref.status == PersonStatus.ATTENDEE) {
-            return members.map { Ticket(ticketPort.getPayUrl(it.id), it.payed) }
+            return members.map { Ticket(ticketPort.getPayUrl(it.id), partInfos.payed) }
         }
 
         // level up to attendee

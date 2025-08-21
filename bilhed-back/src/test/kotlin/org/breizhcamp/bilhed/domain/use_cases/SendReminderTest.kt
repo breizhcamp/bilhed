@@ -71,12 +71,12 @@ class SendReminderTest {
 //            now.withHour(9).withMinute(0).withSecond(0),
 //        )
 
-        reminderConfigs = listOf(
-            ReminderConfig(UUID.randomUUID(), "REGISTERED", 10, "mail10", "sms10"),
-            ReminderConfig(UUID.randomUUID(), "REGISTERED", 5, "mail5", "sms5"),
-            ReminderConfig(UUID.randomUUID(), "REGISTERED", 1, "mail1", "sms1")
-        )
-//
+//        reminderConfigs = listOf(
+//            ReminderConfig(UUID.randomUUID(), "REGISTERED", 10, "mail10", "sms10"),
+//            ReminderConfig(UUID.randomUUID(), "REGISTERED", 5, "mail5", "sms5"),
+//            ReminderConfig(UUID.randomUUID(), "REGISTERED", 1, "mail1", "sms1")
+//        )
+////
 //        sendReminder = SendReminder(
 //            personPort, reminderPort, reminderConfigPort, participantPort,
 //            registeredReminder, participantNotif, attendeeNotify, attendeeDataPort, configPort, timeService, personPort
@@ -102,7 +102,7 @@ class SendReminderTest {
 
         every { configPort.get("reminderTimeReg") } returns Config("reminderTimeReg", "13")
 //        every { personPort.list() } returns listOf(person)
-        every { reminderConfigPort.listByType("REGISTERED") } returns reminderConfigs
+//        every { reminderConfigPort.listBy("REGISTERED") } returns reminderConfigs
         every { notificationPort.findLatestReminderPerPerson(any()) } returns listOf(prevNotif)
         every { timeService.now() } returns now.withHour(12).withMinute(1).withSecond(0)
 
@@ -131,7 +131,7 @@ class SendReminderTest {
 
         every { configPort.get("reminderTimeReg") } returns Config("reminderTimeReg", "13")
 //        every { personPort.list() } returns listOf(person)
-        every { reminderConfigPort.listByType("REGISTERED") } returns reminderConfigs
+//        every { reminderConfigPort.listBy("REGISTERED") } returns reminderConfigs
         every { notificationPort.findLatestReminderPerPerson(any()) } returns listOf(prevNotif)
         every { timeService.now() } returns now.withHour(12).withMinute(2).withSecond(0)
 
@@ -162,7 +162,7 @@ class SendReminderTest {
 
         every { configPort.get("reminderTimeReg") } returns Config("reminderTimeReg", "13")
 //        every { personPort.list() } returns listOf(person)
-        every { reminderConfigPort.listByType("REGISTERED") } returns reminderConfigs
+//        every { reminderConfigPort.listBy("REGISTERED") } returns reminderConfigs
         every { notificationPort.findLatestReminderPerPerson(any()) } returns listOf(prevNotif)
         every { timeService.now() } returns now.withHour(20).withMinute(5).withSecond(0)
 
@@ -193,7 +193,7 @@ class SendReminderTest {
 
         every { configPort.get("reminderTimeReg") } returns Config("reminderTimeReg", "13")
 //        every { personPort.list() } returns listOf(person)
-        every { reminderConfigPort.listByType("REGISTERED") } returns reminderConfigs
+//        every { reminderConfigPort.listBy("REGISTERED") } returns reminderConfigs
         every { notificationPort.findLatestReminderPerPerson(any()) } returns listOf(prevNotif)
         every { timeService.now() } returns now.withHour(16).withMinute(30).withSecond(0)
 
@@ -212,7 +212,7 @@ class SendReminderTest {
          */
         every { configPort.get("reminderTimeReg") } returns Config("reminderTimeReg", "13")
 //        every { personPort.list() } returns listOf(person)
-        every { reminderConfigPort.listByType("REGISTERED") } returns reminderConfigs
+//        every { reminderConfigPort.listBy("REGISTERED") } returns reminderConfigs
         every { timeService.now() } returns now.withHour(22).withMinute(1).withSecond(0)
 
         sendReminder.sendRegisteredReminder()

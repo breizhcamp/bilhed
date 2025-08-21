@@ -6,6 +6,7 @@ import org.breizhcamp.bilhed.domain.entities.PersonDataTicket
 import org.breizhcamp.bilhed.domain.entities.PersonStatus
 import org.breizhcamp.bilhed.domain.use_cases.ports.AttendeeDataPort
 import org.breizhcamp.bilhed.domain.use_cases.ports.GroupPort
+import org.breizhcamp.bilhed.domain.use_cases.ports.ParticipationInfoPort
 import org.breizhcamp.bilhed.domain.use_cases.ports.PersonPort
 import org.breizhcamp.bilhed.domain.use_cases.ports.TicketPort
 import org.springframework.stereotype.Service
@@ -17,6 +18,7 @@ class PersonDataTicketInfo(
     private val ticketPort: TicketPort,
     private val personPort: PersonPort,
     private val groupPort: GroupPort,
+    private val partInfoPort: ParticipationInfoPort,
 ) {
 
     /** Retrieve some infos about the person attendee data and ticket status */
@@ -27,7 +29,7 @@ class PersonDataTicketInfo(
         val hasTicket = ticketPort.hasTicket(id)
 
         val payed = try {
-            personPort.get(id).payed
+            partInfoPort.get(id).payed
         } catch (e: EntityNotFoundException) {
             false
         }

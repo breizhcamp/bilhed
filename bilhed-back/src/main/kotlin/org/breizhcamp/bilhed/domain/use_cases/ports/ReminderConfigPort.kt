@@ -1,7 +1,7 @@
 package org.breizhcamp.bilhed.domain.use_cases.ports
 
 import org.breizhcamp.bilhed.domain.entities.ReminderConfig
-import java.util.UUID
+import java.util.*
 
 interface ReminderConfigPort {
 
@@ -15,7 +15,7 @@ interface ReminderConfigPort {
 
     fun delete(id: UUID)
 
-    fun countByType(type: String): Int
+    fun countBy(type: String): Int
 
-    fun listByType(type: String): List<ReminderConfig>
+    fun listBy(type: String): List<ReminderConfig>
 }

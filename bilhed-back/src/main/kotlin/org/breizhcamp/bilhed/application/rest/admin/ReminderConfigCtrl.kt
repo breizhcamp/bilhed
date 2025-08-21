@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException
 import org.breizhcamp.bilhed.application.dto.ErrorRes
 import org.breizhcamp.bilhed.application.dto.admin.ReminderConfigDTO
 import org.breizhcamp.bilhed.application.dto.admin.ReminderConfigReq
+import org.breizhcamp.bilhed.domain.entities.PersonStatus
 import org.breizhcamp.bilhed.domain.entities.ReminderConfig
 import org.breizhcamp.bilhed.domain.use_cases.ReminderConfigCrud
 import org.springframework.http.HttpStatus

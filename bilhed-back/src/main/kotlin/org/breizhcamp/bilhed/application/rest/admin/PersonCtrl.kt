@@ -39,7 +39,7 @@ class PersonCtrl (
 
     @GetMapping("/{id}/reminders")
     fun getReminders(@PathVariable id: UUID): List<NotificationDTO> {
-        return notificationCrud.listByPersonId(id).map { it.toDto() }
+        return notificationCrud.listBy(personId = id).map { it.toDto() }
     }
 
     @PutMapping("/{id}")
@@ -62,7 +62,7 @@ class PersonCtrl (
 
 fun Notification.toDto() = NotificationDTO (
     id = this.id,
-    reminderDate = this.reminderDate,
+    reminderDate = this.date,
     template = this.template,
     method = this.method,
     personId = this.personId,

@@ -14,7 +14,7 @@ val typeRef = object : TypeReference<Map<String, String>>() {}
 
 fun Notification.toDB() = NotificationDB(
     id = this.id,
-    reminderDate = this.reminderDate,
+    date = this.date,
     template = this.template,
     method = this.method.toDB(),
     personId = this.personId,
@@ -24,7 +24,7 @@ fun Notification.toDB() = NotificationDB(
 
 fun NotificationDB.toNotification() = Notification(
     id = this.id,
-    reminderDate = this.reminderDate,
+    date = this.date,
     template = this.template,
     method = this.method.toNotifMethod(),
     personId = this.personId,

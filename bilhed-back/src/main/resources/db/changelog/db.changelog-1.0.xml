@@ -137,7 +137,6 @@
             <column name="firstname" type="text"><constraints nullable="false"/></column>
             <column name="email" type="text"><constraints nullable="false"/></column>
             <column name="telephone" type="text"/>
-            <column name="payed" type="boolean" defaultValueBoolean="false"><constraints nullable="false"/></column>
             <column name="group_id" type="uuid"/>
         </createTable>
         <createIndex tableName="person" indexName="person_status"><column name="status" /></createIndex>
@@ -153,7 +152,7 @@
             <column name="draw_order" type="int"/>
         </createTable>
 
-        <createTable tableName="registration_infos">
+        <createTable tableName="registration_info">
             <column name="person_id" type="uuid"><constraints primaryKey="true" nullable="false"/></column>
             <column name="registration_date" type="timestamp with time zone"><constraints nullable="false"/></column>
             <column name="registration_sms_status" type="text"><constraints nullable="false"/></column>
@@ -164,20 +163,21 @@
             <column name="registration_nb_token_tries" type="int" defaultValueNumeric="0"><constraints nullable="false"/></column>
         </createTable>
 
-        <createTable tableName="participation_infos">
+        <createTable tableName="participation_info">
             <column name="person_id" type="uuid"><constraints primaryKey="true" nullable="false"/></column>
             <column name="participant_sms_status" type="text"/>
             <column name="participant_nb_sms_sent" type="int" defaultValueNumeric="0"><constraints nullable="false"/></column>
             <column name="participant_sms_error" type="text"/>
             <column name="participant_notification_confirm_sent_date" type="timestamp with time zone"/>
             <column name="participant_confirmation_date" type="timestamp with time zone"/>
+            <column name="payed" type="boolean" defaultValueBoolean="false"><constraints nullable="false"/></column>
         </createTable>
 
         <addForeignKeyConstraint baseTableName="person" baseColumnNames="group_id" constraintName="fk_person_group" referencedTableName="person_group"
                                  referencedColumnNames="id" />
-        <addForeignKeyConstraint baseTableName="registration_infos" baseColumnNames="person_id" constraintName="fk_referent_person" referencedTableName="person"
+        <addForeignKeyConstraint baseTableName="registration_info" baseColumnNames="person_id" constraintName="fk_referent_person" referencedTableName="person"
                                  referencedColumnNames="id" />
-        <addForeignKeyConstraint baseTableName="participation_infos" baseColumnNames="person_id" constraintName="fk_participation_person" referencedTableName="person"
+        <addForeignKeyConstraint baseTableName="participation_info" baseColumnNames="person_id" constraintName="fk_participation_person" referencedTableName="person"
                                  referencedColumnNames="id" />
 
         <dropForeignKeyConstraint baseTableName="reminder" constraintName="fk_reminder_participant"/>
@@ -194,6 +194,7 @@
                                  referencedColumnNames="id" />
 
         <renameTable oldTableName="reminder" newTableName="notification" />
+        <renameColumn tableName="notification" oldColumnName="reminder_date" newColumnName="date" />
     </changeSet>
 
 </databaseChangeLog>
