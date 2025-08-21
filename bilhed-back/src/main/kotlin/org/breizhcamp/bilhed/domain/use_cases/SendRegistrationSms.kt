@@ -2,11 +2,11 @@ package org.breizhcamp.bilhed.domain.use_cases
 
 import mu.KotlinLogging
 import org.breizhcamp.bilhed.domain.entities.Person
-import org.breizhcamp.bilhed.domain.entities.RegistrationInfos
+import org.breizhcamp.bilhed.domain.entities.RegistrationInfo
 import org.breizhcamp.bilhed.domain.entities.NotifOrigin
 import org.breizhcamp.bilhed.domain.entities.Sms
 import org.breizhcamp.bilhed.domain.entities.SmsStatus
-import org.breizhcamp.bilhed.domain.use_cases.ports.RegistrationInfosPort
+import org.breizhcamp.bilhed.domain.use_cases.ports.RegistrationInfoPort
 import org.springframework.stereotype.Service
 import java.time.ZonedDateTime
 
@@ -15,10 +15,10 @@ private val logger = KotlinLogging.logger {}
 @Service
 class SendRegistrationSms(
     private val sendNotification: SendNotification,
-    private val registrationInfosPort: RegistrationInfosPort
+    private val registrationInfoPort: RegistrationInfoPort
 ) {
 
-    fun sendSms(ref: Person, regInfos: RegistrationInfos): Person {
+    fun sendSms(ref: Person, regInfos: RegistrationInfo): Person {
         if (ref.telephone == null || !ref.telephone.startsWith("+")) {
             logger.warn { "Trying to send sms to [${ref.telephone}] / [${ref.lastname} $ref.firstname}] but phone number is not international" }
             throw IllegalArgumentException("Erreur interne, le téléphone n'est pas au format international")
@@ -44,7 +44,7 @@ class SendRegistrationSms(
         )
 
         sendNotification.sendSms(sms, NotifOrigin.MANUAL)
-        registrationInfosPort.updateSms(id = regInfos.personId, smsStatus = SmsStatus.SENDING, nbSmsSent = regInfos.nbSmsSent +1, lastSmsSentDate = ZonedDateTime.now())
+        registrationInfoPort.updateSms(id = regInfos.personId, smsStatus = SmsStatus.SENDING, nbSmsSent = regInfos.nbSmsSent +1, lastSmsSentDate = ZonedDateTime.now())
         return ref
     }
 }

@@ -5,7 +5,7 @@ import org.breizhcamp.bilhed.domain.entities.Mail
 import org.breizhcamp.bilhed.domain.entities.NotifOrigin
 import org.breizhcamp.bilhed.domain.entities.Sms
 import org.breizhcamp.bilhed.domain.use_cases.ports.PersonPort
-import org.breizhcamp.bilhed.domain.use_cases.ports.RegistrationInfosPort
+import org.breizhcamp.bilhed.domain.use_cases.ports.RegistrationInfoPort
 import org.breizhcamp.bilhed.domain.use_cases.ports.UrlShortenerPort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -19,18 +19,18 @@ class RegisteredReminder(
     private val personPort: PersonPort,
     private val urlShortenerPort: UrlShortenerPort,
     private val sendNotification: SendNotification,
-    private val registrationInfosPort: RegistrationInfosPort
+    private val registrationInfoPort: RegistrationInfoPort
 ) {
 
     @Transactional
     fun send(id: UUID, smsTemplate: String, emailTemplate: String, origin: NotifOrigin) {
         if (smsTemplate.isBlank() && emailTemplate.isBlank()) return
 
-        val regInfos = registrationInfosPort.get(id)
+        val regInfos = registrationInfoPort.get(id)
         val members = personPort.getMembersBy(referentId = id)
         val ref = members.find { it.id == id } ?: throw IllegalStateException("Referent with id $id was not found")
 
-        registrationInfosPort.resetSmsCount(id)
+        registrationInfoPort.resetSmsCount(id)
         val link = "${config.participantFrontUrl}/#/${ref.id}"
 
         if (!emailTemplate.isBlank()) {

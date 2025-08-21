@@ -42,7 +42,7 @@ class ParticipantNotify(
 
     private fun notifySuccessParticipant(p: Person, firstNotif: Boolean = true) {
         logger.info { "Notifying success participant to confirm the ticket [${p.firstname} ${p.lastname}]" }
-        val partInfos = if (firstNotif) ParticipationInfos(p.id) else participationInfoPort.get(p.id)
+        val partInfos = if (firstNotif) ParticipationInfo(p.id) else participationInfoPort.get(p.id)
         val limitDate = getLimitDate(p = partInfos, resetNotifDate = true)
 
         val group = groupPort.extendedGroupBy(groupId = p.groupId)
@@ -117,7 +117,7 @@ class ParticipantNotify(
 
     private fun getConfirmSuccessLink(p: Person) = "${config.participantFrontUrl}/#/${p.id}/success"
 
-    private fun getLimitDate(p: ParticipationInfos, resetNotifDate: Boolean = false): LimitDate {
+    private fun getLimitDate(p: ParticipationInfo, resetNotifDate: Boolean = false): LimitDate {
         val notifDate =
             if (resetNotifDate || p.notificationConfirmSentDate == null)
                 ZonedDateTime.now(ZoneId.of("Europe/Paris"))
@@ -134,7 +134,7 @@ class ParticipantNotify(
         return dateFormatter.format(limitDate)
     }
 
-    private fun sendDrawSuccessSms(p: Person, partInfos: ParticipationInfos, model: Map<String, String>): ParticipationInfos {
+    private fun sendDrawSuccessSms(p: Person, partInfos: ParticipationInfo, model: Map<String, String>): ParticipationInfo {
         val res = partInfos.copy(
             smsStatus = SmsStatus.SENDING,
             nbSmsSent = partInfos.nbSmsSent + 1,

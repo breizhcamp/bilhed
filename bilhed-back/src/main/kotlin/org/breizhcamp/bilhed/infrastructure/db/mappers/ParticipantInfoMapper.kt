@@ -1,10 +1,10 @@
 package org.breizhcamp.bilhed.infrastructure.db.mappers
 
-import org.breizhcamp.bilhed.domain.entities.ParticipationInfos
+import org.breizhcamp.bilhed.domain.entities.ParticipationInfo
 import org.breizhcamp.bilhed.infrastructure.db.model.ParticipationInfoDB
 import org.breizhcamp.bilhed.infrastructure.db.model.PersonDB
 
-fun ParticipationInfos.toDB(person: PersonDB) = ParticipationInfoDB(
+fun ParticipationInfo.toDB(person: PersonDB) = ParticipationInfoDB(
     person = person,
     participantSmsStatus = smsStatus,
     participantNbSmsSent = nbSmsSent,
@@ -14,7 +14,7 @@ fun ParticipationInfos.toDB(person: PersonDB) = ParticipationInfoDB(
     payed = payed
 )
 
-fun ParticipationInfoDB.toParticipationInfos() = ParticipationInfos(
+fun ParticipationInfoDB.toParticipationInfos() = ParticipationInfo(
     personId = person.id,
     smsStatus = participantSmsStatus,
     nbSmsSent = participantNbSmsSent,

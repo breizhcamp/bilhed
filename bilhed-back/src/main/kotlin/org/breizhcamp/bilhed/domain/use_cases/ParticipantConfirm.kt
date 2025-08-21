@@ -53,7 +53,7 @@ class ParticipantConfirm(
 
     }
 
-    private fun getLimitDate(partInfos: ParticipationInfos): ZonedDateTime {
+    private fun getLimitDate(partInfos: ParticipationInfo): ZonedDateTime {
         val notifSentDate = requireNotNull(partInfos.notificationConfirmSentDate) { "La notification de succès n'a pas été envoyée" }
         val limitTime = configPort.get("reminderTimePar")
 

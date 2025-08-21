@@ -8,7 +8,7 @@
   </h1>
 
   <div class="mb-3">
-    <PersonsFilter :filter="filter" @filter="(f) => load(f)" :status="PersonStatus.PARTICIPANT"/>
+    <PersonsFilter :filter="filter" @filter="(f) => load(f)" :status="PersonStatus.PARTICIPANT" :loading="loading"/>
 
     <table class="table table-hover table-borderless">
       <thead>
@@ -158,6 +158,7 @@ export default defineComponent({
     },
 
     load(formFilter?: PersonFilter) {
+      this.loading = true
       axios.post("/groups/participant/complete", formFilter ?? this.filter)
           .then(response => {
             const sortedGroups = getSortedGroups(response.data)
@@ -171,6 +172,7 @@ export default defineComponent({
             }
           })
           .catch(err => console.error(err))
+          .finally(() => this.loading = false)
 
       axios.get('/config/reminderTimePar').then(res => {
         this.reminderTimePar = res.data

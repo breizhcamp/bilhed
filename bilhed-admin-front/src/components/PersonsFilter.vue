@@ -43,7 +43,9 @@
     </div>
 
     <div class="col-12 no-label">
-      <button type="submit" class="btn btn-primary">Search</button>
+      <button type="submit" class="btn btn-primary" :disabled="loading">
+        <span class="spinner-border spinner-border-sm" aria-hidden="true" v-if="loading"></span>
+        Search</button>
     </div>
 
   </form>
@@ -67,6 +69,7 @@ export default defineComponent({
   props: {
     filter: { type: Object as PropType<PersonFilter>, required: true },
     status: { type: String as PropType<PersonStatus>, required: true },
+    loading: { type: Boolean, required: true },
   },
   emits: ['filter'],
 

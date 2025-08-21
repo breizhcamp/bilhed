@@ -2,9 +2,9 @@ package org.breizhcamp.bilhed.infrastructure.db
 
 import jakarta.persistence.EntityNotFoundException
 import org.breizhcamp.bilhed.domain.entities.PersonStatus
-import org.breizhcamp.bilhed.domain.entities.RegistrationInfos
+import org.breizhcamp.bilhed.domain.entities.RegistrationInfo
 import org.breizhcamp.bilhed.domain.entities.SmsStatus
-import org.breizhcamp.bilhed.domain.use_cases.ports.RegistrationInfosPort
+import org.breizhcamp.bilhed.domain.use_cases.ports.RegistrationInfoPort
 import org.breizhcamp.bilhed.infrastructure.db.mappers.toDB
 import org.breizhcamp.bilhed.infrastructure.db.mappers.toRegistrationInfos
 import org.breizhcamp.bilhed.infrastructure.db.repos.PersonRepo
@@ -15,19 +15,19 @@ import java.time.ZonedDateTime
 import java.util.*
 
 @Component
-class RegistrationInfosAdapter(
+class RegistrationInfoAdapter(
     val registrationInfosRepo: RegistrationInfosRepo,
     val personRepo: PersonRepo
-): RegistrationInfosPort {
-    override fun list(status: PersonStatus): List<RegistrationInfos> {
+): RegistrationInfoPort {
+    override fun list(status: PersonStatus): List<RegistrationInfo> {
         return registrationInfosRepo.findAllByStatus(status.toDB()).map { it.toRegistrationInfos() }
     }
 
-    override fun save(infos: RegistrationInfos) {
+    override fun save(infos: RegistrationInfo) {
         registrationInfosRepo.save(infos.toDB(personRepo.getReferenceById(infos.personId)))
     }
 
-    override fun get(id: UUID): RegistrationInfos {
+    override fun get(id: UUID): RegistrationInfo {
         return registrationInfosRepo.findByIdOrNull(id)?.toRegistrationInfos() ?: throw EntityNotFoundException()
     }
 
@@ -35,7 +35,7 @@ class RegistrationInfosAdapter(
         registrationInfosRepo.resetSmsCount(id)
     }
 
-    override fun get(ids: List<UUID>): List<RegistrationInfos> {
+    override fun get(ids: List<UUID>): List<RegistrationInfo> {
         return registrationInfosRepo.findAllById(ids).map { it.toRegistrationInfos() }
     }
 

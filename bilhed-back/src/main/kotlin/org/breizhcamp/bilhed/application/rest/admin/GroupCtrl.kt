@@ -4,14 +4,14 @@ import org.breizhcamp.bilhed.application.dto.RegistrationInfosDTO
 import org.breizhcamp.bilhed.application.dto.admin.GroupCompleteAttendee
 import org.breizhcamp.bilhed.application.dto.admin.GroupCompleteParticipant
 import org.breizhcamp.bilhed.application.dto.admin.GroupDTO
+import org.breizhcamp.bilhed.domain.entities.AttendeeFilter
 import org.breizhcamp.bilhed.domain.entities.Group
-import org.breizhcamp.bilhed.domain.entities.ParticipationInfos
 import org.breizhcamp.bilhed.domain.entities.PersonFilter
-import org.breizhcamp.bilhed.domain.entities.RegistrationInfos
+import org.breizhcamp.bilhed.domain.entities.RegistrationInfo
 import org.breizhcamp.bilhed.domain.use_cases.GroupCrud
 import org.breizhcamp.bilhed.domain.use_cases.GroupDraw
-import org.breizhcamp.bilhed.domain.use_cases.ParticipationInfosCrud
-import org.breizhcamp.bilhed.domain.use_cases.RegistrationInfosCrud
+import org.breizhcamp.bilhed.domain.use_cases.ParticipationInfoCrud
+import org.breizhcamp.bilhed.domain.use_cases.RegistrationInfoCrud
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import java.util.*
@@ -20,9 +20,9 @@ import java.util.*
 @RequestMapping("/admin/groups")
 class GroupCtrl(
     val groupCrud: GroupCrud,
-    val registrationInfosCrud: RegistrationInfosCrud,
+    val registrationInfoCrud: RegistrationInfoCrud,
     val groupDraw: GroupDraw,
-    val participationInfosCrud: ParticipationInfosCrud
+    val participationInfoCrud: ParticipationInfoCrud
 ) {
 
     @GetMapping
@@ -42,7 +42,7 @@ class GroupCtrl(
 
         return GroupCompleteParticipant(
             group = groupEntry.first.toDto(),
-            registrationInfos = registrationInfosCrud.get(ref.id).toDto(),
+            registrationInfos = registrationInfoCrud.get(ref.id).toDto(),
             members = groupEntry.second.map { it.toDto() }
         )
     }
@@ -58,13 +58,13 @@ class GroupCtrl(
             people.find { it.id == group.referentId }?.let { group.referentId to it }
         }.toMap()
 
-        val regInfosMap = registrationInfosCrud.get(referentMap.keys.toList())
+        val regInfosMap = registrationInfoCrud.get(referentMap.keys.toList())
             .associateBy { it.personId }
 
         return groupEntries.map { (group, members) ->
             // it may be that the referent has already paid for his place but not the others if payment is separate
             // so we need to retrieve the ref info from the referentId
-            val registrationInfos = regInfosMap[group.referentId] ?: registrationInfosCrud.get(group.referentId)
+            val registrationInfos = regInfosMap[group.referentId] ?: registrationInfoCrud.get(group.referentId)
 
             GroupCompleteParticipant(
                 group = group.toDto(),
@@ -80,25 +80,20 @@ class GroupCtrl(
          * If group payment, referent is the only member to have participationInfos
          * Otherwise we don't care about referent
          */
-    fun getCompleteGroupAttendeeList(@RequestBody filter: PersonFilter): List<GroupCompleteAttendee> {
+    fun getCompleteGroupAttendeeList(@RequestBody filter: AttendeeFilter): List<GroupCompleteAttendee> {
         val groupEntries = groupCrud.extendedGroupList(filter)
 
-        val partInfosMap = participationInfosCrud.getByGroups(groupEntries.keys.map { it.id })
-            .associateBy { it.personId }
+        val groupToPartInfo = participationInfoCrud.getBy(groupEntries.keys.map { it.id }, filter.payed)
 
-        return groupEntries.map { (group, members) ->
+        return groupEntries.mapNotNull { (group, members) ->
 
-            val partInfosList = mutableListOf<ParticipationInfos>()
-            if (group.groupPayment) {
-                val ref = members.find { it.id == group.referentId } ?: error("Referent not found for group ${group.id}")
-                partInfosList.add(partInfosMap.getValue(ref.id))
-            } else {
-                members.forEach { partInfosList.add(partInfosMap.getValue(it.id)) }
-            }
+            val partInfo = groupToPartInfo[group.id]
+
+            if (partInfo == null || partInfo.isEmpty()) return@mapNotNull null
 
             GroupCompleteAttendee(
                 group = group.toDto(),
-                participationInfos = partInfosList.map { it.toDto() },
+                participationInfos = partInfo.map { it.toDto() },
                 members = members.map { it.toDto() }
             )
         }
@@ -118,7 +113,7 @@ fun Group.toDto() = GroupDTO(
     drawOrder = this.drawOrder,
 )
 
-fun RegistrationInfos.toDto() = RegistrationInfosDTO(
+fun RegistrationInfo.toDto() = RegistrationInfosDTO(
     personId = personId,
     registrationDate = registrationDate,
     smsStatus = smsStatus,

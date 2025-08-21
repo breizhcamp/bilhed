@@ -1,7 +1,7 @@
 package org.breizhcamp.bilhed.infrastructure.db
 
 import jakarta.persistence.EntityNotFoundException
-import org.breizhcamp.bilhed.domain.entities.ParticipationInfos
+import org.breizhcamp.bilhed.domain.entities.ParticipationInfo
 import org.breizhcamp.bilhed.domain.entities.PersonStatus
 import org.breizhcamp.bilhed.domain.entities.SmsStatus
 import org.breizhcamp.bilhed.domain.use_cases.ports.ParticipationInfoPort
@@ -19,27 +19,27 @@ class ParticipationInfoAdapter(
     val partInfosRepo: ParticipationInfoRepo,
     private val personRepo: PersonRepo
 ): ParticipationInfoPort {
-    override fun get(id: UUID): ParticipationInfos {
+    override fun get(id: UUID): ParticipationInfo {
         return partInfosRepo.findByIdOrNull(id)?.toParticipationInfos() ?: throw EntityNotFoundException("ParticipationInfos of [$id] Not Found")
     }
 
-    override fun get(ids: List<UUID>): List<ParticipationInfos> {
+    override fun get(ids: List<UUID>): List<ParticipationInfo> {
         return partInfosRepo.findAllById(ids).map { it.toParticipationInfos() }
     }
 
-    override fun save(partInfos: ParticipationInfos) {
+    override fun save(partInfos: ParticipationInfo) {
         partInfosRepo.save(partInfos.toDB(personRepo.getReferenceById(partInfos.personId)))
     }
 
-    override fun list(status: PersonStatus): List<ParticipationInfos> {
+    override fun list(status: PersonStatus): List<ParticipationInfo> {
         return partInfosRepo.findAllByStatus(status.toDB()).map { it.toParticipationInfos() }
     }
 
-    override fun getByGroup(id: UUID): List<ParticipationInfos> {
+    override fun getByGroup(id: UUID): List<ParticipationInfo> {
         return partInfosRepo.findByGroupId(id).map { it.toParticipationInfos() }
     }
 
-    override fun getByGroups(ids: List<UUID>): List<ParticipationInfos> {
+    override fun getByGroups(ids: List<UUID>): List<ParticipationInfo> {
         return partInfosRepo.findAllByGroupIds(ids).map { it.toParticipationInfos() }
     }
 

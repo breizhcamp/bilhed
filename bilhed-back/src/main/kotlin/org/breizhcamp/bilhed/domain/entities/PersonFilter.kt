@@ -2,7 +2,7 @@ package org.breizhcamp.bilhed.domain.entities
 
 import java.util.UUID
 
-class PersonFilter (
+open class PersonFilter (
     val status: PersonStatus? = null,
     val lastname: String? = null,
     val firstname: String? = null,

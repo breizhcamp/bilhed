@@ -8,7 +8,7 @@
   </h1>
 
   <div class="mb-3">
-    <PersonsFilter :filter="filter" @filter="(f) => load(f)" :status="PersonStatus.ATTENDEE"/>
+    <PersonsFilter :filter="filter" @filter="(f) => load(f)" :status="PersonStatus.ATTENDEE" :loading="loading" />
 
     <div class="d-flex align-items-center p-2 fw-bold mb-2">
       <div class="form-check me-3">
@@ -243,12 +243,14 @@ export default defineComponent({
     },
 
     load(filter?: PersonFilter) {
+      this.loading = true
       axios.post("/groups/attendee/complete", filter ?? this.filter)
           .then(response => {
             const sortedGroups = getSortedGroups(response.data)
             this.groups = sortedGroups as GroupCompleteAttendee[]
           })
           .catch(err => console.error(err))
+          .finally(() => this.loading = false)
 
       axios.get('/config/reminderTimeAtt').then((response) => {
         this.nbHoursBeforeRelease = toInt((response.data as Config).value)
@@ -328,7 +330,6 @@ export default defineComponent({
 
     getPartInfos(groupId: string, personId: string): ParticipationInfos | undefined {
       const group = this.groupsWithRef.find(g => g.group.id === groupId)
-      console.log(group)
       return group?.participationInfos.find(p => p.personId === personId)
     }
   }

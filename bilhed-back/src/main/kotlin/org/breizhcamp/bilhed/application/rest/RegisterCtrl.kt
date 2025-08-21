@@ -6,7 +6,7 @@ import org.breizhcamp.bilhed.application.dto.*
 import org.breizhcamp.bilhed.domain.entities.PersonRegister
 import org.breizhcamp.bilhed.domain.use_cases.PersonCrud
 import org.breizhcamp.bilhed.domain.use_cases.Registration
-import org.breizhcamp.bilhed.domain.use_cases.RegistrationInfosCrud
+import org.breizhcamp.bilhed.domain.use_cases.RegistrationInfoCrud
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import java.util.*
@@ -16,7 +16,7 @@ import java.util.*
 class RegisterCtrl(
     private val registration: Registration,
     private val personCrud: PersonCrud,
-    private val registrationInfosCrud: RegistrationInfosCrud,
+    private val registrationInfoCrud: RegistrationInfoCrud,
 ) {
 
     @Transactional
@@ -37,7 +37,7 @@ class RegisterCtrl(
     @GetMapping("/{id}")
     fun getRegisterState(@PathVariable id: UUID): RegisterStateRes {
         val pers = personCrud.get(id)
-        val regInfos = registrationInfosCrud.get(id)
+        val regInfos = registrationInfoCrud.get(id)
         return RegisterStateRes(pers.localPhone(), regInfos.nbSmsSent)
     }
 

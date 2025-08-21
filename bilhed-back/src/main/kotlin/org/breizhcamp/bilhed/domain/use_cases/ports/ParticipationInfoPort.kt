@@ -1,23 +1,23 @@
 package org.breizhcamp.bilhed.domain.use_cases.ports
 
-import org.breizhcamp.bilhed.domain.entities.ParticipationInfos
+import org.breizhcamp.bilhed.domain.entities.ParticipationInfo
 import org.breizhcamp.bilhed.domain.entities.PersonStatus
 import org.breizhcamp.bilhed.domain.entities.SmsStatus
 import java.time.ZonedDateTime
 import java.util.*
 
 interface ParticipationInfoPort {
-    fun get(id: UUID): ParticipationInfos
+    fun get(id: UUID): ParticipationInfo
 
-    fun get(ids: List<UUID>): List<ParticipationInfos>
+    fun get(ids: List<UUID>): List<ParticipationInfo>
 
-    fun save(partInfos: ParticipationInfos)
+    fun save(partInfos: ParticipationInfo)
 
-    fun list(status: PersonStatus): List<ParticipationInfos>
+    fun list(status: PersonStatus): List<ParticipationInfo>
 
-    fun getByGroup(id: UUID): List<ParticipationInfos>
+    fun getByGroup(id: UUID): List<ParticipationInfo>
 
-    fun getByGroups(ids: List<UUID>): List<ParticipationInfos>
+    fun getByGroups(ids: List<UUID>): List<ParticipationInfo>
 
     fun existsByPersonId(id: UUID): Boolean
 

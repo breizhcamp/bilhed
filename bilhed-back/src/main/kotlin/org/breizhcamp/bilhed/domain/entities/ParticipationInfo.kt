@@ -3,7 +3,7 @@ package org.breizhcamp.bilhed.domain.entities
 import java.time.ZonedDateTime
 import java.util.UUID
 
-data class ParticipationInfos(
+data class ParticipationInfo(
     val personId: UUID,
 
     val smsStatus: SmsStatus? = null,

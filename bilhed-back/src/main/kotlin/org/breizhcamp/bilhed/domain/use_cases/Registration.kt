@@ -5,7 +5,7 @@ import org.breizhcamp.bilhed.config.BilhedBackConfig
 import org.breizhcamp.bilhed.domain.entities.*
 import org.breizhcamp.bilhed.domain.use_cases.ports.GroupPort
 import org.breizhcamp.bilhed.domain.use_cases.ports.PersonPort
-import org.breizhcamp.bilhed.domain.use_cases.ports.RegistrationInfosPort
+import org.breizhcamp.bilhed.domain.use_cases.ports.RegistrationInfoPort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.ZonedDateTime
@@ -23,7 +23,7 @@ class Registration(
     private val sendNotification: SendNotification,
     private val groupPort: GroupPort,
     private val personPort: PersonPort,
-    private val registrationInfosPort: RegistrationInfosPort
+    private val registrationInfoPort: RegistrationInfoPort
 ) {
 
     private fun PersonRegister.toPerson(id: UUID = UUID.randomUUID(), groupId: UUID) = Person(
@@ -76,8 +76,8 @@ class Registration(
             logger.info { "New member [${person.lastname} ${person.firstname}] created" }
         }
         logger.info { "Creating new referent info [${ref.lastname} ${ref.firstname}] with email [${ref.email}] for the group [${ref.groupId}]" }
-        val infos = RegistrationInfos(ref.id)
-        registrationInfosPort.save(infos)
+        val infos = RegistrationInfo(ref.id)
+        registrationInfoPort.save(infos)
         logger.info { "New referent infos for [${ref.lastname} ${ref.firstname}] created" }
 
         smsSend.sendSms(ref, infos)
@@ -95,27 +95,27 @@ class Registration(
         val pers = ref.copy(telephone = phone)
         personPort.save(pers)
 
-        smsSend.sendSms(pers, registrationInfosPort.get(id))
+        smsSend.sendSms(pers, registrationInfoPort.get(id))
     }
 
     fun resendSms(id: UUID) {
-        smsSend.sendSms(personPort.get(id), registrationInfosPort.get(id))
+        smsSend.sendSms(personPort.get(id), registrationInfoPort.get(id))
     }
 
     @Transactional
     fun saveSmsStatus(id: UUID, error: String?) {
         val smsStatus = if (error == null) SmsStatus.SENT else SmsStatus.ERROR
-        registrationInfosPort.updateSms(id = id, smsStatus = smsStatus, error = error)
+        registrationInfoPort.updateSms(id = id, smsStatus = smsStatus, error = error)
     }
 
     @Transactional(noRollbackFor = [IllegalArgumentException::class])
     fun validateToken(id: UUID, code: String) {
         if (!code.matches("^[0-9]{6}\$".toRegex())) throw IllegalArgumentException("Le code saisi est invalide")
-        val regInfos = registrationInfosPort.get(id)
+        val regInfos = registrationInfoPort.get(id)
 
         if (regInfos.nbTokenTries >= 3) throw IllegalArgumentException("Vous avez dépassé le nombre de tentatives autorisées, merci de nous contacter")
         if (code != regInfos.token) {
-            registrationInfosPort.save(regInfos.copy(nbTokenTries = regInfos.nbTokenTries + 1))
+            registrationInfoPort.save(regInfos.copy(nbTokenTries = regInfos.nbTokenTries + 1))
             throw IllegalArgumentException("Le code saisi est invalide")
         }
 

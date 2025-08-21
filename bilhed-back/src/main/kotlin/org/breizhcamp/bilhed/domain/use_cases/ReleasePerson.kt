@@ -2,7 +2,7 @@ package org.breizhcamp.bilhed.domain.use_cases
 
 import mu.KotlinLogging
 import org.breizhcamp.bilhed.domain.entities.Group
-import org.breizhcamp.bilhed.domain.entities.ParticipationInfos
+import org.breizhcamp.bilhed.domain.entities.ParticipationInfo
 import org.breizhcamp.bilhed.domain.entities.Person
 import org.breizhcamp.bilhed.domain.entities.PersonFilter
 import org.breizhcamp.bilhed.domain.entities.PersonStatus
@@ -43,7 +43,7 @@ class ReleasePerson(
     }
 
     @Transactional
-    fun attendeeRelease(groupMap: Map<Group, List<Person>>, partInfosList: List<ParticipationInfos>) {
+    fun attendeeRelease(groupMap: Map<Group, List<Person>>, partInfosList: List<ParticipationInfo>) {
         val timeReminderAtt = configPort.get("reminderTimeAtt").value.toLong()
         val now = timeService.now()
 
@@ -133,7 +133,7 @@ class ReleasePerson(
         attendeeRelease(groupMap = groupsNotPayed, partInfosList = partInfo)
     }
 
-    private fun shouldAttendeeBeReleased(partInfos: ParticipationInfos, reminderTime: Long, now: ZonedDateTime): Boolean {
+    private fun shouldAttendeeBeReleased(partInfos: ParticipationInfo, reminderTime: Long, now: ZonedDateTime): Boolean {
         if (partInfos.confirmationDate == null) return false
         val deadline = partInfos.confirmationDate.plusHours(reminderTime)
         return deadline.isBefore(now)
