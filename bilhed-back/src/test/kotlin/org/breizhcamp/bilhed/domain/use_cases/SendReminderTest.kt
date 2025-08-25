@@ -1,5 +1,6 @@
 package org.breizhcamp.bilhed.domain.use_cases
 
+import io.mockk.called
 import io.mockk.every
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.junit5.MockKExtension
@@ -13,14 +14,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import java.time.ZonedDateTime
 import java.util.*
 
-/*
-     Paramètres utilisés pour tester SendReminder :
-     inscription : 9h
-     tpsMaxInscription = 13h ; deadline = 22h
-     config1 = 10 ; rappel 1 à deadline-10h = 12h
-     config2 = 5 ; rappel 2 à deadline-5h = 17h
-     config3 = 1 ; rappel 3 à deadline-1h = 21h
- */
 @ExtendWith(MockKExtension::class)
 class SendReminderTest {
     @RelaxedMockK
@@ -42,10 +35,13 @@ class SendReminderTest {
     lateinit var attendeeNotify: AttendeeNotify
 
     @RelaxedMockK
-    lateinit var attendeeDataPort: AttendeeDataPort
+    lateinit var personPort: PersonPort
 
     @RelaxedMockK
-    lateinit var personPort: PersonPort
+    lateinit var registrationInfoPort: RegistrationInfoPort
+
+    @RelaxedMockK
+    lateinit var participationInfoPort: ParticipationInfoPort
 
     @RelaxedMockK
     lateinit var timeService: TimeService
@@ -54,33 +50,57 @@ class SendReminderTest {
 
     lateinit var person: Person
 
+    lateinit var registrationInfo: RegistrationInfo
+
     lateinit var reminderConfigs: List<ReminderConfig>
 
     var now: ZonedDateTime = ZonedDateTime.now()
 
     @BeforeEach
     fun setUp() {
-//        person = Person(
-//            UUID.randomUUID(),
-//            "Dupont",
-//            "Jean",
-//            "jean.dupont@example.com",
-//            "+33612345678",
-//            PassType.TWO_DAYS,
-//            null,
-//            now.withHour(9).withMinute(0).withSecond(0),
-//        )
+        /**
+         *  Paramètres utilisés pour tester SendReminder :
+         *      inscription : 9h
+         *      tpsMaxInscription = 13h ; deadline = 22h
+         *      config1 = 10 ; rappel 1 à deadline-10h = 12h
+         *      config2 = 5 ; rappel 2 à deadline-5h = 17h
+         *      config3 = 1 ; rappel 3 à deadline-1h = 21h
+         */
+        val refId = UUID.randomUUID()
 
-//        reminderConfigs = listOf(
-//            ReminderConfig(UUID.randomUUID(), "REGISTERED", 10, "mail10", "sms10"),
-//            ReminderConfig(UUID.randomUUID(), "REGISTERED", 5, "mail5", "sms5"),
-//            ReminderConfig(UUID.randomUUID(), "REGISTERED", 1, "mail1", "sms1")
-//        )
-////
-//        sendReminder = SendReminder(
-//            personPort, reminderPort, reminderConfigPort, participantPort,
-//            registeredReminder, participantNotif, attendeeNotify, attendeeDataPort, configPort, timeService, personPort
-//        )
+        person = Person(
+            id = refId,
+            lastname = "Dupont",
+            firstname = "Jean",
+            status = PersonStatus.REGISTERED,
+            telephone = "+33612345678",
+            email = "jean.dupont@example.com",
+            groupId = UUID.randomUUID(),
+        )
+
+        registrationInfo = RegistrationInfo(
+            personId = refId,
+            registrationDate = now.withHour(9).withMinute(0).withSecond(0)
+        )
+
+        reminderConfigs = listOf(
+            ReminderConfig(UUID.randomUUID(), "REGISTERED", 10, "mail10", "sms10"),
+            ReminderConfig(UUID.randomUUID(), "REGISTERED", 5, "mail5", "sms5"),
+            ReminderConfig(UUID.randomUUID(), "REGISTERED", 1, "mail1", "sms1")
+        )
+
+        sendReminder = SendReminder(
+            notificationPort = notificationPort,
+            reminderConfigPort = reminderConfigPort,
+            registeredReminder = registeredReminder,
+            participantNotify = participantNotify,
+            attendeeNotify = attendeeNotify,
+            configPort = configPort,
+            timeService = timeService,
+            registrationInfoPort = registrationInfoPort,
+            participationInfoPort = participationInfoPort,
+            personPort = personPort
+        )
     }
 
     @Test
@@ -88,11 +108,11 @@ class SendReminderTest {
         /**
          * Cas commun :
          * Inscription 9h - notif inscription 9h
-         * Premier rappel à 12h (ou 12h01 dépendant des secondes)
+         * Premier rappel à 19h (ou 19h01 dépendant des secondes)
          */
         val prevNotif = Notification(
             UUID.randomUUID(),
-            now.withHour(9).withMinute(0).withSecond(0),
+            now.withHour(9).withMinute(0).withSecond(10),
             "sms1",
             NotifMethod.SMS,
             person.id,
@@ -101,8 +121,8 @@ class SendReminderTest {
         )
 
         every { configPort.get("reminderTimeReg") } returns Config("reminderTimeReg", "13")
-//        every { personPort.list() } returns listOf(person)
-//        every { reminderConfigPort.listBy("REGISTERED") } returns reminderConfigs
+        every { registrationInfoPort.list(PersonStatus.REGISTERED) } returns listOf(registrationInfo)
+        every { reminderConfigPort.listBy("REGISTERED") } returns reminderConfigs
         every { notificationPort.findLatestReminderPerPerson(any()) } returns listOf(prevNotif)
         every { timeService.now() } returns now.withHour(12).withMinute(1).withSecond(0)
 
@@ -130,14 +150,14 @@ class SendReminderTest {
         )
 
         every { configPort.get("reminderTimeReg") } returns Config("reminderTimeReg", "13")
-//        every { personPort.list() } returns listOf(person)
-//        every { reminderConfigPort.listBy("REGISTERED") } returns reminderConfigs
+        every { registrationInfoPort.list(PersonStatus.REGISTERED) } returns listOf(registrationInfo)
+        every { reminderConfigPort.listBy("REGISTERED") } returns reminderConfigs
         every { notificationPort.findLatestReminderPerPerson(any()) } returns listOf(prevNotif)
         every { timeService.now() } returns now.withHour(12).withMinute(2).withSecond(0)
 
         sendReminder.sendRegisteredReminder()
 
-//        verify { registeredReminder wasNot called }
+        verify { registeredReminder wasNot called }
     }
 
     @Test
@@ -147,7 +167,7 @@ class SendReminderTest {
          * Inscription 9h - notif inscription 9h
          * Arrêt du serveur à 15h
          * Rappel de 17h non envoyé
-         * Redémarrage du serveur à 20h05
+         * Redémarrage du serveur à 20h00
          * Prochain rappel à 21h, donc rappel de 17h rattrapé
          */
         val prevNotif = Notification(
@@ -161,14 +181,14 @@ class SendReminderTest {
         )
 
         every { configPort.get("reminderTimeReg") } returns Config("reminderTimeReg", "13")
-//        every { personPort.list() } returns listOf(person)
-//        every { reminderConfigPort.listBy("REGISTERED") } returns reminderConfigs
+        every { registrationInfoPort.list(PersonStatus.REGISTERED) } returns listOf(registrationInfo)
+        every { reminderConfigPort.listBy("REGISTERED") } returns reminderConfigs
         every { notificationPort.findLatestReminderPerPerson(any()) } returns listOf(prevNotif)
-        every { timeService.now() } returns now.withHour(20).withMinute(5).withSecond(0)
+        every { timeService.now() } returns now.withHour(20).withMinute(0).withSecond(0)
 
         sendReminder.sendRegisteredReminder()
 
-//        verify { registeredReminder.send(person.id, "sms5", "mail5", any()) }
+        verify { registeredReminder.send(person.id, "sms5", "mail5", any()) }
     }
 
     @Test
@@ -192,14 +212,14 @@ class SendReminderTest {
         )
 
         every { configPort.get("reminderTimeReg") } returns Config("reminderTimeReg", "13")
-//        every { personPort.list() } returns listOf(person)
-//        every { reminderConfigPort.listBy("REGISTERED") } returns reminderConfigs
+        every { registrationInfoPort.list(PersonStatus.REGISTERED) } returns listOf(registrationInfo)
+        every { reminderConfigPort.listBy("REGISTERED") } returns reminderConfigs
         every { notificationPort.findLatestReminderPerPerson(any()) } returns listOf(prevNotif)
         every { timeService.now() } returns now.withHour(16).withMinute(30).withSecond(0)
 
         sendReminder.sendRegisteredReminder()
 
-//        verify { registeredReminder wasNot called }
+        verify { registeredReminder wasNot called }
 
     }
 
@@ -211,13 +231,13 @@ class SendReminderTest {
          * Date limite : 22h, pas d'envoi de rappel
          */
         every { configPort.get("reminderTimeReg") } returns Config("reminderTimeReg", "13")
-//        every { personPort.list() } returns listOf(person)
-//        every { reminderConfigPort.listBy("REGISTERED") } returns reminderConfigs
+        every { registrationInfoPort.list(PersonStatus.REGISTERED) } returns listOf(registrationInfo)
+        every { reminderConfigPort.listBy("REGISTERED") } returns reminderConfigs
         every { timeService.now() } returns now.withHour(22).withMinute(1).withSecond(0)
 
         sendReminder.sendRegisteredReminder()
 
-//        verify { registeredReminder wasNot called }
+        verify { registeredReminder wasNot called }
     }
 
 }
