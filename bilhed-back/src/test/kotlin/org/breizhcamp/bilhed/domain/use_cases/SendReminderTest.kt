@@ -52,7 +52,11 @@ class SendReminderTest {
 
     lateinit var registrationInfo: RegistrationInfo
 
-    lateinit var reminderConfigs: List<ReminderConfig>
+    lateinit var participationInfo: ParticipationInfo
+
+    lateinit var reminderConfigsReg: List<ReminderConfig>
+
+    lateinit var reminderConfigsPar: List<ReminderConfig>
 
     var now: ZonedDateTime = ZonedDateTime.now()
 
@@ -83,10 +87,20 @@ class SendReminderTest {
             registrationDate = now.withHour(9).withMinute(0).withSecond(0)
         )
 
-        reminderConfigs = listOf(
+        participationInfo = ParticipationInfo(
+            personId = refId,
+            notificationConfirmSentDate = now.withHour(9).withMinute(30).withSecond(0)
+        )
+
+        reminderConfigsReg = listOf(
             ReminderConfig(UUID.randomUUID(), "REGISTERED", 10, "mail10", "sms10"),
             ReminderConfig(UUID.randomUUID(), "REGISTERED", 5, "mail5", "sms5"),
             ReminderConfig(UUID.randomUUID(), "REGISTERED", 1, "mail1", "sms1")
+        )
+
+        reminderConfigsPar = listOf(
+            ReminderConfig(UUID.randomUUID(), "PARTICIPANT", 8, "mail8", "sms8"),
+            ReminderConfig(UUID.randomUUID(), "PARTICIPANT", 2, "mail2", "sms2")
         )
 
         sendReminder = SendReminder(
@@ -103,12 +117,14 @@ class SendReminderTest {
         )
     }
 
+    // ------- Test for registered --------
+
     @Test
     fun `should send first reminder after registration`() {
         /**
          * Cas commun :
          * Inscription 9h - notif inscription 9h
-         * Premier rappel à 19h (ou 19h01 dépendant des secondes)
+         * Premier rappel à 12h (ou 12h01 dépendant des secondes)
          */
         val prevNotif = Notification(
             UUID.randomUUID(),
@@ -122,7 +138,7 @@ class SendReminderTest {
 
         every { configPort.get("reminderTimeReg") } returns Config("reminderTimeReg", "13")
         every { registrationInfoPort.list(PersonStatus.REGISTERED) } returns listOf(registrationInfo)
-        every { reminderConfigPort.listBy("REGISTERED") } returns reminderConfigs
+        every { reminderConfigPort.listBy("REGISTERED") } returns reminderConfigsReg
         every { notificationPort.findLatestReminderPerPerson(any()) } returns listOf(prevNotif)
         every { timeService.now() } returns now.withHour(12).withMinute(1).withSecond(0)
 
@@ -151,7 +167,7 @@ class SendReminderTest {
 
         every { configPort.get("reminderTimeReg") } returns Config("reminderTimeReg", "13")
         every { registrationInfoPort.list(PersonStatus.REGISTERED) } returns listOf(registrationInfo)
-        every { reminderConfigPort.listBy("REGISTERED") } returns reminderConfigs
+        every { reminderConfigPort.listBy("REGISTERED") } returns reminderConfigsReg
         every { notificationPort.findLatestReminderPerPerson(any()) } returns listOf(prevNotif)
         every { timeService.now() } returns now.withHour(12).withMinute(2).withSecond(0)
 
@@ -182,7 +198,7 @@ class SendReminderTest {
 
         every { configPort.get("reminderTimeReg") } returns Config("reminderTimeReg", "13")
         every { registrationInfoPort.list(PersonStatus.REGISTERED) } returns listOf(registrationInfo)
-        every { reminderConfigPort.listBy("REGISTERED") } returns reminderConfigs
+        every { reminderConfigPort.listBy("REGISTERED") } returns reminderConfigsReg
         every { notificationPort.findLatestReminderPerPerson(any()) } returns listOf(prevNotif)
         every { timeService.now() } returns now.withHour(20).withMinute(0).withSecond(0)
 
@@ -213,7 +229,7 @@ class SendReminderTest {
 
         every { configPort.get("reminderTimeReg") } returns Config("reminderTimeReg", "13")
         every { registrationInfoPort.list(PersonStatus.REGISTERED) } returns listOf(registrationInfo)
-        every { reminderConfigPort.listBy("REGISTERED") } returns reminderConfigs
+        every { reminderConfigPort.listBy("REGISTERED") } returns reminderConfigsReg
         every { notificationPort.findLatestReminderPerPerson(any()) } returns listOf(prevNotif)
         every { timeService.now() } returns now.withHour(16).withMinute(30).withSecond(0)
 
@@ -232,12 +248,72 @@ class SendReminderTest {
          */
         every { configPort.get("reminderTimeReg") } returns Config("reminderTimeReg", "13")
         every { registrationInfoPort.list(PersonStatus.REGISTERED) } returns listOf(registrationInfo)
-        every { reminderConfigPort.listBy("REGISTERED") } returns reminderConfigs
+        every { reminderConfigPort.listBy("REGISTERED") } returns reminderConfigsReg
         every { timeService.now() } returns now.withHour(22).withMinute(1).withSecond(0)
 
         sendReminder.sendRegisteredReminder()
 
         verify { registeredReminder wasNot called }
+    }
+
+    // ------- Test for participant/attendee --------
+
+    @Test
+    fun `should send reminder after confirmation`() {
+        /**
+         * Cas commun :
+         * Notif confirmation envoyée à 9h - limite 22h30
+         * Premier rappel à 14h30
+         */
+        val prevNotif = Notification(
+            UUID.randomUUID(),
+            now.withHour(9).withMinute(0).withSecond(10),
+            "sms1",
+            NotifMethod.SMS,
+            person.id,
+            emptyMap(),
+            NotifOrigin.AUTOMATIC
+        )
+
+        every { configPort.get("reminderTimePar") } returns Config("reminderTimePar", "13")
+        every { participationInfoPort.list(PersonStatus.PARTICIPANT) } returns listOf(participationInfo)
+        every { reminderConfigPort.listBy("PARTICIPANT") } returns reminderConfigsPar
+        every { notificationPort.findLatestReminderPerPerson(any()) } returns listOf(prevNotif)
+        every { timeService.now() } returns now.withHour(14).withMinute(31).withSecond(0)
+
+        sendReminder.sendParticipantReminder()
+
+        verify { participantNotify.remindSuccess(listOf(person.id), any(), "mail8") }
+    }
+
+    @Test
+    fun `should catching up to participant after server shutdown`() {
+        /**
+         * Cas serveur arrêté et rattrapage :
+         * Notif confirmation envoyée à 9h - limite 22h30
+         * Arrêt du serveur à 13h
+         * Redémarrage du serveur à 17h00
+         * Prochain rappel à 20h30, donc rappel de 14h30 rattrapé
+         */
+        val prevNotif = Notification(
+            UUID.randomUUID(),
+            now.withHour(9).withMinute(0).withSecond(10),
+            "sms1",
+            NotifMethod.SMS,
+            person.id,
+            emptyMap(),
+            NotifOrigin.AUTOMATIC
+        )
+
+        every { configPort.get("reminderTimePar") } returns Config("reminderTimePar", "13")
+        every { participationInfoPort.list(PersonStatus.PARTICIPANT) } returns listOf(participationInfo)
+        every { reminderConfigPort.listBy("PARTICIPANT") } returns reminderConfigsPar
+        every { notificationPort.findLatestReminderPerPerson(any()) } returns listOf(prevNotif)
+        every { timeService.now() } returns now.withHour(17).withMinute(0).withSecond(0)
+
+        sendReminder.sendParticipantReminder()
+
+        verify { participantNotify.remindSuccess(listOf(person.id), any(), "mail8") }
     }
 
 }
