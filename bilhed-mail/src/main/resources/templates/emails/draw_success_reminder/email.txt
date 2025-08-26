@@ -1,12 +1,12 @@
 Bonjour [(${firstname})],
 
-Vous avez été retenu pour la billetterie du BreizhCamp [(${year})] mais votre billet reste à confirmer !
+[# th:if="${!groupPayment} or ${nbPersons} == 1"]Vous avez été retenu·e pour la billetterie du BreizhCamp [(${year})], avec un [(${passDate})], mais votre billet reste à confirmer ![/][# th:if="${nbPersons} > 1 and ${groupPayment}"]Votre groupe de [(${nbPersons})] personnes a été retenu pour la billetterie du BreizhCamp [(${year})], avec un [(${passDate})], mais vos billets restent à confirmer ! [/]
 
-Vous avez jusqu'à *[(${limit_date})]*, pour confirmer ou libérer votre place en suivant ce lien :
+Vous avez jusqu'à *[(${limit_date})]*, pour confirmer ou libérer [# th:if="${!groupPayment} or ${nbPersons} == 1"]votre place[/][# th:if="${nbPersons} > 1 and ${groupPayment}"]vos places[/] en suivant ce lien :
 
 [(${link})]
 
-Passé ce délai, la place sera remise en jeu pour les personnes en liste d'attente.
+Passé ce délai, [# th:if="${!groupPayment} or ${nbPersons} == 1"]la place sera remise[/][# th:if="${nbPersons} > 1 and ${groupPayment}"]les places seront remises[/] en jeu pour les personnes en liste d'attente.
 
 Cordialement,
 L'équipe du BreizhCamp

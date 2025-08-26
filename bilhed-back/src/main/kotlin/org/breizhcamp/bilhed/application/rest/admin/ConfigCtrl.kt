@@ -25,6 +25,7 @@ class ConfigCtrl(
         val configList = mutableListOf<ConfigRes>()
         configList.add(ConfigRes("registeredCloseDate", configDate.getRegistrationCloseDate().toString()))
         configList.add(ConfigRes("bcCloseDate", configDate.getBreizhCampCloseDate().toString()))
+        configList.add(ConfigRes("bcOpenDate", configDate.getBreizhCampOpenDate().toString()))
         configList.add(ConfigRes("reminderTemplateMail", jacksonObjectMapper().writeValueAsString(configTemplates.getEmailTemplates())))
         configList.add(ConfigRes("reminderTemplateSms", jacksonObjectMapper().writeValueAsString(configTemplates.getSMSTemplates())))
         configList.addAll(configCrud.list().map { it.toConfigRes() })
@@ -56,7 +57,7 @@ class ConfigCtrl(
     }
 
     @ExceptionHandler(EntityNotFoundException::class) @ResponseStatus(HttpStatus.NOT_FOUND)
-    fun handleENFE(e: EntityNotFoundException) = ErrorRes("Not found")
+    fun handleENFE() = ErrorRes("Not found")
 
 }
 

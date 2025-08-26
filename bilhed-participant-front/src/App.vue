@@ -3,7 +3,7 @@
 		<nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark">
 			<div class="container">
 				<a class="navbar-brand">
-					<img src="@/assets/logo-breizhcamp-icone.svg" width="30" height="30" class="d-inline-block align-top" alt="">
+          <Logo width="30" height="30" class="d-inline-block align-top" />
 					Billetterie BreizhCamp
 				</a>
 
@@ -31,8 +31,15 @@
 
 </template>
 
-<script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
+<script lang="ts">
+/// <reference types="vite-svg-loader" />
+import { defineComponent } from 'vue'
+import Logo from '@/assets/logo-breizhcamp-icone.svg?component'
+
+export default defineComponent({
+  name: "AppParticipant",
+  components: { Logo }
+})
 </script>
 
 <style scoped>

@@ -1,0 +1,28 @@
+package org.breizhcamp.bilhed.infrastructure.db.model
+
+import jakarta.persistence.*
+import org.breizhcamp.bilhed.domain.entities.SmsStatus
+import java.time.ZonedDateTime
+import java.util.UUID
+
+@Entity @Table(name = "participation_info")
+data class ParticipationInfoDB(
+
+    @Id
+    val personId: UUID? = null,
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @MapsId
+    @JoinColumn(name = "person_id")
+    val person: PersonDB,
+
+    @Enumerated(EnumType.STRING)
+    var participantSmsStatus: SmsStatus? = null,
+    var participantNbSmsSent: Int = 0,
+    var participantSmsError: String? = null,
+    var participantNotificationConfirmSentDate: ZonedDateTime? = null,
+
+    var participantConfirmationDate: ZonedDateTime? = null,
+
+    val payed: Boolean = false,
+)

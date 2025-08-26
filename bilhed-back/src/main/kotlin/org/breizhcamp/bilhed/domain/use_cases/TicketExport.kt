@@ -1,19 +1,19 @@
 package org.breizhcamp.bilhed.domain.use_cases
 
 import org.breizhcamp.bilhed.domain.entities.TicketExportData
-import org.breizhcamp.bilhed.domain.use_cases.ports.AttendeePort
+import org.breizhcamp.bilhed.domain.use_cases.ports.AttendeeDataPort
 import org.breizhcamp.bilhed.domain.use_cases.ports.TicketPort
 import org.springframework.stereotype.Service
 
 @Service
 class TicketExport(
     private val ticketPort: TicketPort,
-    private val attendeePort: AttendeePort,
+    private val attendeeDataPort: AttendeeDataPort,
 ) {
 
     fun export(): List<TicketExportData> {
         val tickets = ticketPort.getExportList()
-        val attendees = attendeePort.listWithData()
+        val attendees = attendeeDataPort.listWithData()
 
         return tickets.map { ticket ->
             val attendee = attendees.find { it.first.id == ticket.id }?.second

@@ -1,30 +1,44 @@
 package org.breizhcamp.bilhed.application.rest
 
 import jakarta.persistence.EntityNotFoundException
+import jakarta.transaction.Transactional
 import org.breizhcamp.bilhed.application.dto.*
-import org.breizhcamp.bilhed.domain.entities.Registered
+import org.breizhcamp.bilhed.domain.entities.PersonRegister
+import org.breizhcamp.bilhed.domain.use_cases.PersonCrud
 import org.breizhcamp.bilhed.domain.use_cases.Registration
+import org.breizhcamp.bilhed.domain.use_cases.RegistrationInfoCrud
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import java.util.*
-import kotlin.text.Typography.registered
 
 @RestController
 @RequestMapping("/api/register")
 class RegisterCtrl(
     private val registration: Registration,
+    private val personCrud: PersonCrud,
+    private val registrationInfoCrud: RegistrationInfoCrud,
 ) {
 
+    @Transactional
     @PostMapping
-    fun register(@RequestBody req: RegisterReq): RegisterRes {
-        req.validate()
-        val saved = registration.register(req.toRegistered())
-        return RegisterRes(saved.id)
+    fun register(@RequestBody req: GroupRegisterReq): RegisterRes {
+        val gPayment = req.validate()
+
+        val referentId = registration.register(
+            ref = req.referent.toPersonRegister(),
+            groupPayment = gPayment,
+            companions = req.companions.map { it.toPersonRegister() },
+            pass = req.pass,
+        )
+
+        return RegisterRes(referentId)
     }
 
     @GetMapping("/{id}")
     fun getRegisterState(@PathVariable id: UUID): RegisterStateRes {
-        return registration.get(id).toStateRes()
+        val pers = personCrud.get(id)
+        val regInfos = registrationInfoCrud.get(id)
+        return RegisterStateRes(pers.localPhone(), regInfos.nbSmsSent)
     }
 
     @PostMapping("/{id}") @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -43,11 +57,15 @@ class RegisterCtrl(
     }
 
     @ExceptionHandler(EntityNotFoundException::class) @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    fun handleENFE(e: EntityNotFoundException) = ErrorRes("Une erreur est survenue")
+    fun handleENFE() = ErrorRes("Une erreur est survenue")
 
     @ExceptionHandler(IllegalArgumentException::class) @ResponseStatus(HttpStatus.BAD_REQUEST)
     fun handleIAE(e: IllegalArgumentException) = ErrorRes(e.message ?: "Une erreur est survenue")
 
-    private fun RegisterReq.toRegistered(id: UUID = UUID.randomUUID()) = Registered(id, lastname.trim(), firstname.trim(), email, internationalPhone(), pass, kids)
-    private fun Registered.toStateRes() = RegisterStateRes(localPhone(), nbSmsSent)
+    private fun PersonRegisterReq.toPersonRegister() = PersonRegister(
+        lastname = this.lastname,
+        firstname = this.firstname,
+        telephone = internationalPhone(),
+        email = this.email,
+    )
 }

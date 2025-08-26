@@ -32,11 +32,11 @@ class ReminderConfigAdapter (
         reminderConfigRepo.deleteById(id)
     }
 
-    override fun countByType(type: String): Int {
-        return reminderConfigRepo.countByType(type)
+    override fun countBy(type: String): Int {
+        return reminderConfigRepo.countBy(type)
     }
 
-    override fun listByType(type: String): List<ReminderConfig> {
+    override fun listBy(type: String): List<ReminderConfig> {
         return reminderConfigRepo.findByType(type).map { it.toReminderConfig() }
     }
 }

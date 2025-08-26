@@ -2,11 +2,13 @@ package org.breizhcamp.bilhed.application.rest
 
 import jakarta.persistence.EntityNotFoundException
 import mu.KotlinLogging
-import org.breizhcamp.bilhed.application.dto.ErrorRes
-import org.breizhcamp.bilhed.application.dto.ParticipantConfirmReq
-import org.breizhcamp.bilhed.application.dto.ParticipantConfirmInfo
 import org.breizhcamp.bilhed.application.dto.ConfirmRes
-import org.breizhcamp.bilhed.domain.entities.*
+import org.breizhcamp.bilhed.application.dto.ErrorRes
+import org.breizhcamp.bilhed.application.dto.ParticipantConfirmInfoRes
+import org.breizhcamp.bilhed.application.dto.ParticipantConfirmReq
+import org.breizhcamp.bilhed.domain.entities.AttendeeData
+import org.breizhcamp.bilhed.domain.entities.ParticipantConfirmInfo
+import org.breizhcamp.bilhed.domain.entities.Ticket
 import org.breizhcamp.bilhed.domain.use_cases.ParticipantConfirm
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
@@ -21,15 +23,14 @@ class ParticipantCtrl(
 ) {
 
     @GetMapping("/{id}")
-    fun get(@PathVariable id: UUID): ParticipantConfirmInfo {
-        return participantConfirm.get(id).toDTO()
+    fun get(@PathVariable id: UUID): ParticipantConfirmInfoRes {
+        return participantConfirm.getConfirmInfos(id).toDTO()
     }
 
-    @PostMapping("/{id}/confirm")
-    fun confirm(@PathVariable id: UUID, @RequestBody req: ParticipantConfirmReq): ConfirmRes {
-        req.validate()
-        logger.info { "Confirm participant [$id] with req: $req" }
-        return participantConfirm.confirm(id, req.toData()).toConfirmRes()
+    @PostMapping("/confirm")
+    fun confirm(@RequestBody req: List<ParticipantConfirmReq>): ConfirmRes {
+        req.forEach { it.validate() }
+        return participantConfirm.confirm(req.map { it.id to it.toData() }).toConfirmRes()
     }
 
     @PostMapping("/{id}/cancel")
@@ -42,7 +43,7 @@ class ParticipantCtrl(
     fun handleIAE(e: IllegalArgumentException) = ErrorRes(e.message ?: "Une erreur est survenue")
 
     @ExceptionHandler(EntityNotFoundException::class) @ResponseStatus(HttpStatus.NOT_FOUND)
-    fun handleENFE(e: EntityNotFoundException) = ErrorRes("Not found")
+    fun handleENFE() = ErrorRes("Not found")
 }
 
 private fun ParticipantConfirmReq.toData() = AttendeeData(
@@ -54,16 +55,11 @@ private fun ParticipantConfirmReq.toData() = AttendeeData(
     postalCode = postalCode,
 )
 
-private fun Person.toDTO() = ParticipantConfirmInfo(
-    lastname = lastname,
-    firstname = firstname,
-    email = email,
+private fun ParticipantConfirmInfo.toDTO() = ParticipantConfirmInfoRes(
+    members = members.map { it.toDto() },
+    confirmationLimitDate = confirmationLimitDate,
+    refId = refId,
     pass = pass,
-    confirmationLimitDate = when(this) {
-        is Participant -> requireNotNull(notificationConfirmDate)
-        is Attendee -> participantNotificationConfirmDate
-        else -> throw IllegalStateException("Not a participant")
-    },
 )
 
 private fun Ticket.toConfirmRes() = ConfirmRes(payUrl, payed)

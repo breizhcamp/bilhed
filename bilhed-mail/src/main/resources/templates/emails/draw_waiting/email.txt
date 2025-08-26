@@ -1,6 +1,6 @@
 Bonjour [(${firstname})],
 
-Suite à la sélection des billets pour la billetterie du BreizhCamp [(${year})], vous êtes actuellement en liste d'attente.
+Suite à la sélection des billets pour la billetterie du BreizhCamp [(${year})], [# th:if="${!groupPayment} or ${nbPersons} == 1"]vous êtes[/][# th:if="${nbPersons} > 1 and ${groupPayment}"]votre groupe de [(${nbPersons})] personnes est[/] actuellement en liste d'attente.
 
 Nous vous recontacterons dans le cas où des places se libèrent.
 

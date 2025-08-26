@@ -1,8 +1,8 @@
 Bonjour [(${firstname})],
 
-Vous avez bien été enregistré pour le tirage au sort de la billetterie du BreizhCamp [(${year})].
+[# th:if="${nbPersons} > 1"]Votre groupe de [(${nbPersons})] personnes a[/][# th:if="${nbPersons} == 1"]Vous avez[/] bien été enregistré avec un pass [(${pass})] pour le tirage au sort de la billetterie du BreizhCamp [(${year})].
 
-Vous recevrez un SMS et un email si vous êtes tiré au sort qui vous permettra de confirmer et d'acheter votre billet.
+[# th:if="${nbPersons} > 1 and ${!groupPayment}"]Chaque membre recevra un SMS et un email si votre groupe est tiré au sort qui permettra à chacun de confirmer et d'acheter son billet.[/][# th:if="${nbPersons} > 1 and ${groupPayment}"]Vous recevrez un SMS et un email si votre groupe est tiré au sort qui vous permettra de confirmer et d'acheter les billets de tous les membres.[/][# th:if="${nbPersons} == 1"]Vous recevrez un SMS et un email si vous êtes tiré au sort qui vous permettra de confirmer et d'acheter votre billet.[/]
 
 Merci pour votre soutien !
 L'équipe du BreizhCamp

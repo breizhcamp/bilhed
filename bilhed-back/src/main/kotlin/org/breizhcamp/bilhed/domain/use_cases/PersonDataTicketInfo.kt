@@ -1,9 +1,12 @@
 package org.breizhcamp.bilhed.domain.use_cases
 
 import jakarta.persistence.EntityNotFoundException
+import org.breizhcamp.bilhed.domain.entities.EndInfo
 import org.breizhcamp.bilhed.domain.entities.PersonDataTicket
-import org.breizhcamp.bilhed.domain.entities.Released
-import org.breizhcamp.bilhed.domain.use_cases.ports.AttendeePort
+import org.breizhcamp.bilhed.domain.entities.PersonStatus
+import org.breizhcamp.bilhed.domain.use_cases.ports.AttendeeDataPort
+import org.breizhcamp.bilhed.domain.use_cases.ports.GroupPort
+import org.breizhcamp.bilhed.domain.use_cases.ports.ParticipationInfoPort
 import org.breizhcamp.bilhed.domain.use_cases.ports.PersonPort
 import org.breizhcamp.bilhed.domain.use_cases.ports.TicketPort
 import org.springframework.stereotype.Service
@@ -11,20 +14,22 @@ import java.util.*
 
 @Service
 class PersonDataTicketInfo(
-    private val attendeePort: AttendeePort,
+    private val attendeeDataPort: AttendeeDataPort,
     private val ticketPort: TicketPort,
     private val personPort: PersonPort,
+    private val groupPort: GroupPort,
+    private val partInfoPort: ParticipationInfoPort,
 ) {
 
     /** Retrieve some infos about the person attendee data and ticket status */
     fun getInfos(id: UUID): PersonDataTicket? {
-        if (personPort.get(id) is Released) return null
+        if (personPort.get(id).status == PersonStatus.RELEASED) return null
 
-        val hasData = attendeePort.getData(id) != null
+        val hasData = attendeeDataPort.getData(id) != null
         val hasTicket = ticketPort.hasTicket(id)
 
         val payed = try {
-            attendeePort.get(id).payed
+            partInfoPort.get(id).payed
         } catch (e: EntityNotFoundException) {
             false
         }
@@ -36,6 +41,16 @@ class PersonDataTicketInfo(
         }
 
         return PersonDataTicket(hasData, hasTicket, payed, payUrl)
+    }
+
+    fun getEndInfos(id: UUID): EndInfo {
+        val person = personPort.get(id = id)
+        val extendedGroup = groupPort.extendedGroupBy(groupId = person.groupId)
+
+        return EndInfo(
+            groupPayment = extendedGroup.first.groupPayment,
+            nbMembers = extendedGroup.second.size
+        )
     }
 
 }

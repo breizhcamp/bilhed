@@ -1,0 +1,20 @@
+package org.breizhcamp.bilhed.infrastructure.db.repos
+
+import org.breizhcamp.bilhed.infrastructure.db.model.PersonDBStatus
+import org.breizhcamp.bilhed.infrastructure.db.model.RegistrationInfoDB
+import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Modifying
+import org.springframework.data.jpa.repository.Query
+import org.springframework.stereotype.Repository
+import java.util.*
+
+@Repository
+interface RegistrationInfosRepo: JpaRepository<RegistrationInfoDB, UUID> {
+
+    @Modifying
+    @Query("UPDATE RegistrationInfoDB r SET r.registrationNbSmsSent = 0 WHERE r.personId = :id")
+    fun resetSmsCount(id: UUID)
+
+    @Query("SELECT r FROM RegistrationInfoDB r WHERE r.person.status = :status")
+    fun findAllByStatus(status: PersonDBStatus): List<RegistrationInfoDB>
+}

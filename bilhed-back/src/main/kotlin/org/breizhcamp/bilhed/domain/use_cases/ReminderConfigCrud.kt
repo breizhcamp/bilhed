@@ -16,7 +16,7 @@ class ReminderConfigCrud (
     fun list(): List<ReminderConfig> = reminderConfigPort.list()
 
     fun add(reminderConfig: ReminderConfig): ReminderConfig {
-        val nbReminders = reminderConfigPort.countByType(reminderConfig.type)
+        val nbReminders = reminderConfigPort.countBy(reminderConfig.type)
         val shortType = reminderConfig.type[0].plus(lowerCase(reminderConfig.type.substring(1, 3))) // REGISTERED -> Reg
         val type = configPort.get("reminderTime$shortType")
 

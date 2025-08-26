@@ -4,5 +4,4 @@ export class Registered {
   email?: string
   telephone?: string
   pass?: string
-  kids?: string
 }

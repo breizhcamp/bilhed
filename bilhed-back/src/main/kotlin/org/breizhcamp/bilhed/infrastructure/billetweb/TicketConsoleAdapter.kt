@@ -3,8 +3,8 @@ package org.breizhcamp.bilhed.infrastructure.billetweb
 import jakarta.annotation.PostConstruct
 import mu.KotlinLogging
 import org.breizhcamp.bilhed.config.BilhedBackConfig
-import org.breizhcamp.bilhed.domain.entities.Attendee
-import org.breizhcamp.bilhed.domain.entities.Participant
+import org.breizhcamp.bilhed.domain.entities.PassType
+import org.breizhcamp.bilhed.domain.entities.Person
 import org.breizhcamp.bilhed.domain.entities.Ticket
 import org.breizhcamp.bilhed.domain.entities.TicketExportData
 import org.breizhcamp.bilhed.domain.use_cases.ports.TicketPort
@@ -25,14 +25,14 @@ class TicketConsoleAdapter(
         logger.info { "[TicketConsole] Using console for ticket creation" }
     }
 
-    override fun create(participants: List<Participant>): List<Ticket> {
+    override fun create(participants: List<Person>, pass: PassType): List<Ticket> {
         return participants.map {
-            logger.info { "[TicketConsole] Create ticket for participant [${it.id}] / [${it.lastname}] [${it.firstname}]" }
+            logger.info { "[TicketConsole] Create ticket for participant [${it.id}] / [${it.lastname}] [${it.firstname}] with pass [${pass}" }
             Ticket(generatePayUrl(), false)
         }
     }
 
-    override fun delete(attendees: List<Attendee>) {
+    override fun delete(attendees: List<Person>) {
         logger.info { "[TicketConsole] Delete ticket for participants: " + attendees.joinToString { "${it.id}: ${it.lastname} ${it.firstname}" } }
     }
 

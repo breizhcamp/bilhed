@@ -9,13 +9,10 @@ class ConfigDate (
     val config: BilhedBackConfig
 ) {
 
-    fun getRegistrationCloseDate(): ZonedDateTime {
-        return config.registerCloseDate
-    }
+    fun getRegistrationCloseDate(): ZonedDateTime = config.registerCloseDate
 
+    fun getBreizhCampCloseDate(): ZonedDateTime = config.breizhCampCloseDate
 
-    fun getBreizhCampCloseDate(): ZonedDateTime {
-        return config.breizhCampCloseDate
-    }
+    fun getBreizhCampOpenDate(): ZonedDateTime = config.breizhCampOpenDate
 
 }
